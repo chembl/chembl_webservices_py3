@@ -1,13 +1,13 @@
 from chembl_webservices.tests import BaseWebServiceTestCase
 
 class DrugTestCase(BaseWebServiceTestCase):
+
     resource = 'drug'
     id_property = 'molecule_chembl_id'
     resource_expected_count = 11628
     sorting_test_props = ['sc_patent', 'ob_patent']
     mandatory_properties = [
       'applicants',
-      'atc_classification',
       'availability_type',
       'black_box',
       'chirality',
@@ -30,9 +30,6 @@ class DrugTestCase(BaseWebServiceTestCase):
       'usan_stem_definition',
       'usan_stem_substem',
       'usan_year',
-      'withdrawn_country',
-      'withdrawn_reason',
-      'withdrawn_year'
     ]
 
     def test_filtered_lists(self):
