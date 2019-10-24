@@ -49,10 +49,10 @@ class BaseWebServiceTestCase(unittest.TestCase):
 
     @staticmethod
     def get_plural(resource_name):
-        if resource_name == 'activity':
-            return 'activities'
-        elif resource_name == 'atc_class':
+        if resource_name == 'atc_class':
             return 'atc'
+        elif resource_name[-1] == 'y' and resource_name[-2] not in 'aeiou':
+            return resource_name[:-1] + 'ies'
         return resource_name + 's'
 
     def request_url(self, url, expected_code=200):
