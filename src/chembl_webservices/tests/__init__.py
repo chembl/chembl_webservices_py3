@@ -84,8 +84,8 @@ class BaseWebServiceTestCase(unittest.TestCase):
             return response.json()
         return None
 
-    def get_resource_by_id(self, resource_name, res_id):
-        req_url = self.WS_URL + '/{0}/{1}.json'.format(resource_name, res_id)
+    def get_resource_by_id(self, resource_name, res_id, custom_format='json'):
+        req_url = self.WS_URL + '/{0}/{1}.{2}'.format(resource_name, res_id, custom_format)
         return self.request_url(req_url)
 
     def get_resource_list(self, resource_name, url_params=None):
