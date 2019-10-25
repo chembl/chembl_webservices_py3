@@ -44,6 +44,28 @@ class BaseWebServiceTestCase(unittest.TestCase):
             print("{0}: {1:3f}".format(self.id(), t))
 
     # ------------------------------------------------------------------------------------------------------------------
+    # helper functions nested properties
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def assert_mandatory_property_nested(self, nested_path, document):
+        assert_msg = 'Mandatory property {0} is not present in {1}.'.format(nested_path, self.resource)
+        path_parts = nested_path.split('.')
+        current_dict = document
+        for path_i in path_parts:
+            self.assertTrue(isinstance(current_dict, dict) or isinstance(current_dict, list), assert_msg)
+            if isinstance(current_dict, dict):
+                self.assertIn(path_i, current_dict, assert_msg)
+                current_dict = current_dict[path_i]
+            elif isinstance(current_dict, list):
+                next_level = []
+                for list_item_j in current_dict:
+                    self.assertIsInstance(list_item_j, dict, assert_msg)
+                    self.assertIn(path_i, list_item_j, assert_msg)
+                    next_level.append(list_item_j)
+            else:
+                self.assertTrue(False, assert_msg)
+
+    # ------------------------------------------------------------------------------------------------------------------
     # helper functions web service access
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -105,10 +127,7 @@ class BaseWebServiceTestCase(unittest.TestCase):
             if self.mandatory_properties:
                 for res_doc_i in first_resources:
                     for prop_j in self.mandatory_properties:
-                        self.assertIn(
-                            prop_j, res_doc_i,
-                            'Missing mandatory property \'{0}\' for \'{1}\' resource'.format(prop_j, self.resource)
-                        )
+                        self.assert_mandatory_property_nested(prop_j, res_doc_i)
             if self.sorting_test_props and self.id_property:
                 for prop_i in self.sorting_test_props:
                     asc_req = self.get_current_resource_list({'order_by': prop_i})
