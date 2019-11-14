@@ -122,9 +122,20 @@ class BaseWebServiceTestCase(unittest.TestCase):
         return self.request_url(req_url)
 
     # ------------------------------------------------------------------------------------------------------------------
-    # helper functions for resource calls
+    # helper functions for structure searches
     # ------------------------------------------------------------------------------------------------------------------
 
+    def get_substructure_list(self, smiles):
+        req_url = self.WS_URL + '/substructure/{0}.json'.format(urllib.parse.quote(smiles))
+        return self.request_url(req_url, expected_code=200, parse_json=True)
+
+    def get_similarity_list(self, smiles, percentage=70):
+        req_url = self.WS_URL + '/similarity/{0}/{1}.json'.format(urllib.parse.quote(smiles), percentage)
+        return self.request_url(req_url, expected_code=200, parse_json=True)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # helper functions for resource calls
+    # ------------------------------------------------------------------------------------------------------------------
 
     def get_current_plural(self):
         return BaseWebServiceTestCase.get_plural(self.resource)
