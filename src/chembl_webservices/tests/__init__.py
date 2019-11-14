@@ -113,24 +113,16 @@ class BaseWebServiceTestCase(unittest.TestCase):
         req_url = self.WS_URL + '/{0}/set/{1}.json'.format(resource_name, urllib.parse.quote(';'.join(res_ids)))
         return self.request_url(req_url)[self.get_plural(resource_name)]
 
-    def get_similar_molecules(self, smiles, similarity):
-        req_url = self.WS_URL + '/similarity/{0}/{1}.json'.format(urllib.parse.quote(smiles), similarity)
-        return self.request_url(req_url)
-
-    def get_substructure_molecules(self, smiles):
-        req_url = self.WS_URL + '/substructure/{0}.json'.format(urllib.parse.quote(smiles))
-        return self.request_url(req_url)
-
     # ------------------------------------------------------------------------------------------------------------------
     # helper functions for structure searches
     # ------------------------------------------------------------------------------------------------------------------
 
-    def get_substructure_list(self, smiles):
-        req_url = self.WS_URL + '/substructure/{0}.json'.format(urllib.parse.quote(smiles))
+    def get_similar_molecules(self, smiles, similarity):
+        req_url = self.WS_URL + '/similarity/{0}/{1}.json'.format(urllib.parse.quote(smiles), similarity)
         return self.request_url(req_url, expected_code=200, parse_json=True)
 
-    def get_similarity_list(self, smiles, percentage=70):
-        req_url = self.WS_URL + '/similarity/{0}/{1}.json'.format(urllib.parse.quote(smiles), percentage)
+    def get_substructure_molecules(self, smiles):
+        req_url = self.WS_URL + '/substructure/{0}.json'.format(urllib.parse.quote(smiles))
         return self.request_url(req_url, expected_code=200, parse_json=True)
 
     # ------------------------------------------------------------------------------------------------------------------
