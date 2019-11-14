@@ -63,7 +63,15 @@ class BaseWebServiceTestCase(unittest.TestCase):
                     self.assertIn(path_i, list_item_j, assert_msg)
                     next_level.append(list_item_j)
             else:
-                self.assertTrue(False, assert_msg)
+                self.fail(assert_msg)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # helper functions from beaker
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def ctab2inchi(self, molfile):
+        response = requests.post(self.UTIL_URL+'/ctab2inchi', data=molfile, timeout=self.TIMEOUT)
+        return response.text
 
     # ------------------------------------------------------------------------------------------------------------------
     # helper functions web service access
@@ -77,16 +85,18 @@ class BaseWebServiceTestCase(unittest.TestCase):
             return resource_name[:-1] + 'ies'
         return resource_name + 's'
 
-    def request_url(self, url, expected_code=200):
+    def request_url(self, url, expected_code=200, parse_json=True):
         response = requests.get(url, timeout=self.TIMEOUT)
         self.assertEqual(response.status_code, expected_code, 'The response code does not match for {0}'.format(url))
         if response.status_code == 200:
-            return response.json()
+            if parse_json:
+                return response.json()
+            return response.text
         return None
 
-    def get_resource_by_id(self, resource_name, res_id, custom_format='json'):
-        req_url = self.WS_URL + '/{0}/{1}.{2}'.format(resource_name, res_id, custom_format)
-        return self.request_url(req_url)
+    def get_resource_by_id(self, resource_name, res_id, custom_format='json', expected_code=200):
+        req_url = self.WS_URL + '/{0}/{1}.{2}'.format(resource_name, urllib.parse.quote(res_id), custom_format)
+        return self.request_url(req_url, expected_code=expected_code, parse_json=custom_format=='json')
 
     def get_resource_list(self, resource_name, url_params=None):
         params_str = []
@@ -100,7 +110,7 @@ class BaseWebServiceTestCase(unittest.TestCase):
         return self.request_url(req_url)
 
     def get_resource_list_by_ids(self, resource_name, res_ids):
-        req_url = self.WS_URL + '/{0}/set/{1}.json'.format(resource_name, ';'.join(res_ids))
+        req_url = self.WS_URL + '/{0}/set/{1}.json'.format(resource_name, urllib.parse.quote(';'.join(res_ids)))
         return self.request_url(req_url)[self.get_plural(resource_name)]
 
     def get_similar_molecules(self, smiles, similarity):
@@ -137,9 +147,9 @@ class BaseWebServiceTestCase(unittest.TestCase):
                     self.assertNotEqual(first_asc[self.id_property], first_desc[self.id_property])
         # TODO: include xml and yaml testing
 
-    def get_current_resource_by_id(self, res_id):
+    def get_current_resource_by_id(self, res_id, custom_format='json', expected_code=200):
         if self.resource:
-            return self.get_resource_by_id(self.resource, res_id)
+            return self.get_resource_by_id(self.resource, res_id, custom_format, expected_code)
         self.fail('Test Case does not have a Web Services resource defined.')
 
     def get_current_resource_list(self, url_params):
