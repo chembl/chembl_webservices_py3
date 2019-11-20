@@ -81,6 +81,8 @@ class BaseWebServiceTestCase(unittest.TestCase):
     def get_plural(resource_name):
         if resource_name == 'atc_class':
             return 'atc'
+        elif resource_name[-1] == 's':
+            return resource_name + 'es'
         elif resource_name[-1] == 'y' and resource_name[-2] not in 'aeiou':
             return resource_name[:-1] + 'ies'
         return resource_name + 's'
