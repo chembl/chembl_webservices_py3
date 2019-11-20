@@ -90,7 +90,7 @@ class TargetRelationsTestCase(BaseWebServiceTestCase):
     ]
 
 
-class DocumentTermRelationsTestCase(BaseWebServiceTestCase):
+class DocumentTermTestCase(BaseWebServiceTestCase):
 
     resource = 'document_term'
     # TODO: check if this is a required index
@@ -101,4 +101,93 @@ class DocumentTermRelationsTestCase(BaseWebServiceTestCase):
         'document_chembl_id',
         'score',
         'term_text',
+    ]
+
+
+class CellLineTestCase(BaseWebServiceTestCase):
+
+    resource = 'cell_line'
+    id_property = 'cell_chembl_id'
+    resource_expected_count = 1670
+    sorting_test_props = ['cell_source_tissue', 'cell_source_organism']
+    mandatory_properties = [
+      'cell_chembl_id',
+      'cell_description',
+      'cell_id',
+      'cell_name',
+      'cell_source_organism',
+      'cell_source_tax_id',
+      'cell_source_tissue',
+      'cellosaurus_id',
+    ]
+
+
+class DrugIndicationTestCase(BaseWebServiceTestCase):
+
+    resource = 'drug_indication'
+    id_property = 'drugind_id'
+    resource_expected_count = 29457
+    sorting_test_props = ['mesh_heading', 'efo_term']
+    mandatory_properties = [
+      'drugind_id',
+      'efo_id',
+      'efo_term',
+      'indication_refs',
+      'max_phase_for_ind',
+      'mesh_heading',
+      'mesh_id',
+    ]
+
+
+class DocumentSimilarityTestCase(BaseWebServiceTestCase):
+
+    resource = 'document_similarity'
+    id_property = 'document_1_chembl_id'
+    resource_expected_count = 561129
+    sorting_test_props = ['tid_tani', 'mol_tani']
+    mandatory_properties = [
+      'document_1_chembl_id',
+      'document_2_chembl_id',
+      'mol_tani',
+      'tid_tani',
+    ]
+
+
+class CompoundStructuralAlertTestCase(BaseWebServiceTestCase):
+
+    resource = 'compound_structural_alert'
+    id_property = 'cpd_str_alert_id'
+    resource_expected_count = 5655561
+    sorting_test_props = ['alert__alertset__priority']
+    mandatory_properties = [
+      'alert',
+      'cpd_str_alert_id',
+      'molecule_chembl_id',
+    ]
+
+
+class OrganismTestCase(BaseWebServiceTestCase):
+
+    resource = 'organism'
+    id_property = 'oc_id'
+    resource_expected_count = 3847
+    sorting_test_props = ['l1', 'l2', 'l3']
+    mandatory_properties = [
+      'l1',
+      'l2',
+      'l3',
+      'l4_synonyms',
+      'oc_id',
+      'tax_id',
+    ]
+
+class MoleculeFormTestCase(BaseWebServiceTestCase):
+
+    resource = 'molecule_form'
+    id_property = 'molecule_chembl_id'
+    resource_expected_count = 1798168
+    mandatory_properties = [
+      'is_parent',
+      'molecule_chembl_id',
+      'parent_chembl_id',
     ]
