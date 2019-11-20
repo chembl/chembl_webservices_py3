@@ -437,3 +437,15 @@ class CompoundTestCase(BaseWebServiceTestCase):
         inchi_from_molstring = self.ctab2inchi(molstring)
         inchi_from_chembl = self.get_current_resource_by_id(chembl_id)['molecule_structures']['standard_inchi']
         self.assertEqual(inchi_from_molstring, inchi_from_chembl)
+
+    def test_traversing(self):
+        comp_list_req = self.get_current_resource_list({
+            'atc_classifications__level5__startswith': 'A10'
+        })
+        self.assertGreater(comp_list_req['page_meta']['total_count'], 0)
+        molecule_ids = [molecule['molecule_chembl_id'] for molecule in comp_list_req[self.get_current_plural()]]
+
+        act_list_req = self.get_resource_list('activity', {
+            'molecule_chembl_id__in': ','.join(molecule_ids)
+        })
+        self.assertGreater(act_list_req['page_meta']['total_count'], 0)
