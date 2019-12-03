@@ -11,8 +11,8 @@ def plural(string):
                 ('[^aeiou]y$','y$','ies'),
                 ('$','$','s')]
 
-    rules = map(lambda (pattern, search, replace): lambda word: re.search(pattern, word) and
-                                                                re.sub(search, replace, word), patterns)
+    rules = [lambda word: re.pattern_search_replace[1](pattern_search_replace[0], word) and
+                                                                re.sub(pattern_search_replace[1], pattern_search_replace[2], word) for pattern_search_replace in patterns]
     for rule in rules:
         result = rule(string)
         if result:
@@ -25,7 +25,7 @@ class DirectTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(self.__class__, self).get_context_data(**kwargs)
         if self.extra_context is not None:
-            for key, value in self.extra_context.items():
+            for key, value in list(self.extra_context.items()):
                 if callable(value):
                     context[key] = value()
                 else:
