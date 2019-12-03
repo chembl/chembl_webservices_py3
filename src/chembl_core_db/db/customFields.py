@@ -79,9 +79,9 @@ class BlobField(models.TextField):
     def to_python(self, value):
         if isinstance(value, Blob):
             return value
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             try:
-                unicode(value)
+                str(value)
                 return Blob(base64.b64decode(value))
             except UnicodeDecodeError:
                 return Blob(value)
@@ -123,7 +123,7 @@ class ChemblCharField(models.CharField):
             type = 'varchar(%(max_length)s)'
             type += default
             if self.choices and not self.novalidate:
-                choices = ', '.join(map(lambda x: "'%s'" % x[0].replace("'", "''"), self.choices))
+                choices = ', '.join(["'%s'" % x[0].replace("'", "''") for x in self.choices])
                 type += ' CHECK (%(column)s IN (' + choices + ')) '
             return type % data
 
@@ -144,7 +144,7 @@ class ChemblCharField(models.CharField):
             type = 'VARCHAR2(%(max_length)s BYTE)'
             type += default
             if self.choices and not self.novalidate:
-                choices = ', '.join(map(lambda x: "'%s'" % x[0].replace("'", "''"), self.choices))
+                choices = ', '.join(["'%s'" % x[0].replace("'", "''") for x in self.choices])
                 type += ' CHECK (%(qn_column)s IN (' + choices + ')) '
             return type % data
         return super(ChemblCharField, self).db_type(connection)
@@ -246,7 +246,7 @@ class ChemblIntegerField(models.IntegerField):
             type = 'NUMBER(%s,0)' % self.length
             type += default
             if self.choices:
-                choices = ', '.join(map(lambda x: str(x[0]), self.choices))
+                choices = ', '.join([str(x[0]) for x in self.choices])
                 type += ' CHECK (%(qn_column)s IN (' + choices + ')) '
             return type % data
 
@@ -259,7 +259,7 @@ class ChemblIntegerField(models.IntegerField):
                 type = 'bigint'
             type += default
             if self.choices:
-                choices = ', '.join(map(lambda x: str(x[0]), self.choices))
+                choices = ', '.join([str(x[0]) for x in self.choices])
                 type += ' CHECK (%(column)s IN (' + choices + ')) '
             return type % data
 
@@ -431,7 +431,7 @@ class ChemblPositiveIntegerField(models.IntegerField):
             type = 'NUMBER(%s,0)' % self.length
             type += default
             if self.choices:
-                choices = ' AND %(qn_column)s IN ('+ ', '.join(map(lambda x: str(x[0]), self.choices)) + ' ) '
+                choices = ' AND %(qn_column)s IN ('+ ', '.join([str(x[0]) for x in self.choices]) + ' ) '
             type += ' CHECK (%(qn_column)s >= 0' + choices + ') '
             return type % data
 
@@ -444,7 +444,7 @@ class ChemblPositiveIntegerField(models.IntegerField):
                 type = 'bigint'
             type += default
             if self.choices:
-                choices = ' AND %(column)s IN ('+ ', '.join(map(lambda x: str(x[0]), self.choices)) + ' ) '
+                choices = ' AND %(column)s IN ('+ ', '.join([str(x[0]) for x in self.choices]) + ' ) '
             type += ' CHECK (%(column)s >= 0' + choices + ') '
             return type % data
 
@@ -473,7 +473,7 @@ class ChemblAutoField(Field):
 
     empty_strings_allowed = False
     default_error_messages = {
-        'invalid': _(u"'%s' value must be an integer."),
+        'invalid': _("'%s' value must be an integer."),
         }
 
     def __init__(self, length, *args, **kwargs):
