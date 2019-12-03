@@ -1,0 +1,1 @@
+{{ object.assay.target.pref_name|lower }}
