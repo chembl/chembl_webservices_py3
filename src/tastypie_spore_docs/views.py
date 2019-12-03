@@ -25,7 +25,7 @@ def generate_spore_endpoint(request, api, name, version):
         try:
             schema_url = reverse('api_get_schema', kwargs={'api_name':api.api_name, 'resource_name': resource_name})
         except NoReverseMatch:
-            print 'No schema for ' + resource_name + ' resource'
+            print('No schema for ' + resource_name + ' resource')
             continue
         formats = resource._meta.serializer.formats
         required_params_dict = None
