@@ -3,10 +3,7 @@
 # Author Michal Nowotka <mmmnow@gmail.com>, (c) 2013-2014
 
 import traceback
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import pickle
 import base64
 import pymongo
 from bson import Binary
@@ -15,10 +12,7 @@ from datetime import datetime, timedelta
 from django.core.cache.backends.base import BaseCache
 import zlib
 import logging
-try:
-    from urllib import urlencode
-except ImportError:
-    from urllib.parse import urlencode
+from urllib.parse import urlencode
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -82,7 +76,7 @@ class MongoDBCache(BaseCache):
     def _base_set(self, mode, key, value, timeout=None):
         extra_props = {}
         if isinstance(value, dict):
-            for k, v in value.iteritems():
+            for k, v in value.items():
                 if isinstance(v, str) or isinstance(v, int) or isinstance(v, float) \
                         or isinstance(v, bool):
                     extra_props[k] = v
@@ -161,7 +155,7 @@ class MongoDBCache(BaseCache):
             pkey = self.make_key(key, version)
             self.validate_key(pkey)
             parsed_keys[pkey] = key
-        data = coll.find({'_id': {'$in': parsed_keys.keys()}}).max_time_ms(self._max_time_ms)
+        data = coll.find({'_id': {'$in': list(parsed_keys.keys())}}).max_time_ms(self._max_time_ms)
         for result in data:
             raw = result.get('data')
             chunks = result.get('chunks')
