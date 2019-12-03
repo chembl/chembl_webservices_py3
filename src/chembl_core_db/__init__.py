@@ -11,7 +11,7 @@ class ChEMBLCoreDBConfig(AppConfig):
     name = 'chembl_core_db'
 
     def ready(self):
-        from chembl_core_db.db.models.lookups import *
+        from chembl_core_db.db.models.lookups import OracleIContains
 
 default_app_config = 'chembl_core_db.ChEMBLCoreDBConfig'
 
