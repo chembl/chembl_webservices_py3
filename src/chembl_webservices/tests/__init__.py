@@ -41,7 +41,7 @@ class BaseWebServiceTestCase(unittest.TestCase):
     def tearDown(self):
         t = time.time() - self.startTime
         if t > 5:
-            print("{0}: {1:3f}".format(self.id(), t))
+            print("SLOW TEST RUN: {0} secs :".format(t), end='', flush=True)
 
     # ------------------------------------------------------------------------------------------------------------------
     # helper functions nested properties
@@ -87,18 +87,21 @@ class BaseWebServiceTestCase(unittest.TestCase):
             return resource_name[:-1] + 'ies'
         return resource_name + 's'
 
-    def request_url(self, url, expected_code=200, parse_json=True):
+    def request_url(self, url, expected_code=200, custom_format='json'):
         response = requests.get(url, timeout=self.TIMEOUT)
         self.assertEqual(response.status_code, expected_code, 'The response code does not match for {0}'.format(url))
         if response.status_code == 200:
-            if parse_json:
+            if custom_format == 'json':
                 return response.json()
+            elif custom_format == 'png':
+                return response.content
             return response.text
         return None
 
     def get_resource_by_id(self, resource_name, res_id, custom_format='json', expected_code=200):
+        res_id = '{0}'.format(res_id)
         req_url = self.WS_URL + '/{0}/{1}.{2}'.format(resource_name, urllib.parse.quote(res_id), custom_format)
-        return self.request_url(req_url, expected_code=expected_code, parse_json=custom_format=='json')
+        return self.request_url(req_url, expected_code=expected_code, custom_format=custom_format)
 
     def get_resource_list(self, resource_name, url_params=None):
         params_str = []
@@ -121,11 +124,11 @@ class BaseWebServiceTestCase(unittest.TestCase):
 
     def get_similar_molecules(self, smiles, similarity):
         req_url = self.WS_URL + '/similarity/{0}/{1}.json'.format(urllib.parse.quote(smiles), similarity)
-        return self.request_url(req_url, expected_code=200, parse_json=True)
+        return self.request_url(req_url, expected_code=200)
 
     def get_substructure_molecules(self, smiles):
         req_url = self.WS_URL + '/substructure/{0}.json'.format(urllib.parse.quote(smiles))
-        return self.request_url(req_url, expected_code=200, parse_json=True)
+        return self.request_url(req_url, expected_code=200)
 
     # ------------------------------------------------------------------------------------------------------------------
     # helper functions for resource calls
