@@ -1,0 +1,56 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="utf-8">
+    <title>REST API</title>
+<head>
+
+<link rel="shortcut icon" href="{% static 'img/favicon.png' %}"/>
+
+<link href="{% static 'css/bootstrap-combined.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/docs.css' %}" rel="stylesheet">
+<link href="{% static 'css/zenburn.min.css' %}" rel="stylesheet">
+
+<script src="{% static 'js/jquery-1.9.1.min.js' %}"></script>
+<script src="{% static 'js/jquery-migrate-1.2.0.min.js' %}"></script>
+<script src="{% static 'js/jquery-ui-1.8.custom.min.js' %}"></script>
+<script src="{% static 'js/jquery.mousewheel.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/raphael.min.js' %}"></script>
+<script src="{% static 'js/jquery.base64.js' %}"></script>
+<script src="{% static 'js/markdown.min.js' %}"></script>
+<script src="{% static 'js/vkbeautify.js' %}"></script>
+<script src="{% static 'js/canvasmol.js' %}"></script>
+<script src="{% static 'js/ZeroClipboard.js' %}"></script>
+<script src="{% static 'js/spore.js' %}"></script>
+<script src="{% static 'js/highlight.min.js' %}"></script>
+<script type="text/javascript">
+var api;
+$(function() {
+   spore.debug(false);
+   spore.create('{% url 'ws_spore_endpoint' %}',function(a){api=a;},'','servicelist');
+   ZeroClipboard.config({swfPath: "{% static 'swf/ZeroClipboard.swf' %}"} );
+});
+
+function ClipboardCopyInit(control, text) {
+    var client = new ZeroClipboard(control);
+    var status = $('.clipboardStatus', $(control).closest('.restapiholderresponse'));
+    client.on("ready", function(rev){
+        client.on( 'copy', function(ev) {
+            ev.clipboardData.setData('text/plain', text);
+            if (status) {
+                status.text('copied');
+                status.show();
+                status.fadeOut(2000);
+            }
+        });
+    });
+}
+
+</script>
+</head>
+<body>
+        {% include "head_banner.html" %}
+        <div class="offset1" id="servicelist"></div>
+</body>
+</html>
