@@ -121,7 +121,7 @@ class ActivityTestCase(BaseWebServiceTestCase):
         act_list_req = self.get_current_resource_list({
             'assay_description__icontains': text_test
         })
-        self.assertEquals(act_list_req['page_meta']['total_count'], upper_ocunt,
+        self.assertEqual(act_list_req['page_meta']['total_count'], upper_ocunt,
                           'Upper and lower case search does not match')
         self.assertGreaterEqual(act_list_req['page_meta']['total_count'], 210700)
         self.assertLessEqual(act_list_req['page_meta']['total_count'], 220000)
