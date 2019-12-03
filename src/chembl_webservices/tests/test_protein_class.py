@@ -53,8 +53,6 @@ class TargetTestCase(BaseWebServiceTestCase):
         target_component_req = self.get_resource_list('target_component', {
             'protein_classifications__protein_classification_id': bromodomain_id
         })
-        print(target_component_req)
-        print(self.get_current_plural())
         bromodomain_family_target_ids = [
             target_component['targets']
             for target_component in target_component_req[self.get_plural('target_component')]
