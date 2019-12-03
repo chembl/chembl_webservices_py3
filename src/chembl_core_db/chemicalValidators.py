@@ -36,7 +36,7 @@ def validateSmiles(smiles):
     if not smilesRegex.match(smiles.upper()):
         return False
     numbers = numbersRegex.findall(smiles)
-    if not all((x % 2) == 0 for x in collections.Counter(numbers).values()):
+    if not all((x % 2) == 0 for x in list(collections.Counter(numbers).values())):
         return False
     if not isBalanced(smiles):
         return False
