@@ -54,9 +54,9 @@ class ChemblModelMetaClass(ModelBase):
                 n = meta.db_table
         klas = super(ChemblModelMetaClass, cls).__new__(cls, name, bases, attrs)
         if settings.EXPORT_MODE:
-            klas._meta.db_table = unicode(convert(n))
+            klas._meta.db_table = str(convert(n))
         else:
-            klas._meta.db_table = u'' + settings.CHEMBL_SCHEMA_NAME + '.' + convert(n) + ''
+            klas._meta.db_table = '' + settings.CHEMBL_SCHEMA_NAME + '.' + convert(n) + ''
 
         return klas
 
@@ -70,7 +70,7 @@ def remove_field(cls, f_name):
 # ----------------------------------------------------------------------------------------------------------------------
 
 def rebase(module, klas):
-    if isinstance(klas, basestring):
+    if isinstance(klas, str):
         relClsName = klas.split('.')[-1]
     else:
         relClsName = klas.__name__
@@ -99,7 +99,7 @@ class ModifiedModelMetaclass(ChemblModelMetaClass):
         except AttributeError:
             return super(ModifiedModelMetaclass, cls).__new__(cls, name, bases, attrs)
 
-        if isinstance(model, basestring):
+        if isinstance(model, str):
             model_class = apps.get_model(*model.split('.'))
         elif issubclass(model, models.Model):
             model_class = model
