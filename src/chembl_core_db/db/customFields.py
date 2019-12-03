@@ -524,7 +524,7 @@ class ChemblAutoField(Field):
         return int(value)
 
     def contribute_to_class(self, cls, name, private_only=False, virtual_only=NOT_PROVIDED):
-        assert not cls._meta.has_auto_field,\
+        assert not getattr(cls._meta, 'has_auto_field', False),\
         "A model can't have more than one AutoField."
         super(ChemblAutoField, self).contribute_to_class(cls, name)
         cls._meta.has_auto_field = True
