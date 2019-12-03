@@ -11,7 +11,7 @@ from django.conf import settings
 class CompoundMolsMixin(object):
 
     def get_column(self, name):
-        return filter(lambda x: x.name == name, self.model._meta.fields)[0].db_column or name
+        return [x for x in self.model._meta.fields if x.name == name][0].db_column or name
 
     def similar_to(self, structure, similarity_index, **kwargs):
         ctab_column = kwargs.get('ctab_column', self.get_column('ctab'))
