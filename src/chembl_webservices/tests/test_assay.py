@@ -82,19 +82,6 @@ class AssayTestCase(BaseWebServiceTestCase):
 
     def test_bao_format(self):
         assay_list_req = self.get_current_resource_list_by_ids(['CHEMBL615111', 'CHEMBL615112', 'CHEMBL615113'])
-        self.assertEquals(len(assay_list_req), 3)
+        self.assertEqual(len(assay_list_req), 3)
         for assay_i in assay_list_req:
-            self.assertEquals(assay_i['bao_format'], 'BAO_0000019')
-
-#     def test_assay_search(self):
-#         assay = new_client.assay
-#         assay.set_format('json')
-#         count = len(assay.all())
-#         res = assay.search('inhibitor')
-#         self.assertTrue(len(res) > 6000)
-#         self.assertTrue(len(res) < count)
-#         self.assertTrue('inhibitor' in res[0]['description'])
-#         res = assay.search('inhibitor').filter(assay_type='A')
-#         self.assertTrue('inhibitor' in res[0]['description'])
-#         self.assertEqual(res[0]['assay_type'], 'A')
-#         self.assertTrue(1000 < len(res) < 1300, len(res))
+            self.assertEqual(assay_i['bao_format'], 'BAO_0000019')
