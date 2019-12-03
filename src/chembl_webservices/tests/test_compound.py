@@ -154,7 +154,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
         self.assertEqual(
             molecule_forms['page_meta']['total_count'] , 4
         )
-        self.assertEqual(set(map(lambda x: x['molecule_chembl_id'], molecule_forms['molecule_forms'])),
+        self.assertEqual(set([x['molecule_chembl_id'] for x in molecule_forms['molecule_forms']]),
                          {'CHEMBL169', 'CHEMBL520029', 'CHEMBL1783810', 'CHEMBL1783814'})
 
         molecule_forms = self.get_resource_list('molecule_form/CHEMBL1078826')
@@ -214,14 +214,14 @@ class CompoundTestCase(BaseWebServiceTestCase):
             'molecule_structures__canonical_smiles':
                 'COc1ccc2[C@@H]3[C@H](COc2c1)C(C)(C)OC4=C3C(=O)C(=O)C5=C4OC(C)(C)[C@H]6COc7cc(OC)ccc7[C@@H]56',
         })
-        self.assertEquals(comp_list_req['page_meta']['total_count'], 1)
-        self.assertEquals(comp_list_req[self.get_current_plural()][0]['molecule_chembl_id'], 'CHEMBL446858')
+        self.assertEqual(comp_list_req['page_meta']['total_count'], 1)
+        self.assertEqual(comp_list_req[self.get_current_plural()][0]['molecule_chembl_id'], 'CHEMBL446858')
 
         comp_list_req = self.get_current_resource_list({
             'molecule_structures__canonical_smiles__flexmatch':
                 'COc1ccc2[C@@H]3[C@H](COc2c1)C(C)(C)OC4=C3C(=O)C(=O)C5=C4OC(C)(C)[C@H]6COc7cc(OC)ccc7[C@@H]56',
         })
-        self.assertEquals(comp_list_req['page_meta']['total_count'], 2)
+        self.assertEqual(comp_list_req['page_meta']['total_count'], 2)
         self.assertIn(comp_list_req[self.get_current_plural()][0]['molecule_chembl_id'], ['CHEMBL446858', 'CHEMBL1'])
 
     def test_flexmatch(self):
@@ -253,9 +253,9 @@ class CompoundTestCase(BaseWebServiceTestCase):
             mol_data = self.get_current_resource_by_id(molecule_i)
             sdf_file = self.get_current_resource_by_id(molecule_i, custom_format='sdf')
             mol_file = self.get_current_resource_by_id(molecule_i, custom_format='mol')
-            self.assertEquals(sdf_file, mol_file, 'SDF and MOL file should be the same.')
+            self.assertEqual(sdf_file, mol_file, 'SDF and MOL file should be the same.')
             inchi_from_ctab = self.ctab2inchi(sdf_file)
-            self.assertEquals(inchi_from_ctab, mol_data['molecule_structures']['standard_inchi'])
+            self.assertEqual(inchi_from_ctab, mol_data['molecule_structures']['standard_inchi'])
 
 
     def test_no_structure(self):
@@ -278,7 +278,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
         comp_list_req_2 = self.get_current_resource_list({
             'molecule_chembl_id__contains': 'CHEMBL25'
         })
-        self.assertEquals(comp_list_req_1['page_meta']['total_count'], comp_list_req_2['page_meta']['total_count'])
+        self.assertEqual(comp_list_req_1['page_meta']['total_count'], comp_list_req_2['page_meta']['total_count'])
 
     def get_chembl_ids_set_from_ids_list(self, ids_list):
         id_set_individual = set()
@@ -291,7 +291,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
         for mol_i in group_request_molecules:
             id_set_group_request.add(mol_i['molecule_chembl_id'])
 
-        self.assertEquals(id_set_individual, id_set_group_request)
+        self.assertEqual(id_set_individual, id_set_group_request)
         return id_set_individual
 
 
@@ -321,16 +321,16 @@ class CompoundTestCase(BaseWebServiceTestCase):
         set_by_inchi_keys = self.get_chembl_ids_set_from_ids_list(inchi_keys)
         set_by_smiles = self.get_chembl_ids_set_from_ids_list(smiles_ids)
 
-        self.assertEquals(set_by_chembl_ids, set_by_inchi_keys)
-        self.assertEquals(set_by_chembl_ids, set_by_smiles)
-        self.assertEquals(set_by_chembl_ids, set_by_inchi_filter)
-        self.assertEquals(set_by_chembl_ids, set_by_smiles_filter)
+        self.assertEqual(set_by_chembl_ids, set_by_inchi_keys)
+        self.assertEqual(set_by_chembl_ids, set_by_smiles)
+        self.assertEqual(set_by_chembl_ids, set_by_inchi_filter)
+        self.assertEqual(set_by_chembl_ids, set_by_smiles_filter)
 
     def test_get_by_unique_identifier_2(self):
         chembl_125_smiles = 'CCCCCCCCCCCCCCCCOP(=O)([O-])OCC[N+](C)(C)C'
         doc_1 = self.get_current_resource_by_id('CHEMBL125')
         doc_2 = self.get_current_resource_by_id(chembl_125_smiles)
-        self.assertEquals(doc_1, doc_2)
+        self.assertEqual(doc_1, doc_2)
 
     def test_biotherapeutic(self):
         biotherapeutic_chembl_id = 'CHEMBL1743070'
@@ -383,7 +383,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
         longest_smiles_chembl_id = 'CHEMBL1628285'
         doc_1 = self.get_current_resource_by_id(longest_chembl_smiles)
         doc_2 = self.get_current_resource_by_id(longest_smiles_chembl_id)
-        self.assertEquals(doc_1, doc_2)
+        self.assertEqual(doc_1, doc_2)
 
         comp_list_req = self.get_current_resource_list({
             'molecule_structures__canonical_smiles': longest_chembl_smiles
@@ -392,7 +392,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
         self.assertGreater(
             comp_list_req['page_meta']['total_count'], 0, 'Longest smiles not found with filter by canonical smiles.'
         )
-        self.assertEquals(doc_1, results_list[0])
+        self.assertEqual(doc_1, results_list[0])
 
         # Test by flexmatch
         comp_list_req = self.get_current_resource_list({
@@ -403,7 +403,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
             comp_list_req['page_meta']['total_count'], 0,
             'Longest smiles not found with filter by canonical smiles by flexmatch.'
         )
-        self.assertEquals(doc_1, results_list[0])
+        self.assertEqual(doc_1, results_list[0])
 
         # Test by substructure
         comp_list_req = self.get_substructure_molecules(longest_chembl_smiles)
