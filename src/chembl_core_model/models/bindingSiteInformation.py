@@ -32,8 +32,8 @@ class Domains(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel))
 class ComponentDomains(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     compd_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    domain = models.ForeignKey(Domains, blank=True, null=True, help_text='Foreign key to the domains table, indicating the domain that is contained in the associated molecular component.')
-    component = models.ForeignKey(ComponentSequences, help_text='Foreign key to the component_sequences table, indicating the molecular_component that has the given domain.')
+    domain = models.ForeignKey(Domains, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the domains table, indicating the domain that is contained in the associated molecular component.')
+    component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  help_text='Foreign key to the component_sequences table, indicating the molecular_component that has the given domain.')
     start_position = ChemblPositiveIntegerField(length=5, blank=True, null=True, help_text='Start position of the domain within the sequence given in the component_sequences table.')
     end_position = ChemblPositiveIntegerField(length=5, blank=True, null=True, help_text='End position of the domain within the sequence given in the component_sequences table.')
 
@@ -47,7 +47,7 @@ class BindingSites(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractMo
 
     site_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key. Unique identifier for a binding site in a given target.')
     site_name = ChemblCharField(max_length=200, blank=True, null=True, help_text='Name/label for the binding site.')
-    target = models.ForeignKey(TargetDictionary, blank=True, null=True, db_column='tid', help_text='Foreign key to target_dictionary. Target on which the binding site is found.')
+    target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  blank=True, null=True, db_column='tid', help_text='Foreign key to target_dictionary. Target on which the binding site is found.')
     domains = models.ManyToManyField('Domains', through="SiteComponents", blank=True)
 
     class Meta(ChemblCoreAbstractModel.Meta):
@@ -59,9 +59,9 @@ class BindingSites(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractMo
 class SiteComponents(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     sitecomp_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    site = models.ForeignKey(BindingSites, help_text='Foreign key to binding_sites table.')
-    component = models.ForeignKey(ComponentSequences, blank=True, null=True, help_text='Foreign key to the component_sequences table, indicating which molecular component of the target is involved in the binding site.')
-    domain = models.ForeignKey(Domains, blank=True, null=True, help_text='Foreign key to the domains table, indicating which domain of the given molecular component is involved in the binding site (where not known, the domain_id may be null).')
+    site = models.ForeignKey(BindingSites, on_delete=models.PROTECT,  help_text='Foreign key to binding_sites table.')
+    component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the component_sequences table, indicating which molecular component of the target is involved in the binding site.')
+    domain = models.ForeignKey(Domains, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the domains table, indicating which domain of the given molecular component is involved in the binding site (where not known, the domain_id may be null).')
     site_residues = ChemblCharField(max_length=2000, blank=True, null=True, help_text='List of residues from the given molecular component that make up the binding site (where not know, will be null).')
 
     class Meta(ChemblCoreAbstractModel.Meta):
