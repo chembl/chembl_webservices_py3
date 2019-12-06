@@ -48,8 +48,8 @@ class MoleculeBrowseDrugs(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbs
         (4, 4),
         )
 
-    parent = models.OneToOneField('MoleculeDictionary', primary_key=True, db_column='parent_molregno')
-    chembl = models.OneToOneField(ChemblIdLookup, blank=True, null=False, help_text='ChEMBL identifier for this compound (for use on web interface etc)')
+    parent = models.OneToOneField('MoleculeDictionary', on_delete=models.PROTECT, primary_key=True, db_column='parent_molregno')
+    chembl = models.OneToOneField(ChemblIdLookup, on_delete=models.PROTECT, blank=True, null=False, help_text='ChEMBL identifier for this compound (for use on web interface etc)')
     synonyms = ChemblCharField(max_length=4000, blank=True, null=True)
     development_phase = ChemblPositiveIntegerField(length=1, blank=True, null=True, choices=DEVELOPMENT_PHASE_CHOICES)
     research_codes = ChemblCharField(max_length=600, blank=True, null=True)
@@ -213,7 +213,7 @@ class MoleculeDictionary(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbst
 
     molregno = ChemblAutoField(primary_key=True, length=9, help_text='Internal Primary Key for the molecule')
     pref_name = ChemblCharField(max_length=255, db_index=True, blank=True, null=True, help_text='Preferred name for the molecule')
-    chembl = models.OneToOneField(ChemblIdLookup, blank=True, null=False, help_text='ChEMBL identifier for this compound (for use on web interface etc)') # This combination of null and blank is actually very important!
+    chembl = models.OneToOneField(ChemblIdLookup, on_delete=models.PROTECT, blank=True, null=False, help_text='ChEMBL identifier for this compound (for use on web interface etc)') # This combination of null and blank is actually very important!
     max_phase = ChemblPositiveIntegerField(length=1, db_index=True, default=0, choices=MAX_PHASE_CHOICES, help_text='Maximum phase of development reached for the compound (4 = approved). Null where max phase has not yet been assigned.')
     therapeutic_flag = ChemblBooleanField(db_index=True, default=False, help_text='Indicates that a drug has a therapeutic application (as opposed to e.g., an imaging agent, additive etc).')
     dosed_ingredient = ChemblBooleanField(default=False, help_text='Indicates that the drug is dosed in this form (e.g., a particular salt)')
@@ -268,7 +268,7 @@ class MoleculeDictionary(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbst
 class ResearchCompanies(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     co_stem_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    res_stem = models.ForeignKey(ResearchStem, blank=True, null=True, help_text='Foreign key to research_stem table.')
+    res_stem = models.ForeignKey(ResearchStem, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to research_stem table.')
     company = ChemblCharField(max_length=100, blank=True, null=True, help_text='Name of current company associated with this research code stem.')
     country = ChemblCharField(max_length=50, blank=True, null=True, help_text='Country in which the company uses this research code stem.') # TODO: should have a constraint
     previous_company = ChemblCharField(max_length=100, blank=True, null=True, help_text='Previous name of the company associated with this research code stem (e.g., if the company has undergone acquisitions/mergers).')
@@ -282,7 +282,7 @@ class ResearchCompanies(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstr
 class StructuralAlerts(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     alert_id = ChemblPositiveIntegerField(primary_key=True, length=9, help_text='Primary key. Unique identifier for the structural alert')
-    alertset = models.ForeignKey(StructuralAlertSets, db_column='alert_set_id', help_text='Foreign key to structural_alert_sets table indicating which set this particular alert comes from')
+    alertset = models.ForeignKey(StructuralAlertSets, on_delete=models.PROTECT,  db_column='alert_set_id', help_text='Foreign key to structural_alert_sets table indicating which set this particular alert comes from')
     alert_name = ChemblCharField(max_length=100, help_text='A name for the structural alert')
     smarts = ChemblCharField(max_length=4000, help_text='SMARTS defining the structural feature that is considered to be an alert')
 
@@ -314,7 +314,7 @@ class CompoundProperties(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbst
         ('N', 'N'),
         )
 
-    molecule = models.OneToOneField(MoleculeDictionary, primary_key=True, db_column='molregno', help_text='Foreign key to compounds table (compound structure)')
+    molecule = models.OneToOneField(MoleculeDictionary, on_delete=models.PROTECT, primary_key=True, db_column='molregno', help_text='Foreign key to compounds table (compound structure)')
     mw_freebase = ChemblPositiveDecimalField(db_index=True, blank=True, null=True, decimal_places=2, max_digits=9, help_text='Molecular weight of parent compound')
     alogp = models.DecimalField(db_index=True, blank=True, null=True, decimal_places=2, max_digits=9, help_text='Calculated ALogP')
     hba = ChemblPositiveIntegerField(length=3, db_index=True, blank=True, null=True, help_text='Number hydrogen bond acceptors')
@@ -359,14 +359,14 @@ class CompoundRecords(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstrac
         )
 
     record_id = ChemblAutoField(primary_key=True, length=9, help_text='Unique ID for a compound/record')
-    molecule = models.ForeignKey(MoleculeDictionary, blank=True, null=True, db_column='molregno', help_text='Foreign key to compounds table (compound structure)')
-    doc = models.ForeignKey(Docs, help_text='Foreign key to documents table')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  blank=True, null=True, db_column='molregno', help_text='Foreign key to compounds table (compound structure)')
+    doc = models.ForeignKey(Docs, on_delete=models.PROTECT,  help_text='Foreign key to documents table')
     compound_key = ChemblCharField(max_length=250, db_index=True, blank=True, null=True, help_text='Key text identifying this compound in the scientific document')
     compound_name = ChemblCharField(max_length=4000, blank=True, null=True, help_text='Name of this compound recorded in the scientific document')
     filename = ChemblCharField(max_length=250, blank=True, null=True)
     updated_by = ChemblCharField(max_length=100, blank=True, null=True)
     updated_on = ChemblDateField(blank=True, null=True)
-    src = models.ForeignKey(Source, help_text='Foreign key to source table')
+    src = models.ForeignKey(Source, on_delete=models.PROTECT,  help_text='Foreign key to source table')
     src_compound_id = ChemblCharField(max_length=150, db_index=True, blank=True, null=True, help_text='Identifier for the compound in the source database (e.g., pubchem SID)')
     removed = ChemblNullBooleanField(default=0)
     src_compound_id_version = ChemblPositiveIntegerField(length=3, blank=True, null=True, choices=SRC_COMPOUND_ID_VERSION_CHOICES)
@@ -394,9 +394,9 @@ class CompoundRecords(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstrac
 
 class MoleculeHierarchy(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    molecule = models.OneToOneField(MoleculeDictionary, primary_key=True, db_column='molregno', help_text='Foreign key to compounds table. This field holds a list of all of the ChEMBL compounds with associated data (e.g., activity information, approved drugs). Parent compounds that are generated only by removing salts, and which do not themselves have any associated data will not appear here.')
-    parent_molecule = models.ForeignKey(MoleculeDictionary, db_index=True, blank=True, null=True, related_name='parent', db_column='parent_molregno', help_text='Represents parent compound of molregno in first field (i.e., generated by removing salts). Where molregno and parent_molregno are same, the initial ChEMBL compound did not contain a salt component, or else could not be further processed for various reasons (e.g., inorganic mixture). Compounds which are only generated by removing salts will appear in this field only. Those which, themselves, have any associated data (e.g., activity data) or are launched drugs will also appear in the molregno field.')
-    active_molecule = models.ForeignKey(MoleculeDictionary, blank=True, null=True, related_name='active', db_column='active_molregno', help_text="Where a compound is a pro-drug, this represents the active metabolite of the 'dosed' compound given by parent_molregno. Where parent_molregno and active_molregno are the same, the compound is not currently known to be a pro-drug. ")
+    molecule = models.OneToOneField(MoleculeDictionary, on_delete=models.PROTECT, primary_key=True, db_column='molregno', help_text='Foreign key to compounds table. This field holds a list of all of the ChEMBL compounds with associated data (e.g., activity information, approved drugs). Parent compounds that are generated only by removing salts, and which do not themselves have any associated data will not appear here.')
+    parent_molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_index=True, blank=True, null=True, related_name='parent', db_column='parent_molregno', help_text='Represents parent compound of molregno in first field (i.e., generated by removing salts). Where molregno and parent_molregno are same, the initial ChEMBL compound did not contain a salt component, or else could not be further processed for various reasons (e.g., inorganic mixture). Compounds which are only generated by removing salts will appear in this field only. Those which, themselves, have any associated data (e.g., activity data) or are launched drugs will also appear in the molregno field.')
+    active_molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  blank=True, null=True, related_name='active', db_column='active_molregno', help_text="Where a compound is a pro-drug, this represents the active metabolite of the 'dosed' compound given by parent_molregno. Where parent_molregno and active_molregno are the same, the compound is not currently known to be a pro-drug. ")
 
     class Meta(ChemblCoreAbstractModel.Meta):
         pass
@@ -406,11 +406,11 @@ class MoleculeHierarchy(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstr
 
 class MoleculeSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    molecule = models.ForeignKey(MoleculeDictionary, db_column='molregno', help_text='Foreign key to molecule_dictionary')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_column='molregno', help_text='Foreign key to molecule_dictionary')
     synonyms = ChemblCharField(max_length=200, db_index=True, blank=True, null=True, help_text='Synonym for the compound')
     syn_type = ChemblCharField(max_length=50, help_text='Type of name/synonym (e.g., TRADE_NAME, RESEARCH_CODE, USAN)')
     molsyn_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    res_stem = models.ForeignKey(ResearchStem, blank=True, null=True, help_text='Foreign key to the research_stem table. Where a synonym is a research code, this links to further information about the company associated with that code.')
+    res_stem = models.ForeignKey(ResearchStem, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the research_stem table. Where a synonym is a research code, this links to further information about the company associated with that code.')
     molecule_synonym = ChemblCharField(max_length=200, blank=True, null=True, help_text='Synonym for the compound')
 
     class Meta(ChemblCoreAbstractModel.Meta):
@@ -422,10 +422,10 @@ class MoleculeSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
 class RecordSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     rec_syn_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    record = models.ForeignKey(CompoundRecords)
-    record_synonym = ChemblCharField(max_length=200, blank=True, null=True, help_text='Synonym for the compound record')
+    record = models.ForeignKey(CompoundRecords, on_delete=models.PROTECT)
+    record_synonym = ChemblCharField(max_length=200,  blank=True, null=True, help_text='Synonym for the compound record')
     syn_type = ChemblCharField(max_length=50, help_text='Type of name/synonym (e.g., TRADE_NAME, RESEARCH_CODE, USAN)')
-    res_stem = models.ForeignKey(ResearchStem, blank=True, null=True, help_text='Foreign key to the research_stem table. Where a synonym is a research code, this links to further information about the company associated with that code.')
+    res_stem = models.ForeignKey(ResearchStem, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the research_stem table. Where a synonym is a research code, this links to further information about the company associated with that code.')
     canonical_synonym = ChemblCharField(max_length=200, blank=True, null=True, help_text='Canonical synonym for the compound record')
     removed = ChemblNullBooleanField(default=0, help_text="Indicates whether the synonym has been removed (1) from the database")
 
@@ -437,7 +437,7 @@ class RecordSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstract
 
 class Biotherapeutics(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    molecule = models.OneToOneField(MoleculeDictionary, primary_key=True, db_column='molregno', help_text='Foreign key to molecule_dictionary')
+    molecule = models.OneToOneField(MoleculeDictionary, on_delete=models.PROTECT, primary_key=True, db_column='molregno', help_text='Foreign key to molecule_dictionary')
     description = ChemblCharField(max_length=2000, blank=True, null=True, help_text='Description of the biotherapeutic.')
     helm_notation = ChemblCharField(max_length=4000, blank=True, null=True, help_text='Sequence notation generated according to the HELM standard (http://www.openhelm.org/home). Currently for peptides only')
     bio_component_sequences = models.ManyToManyField('BioComponentSequences', through="BiotherapeuticComponents", blank=True)
@@ -451,8 +451,8 @@ class Biotherapeutics(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstrac
 class CompoundStructuralAlerts(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     cpd_str_alert_id = ChemblPositiveIntegerField(primary_key=True, length=9, help_text='Primary key.')
-    molecule = models.ForeignKey(MoleculeDictionary, db_column='molregno', help_text='Foreign key to the molecule_dictionary. The compound for which the structural alert has been found.')
-    alert = models.ForeignKey(StructuralAlerts, help_text='Foreign key to the structural_alerts table. The particular alert that has been identified in this compound.')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_column='molregno', help_text='Foreign key to the molecule_dictionary. The compound for which the structural alert has been found.')
+    alert = models.ForeignKey(StructuralAlerts, on_delete=models.PROTECT,  help_text='Foreign key to the structural_alerts table. The particular alert that has been identified in this compound.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         unique_together = ( ("molecule", "alert"),  )
@@ -462,8 +462,8 @@ class CompoundStructuralAlerts(six.with_metaclass(ChemblModelMetaClass, ChemblCo
 
 class CompoundXref(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    molecule = models.ForeignKey(MoleculeDictionary, db_column='molregno', help_text='Foreign key to compounds table')
-    xref_src_db = models.ForeignKey(XrefSource, db_column='xref_src_db', help_text='Name of the database that this cross reference links to')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_column='molregno', help_text='Foreign key to compounds table')
+    xref_src_db = models.ForeignKey(XrefSource, on_delete=models.PROTECT,  db_column='xref_src_db', help_text='Name of the database that this cross reference links to')
     xref_id = ChemblCharField(max_length=330, unique=True, help_text='Identifier for the entry in the cross-referenced database')
     xref_name = ChemblCharField(max_length=150, blank=True, null=True, help_text='Name for the entry in the cross-referenced database, where applicable')
     cmpd_xref_id = ChemblPositiveIntegerField(primary_key=True, length=9)
@@ -476,7 +476,7 @@ class CompoundXref(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractMo
 
 class CompoundImages(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    molecule = models.OneToOneField(MoleculeDictionary, primary_key=True, db_column='molregno')
+    molecule = models.OneToOneField(MoleculeDictionary, on_delete=models.PROTECT, primary_key=True, db_column='molregno')
     png = BlobField(blank=True, null=True)
     png_500 = BlobField(blank=True, null=True)
 
@@ -490,7 +490,7 @@ class CompoundMols(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractMo
 
     objects = CompoundMolsManager()
 
-    molecule = models.OneToOneField(MoleculeDictionary, primary_key=True, db_column='molregno')
+    molecule = models.OneToOneField(MoleculeDictionary, on_delete=models.PROTECT, primary_key=True, db_column='molregno')
     ctab = BlobField(blank=True, null=True, db_column=CTAB_COLUMN) if CTAB_COLUMN else BlobField(blank=True, null=True)
 
     class Meta(ChemblCoreAbstractModel.Meta):
@@ -502,7 +502,7 @@ class CompoundMols(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractMo
 
 class CompoundStructures(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    molecule = models.OneToOneField(MoleculeDictionary, primary_key=True, db_column='molregno', help_text='Internal Primary Key for the compound structure and foreign key to molecule_dictionary table')
+    molecule = models.OneToOneField(MoleculeDictionary, on_delete=models.PROTECT, primary_key=True, db_column='molregno', help_text='Internal Primary Key for the compound structure and foreign key to molecule_dictionary table')
     molfile = ChemblTextField(blank=True, null=True, help_text='MDL Connection table representation of compound')
     standard_inchi = ChemblCharField(max_length=4000, db_index=True, unique=True, blank=True, null=True, help_text='IUPAC standard InChI for the compound')
     standard_inchi_key = ChemblCharField(max_length=27, db_index=True, help_text='IUPAC standard InChI key for the compound')
@@ -518,8 +518,8 @@ class CompoundStructures(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbst
 class BiotherapeuticComponents(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     biocomp_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    biotherapeutics = models.ForeignKey(Biotherapeutics, db_column='molregno', help_text='Foreign key to the biotherapeutics table, indicating which biotherapeutic the component is part of.')
-    component = models.ForeignKey(BioComponentSequences, help_text='Foreign key to the bio_component_sequences table, indicating which component is part of the biotherapeutic.')
+    biotherapeutics = models.ForeignKey(Biotherapeutics, on_delete=models.PROTECT,  db_column='molregno', help_text='Foreign key to the biotherapeutics table, indicating which biotherapeutic the component is part of.')
+    component = models.ForeignKey(BioComponentSequences, on_delete=models.PROTECT,  help_text='Foreign key to the bio_component_sequences table, indicating which component is part of the biotherapeutic.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         unique_together = (("biotherapeutics", "component"),)
@@ -564,7 +564,7 @@ class RecordDrugProperties(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAb
         ('Unknown', 'Unknown'),
         )
 
-    record = models.OneToOneField(CompoundRecords, primary_key=True)
+    record = models.OneToOneField(CompoundRecords, on_delete=models.PROTECT, primary_key=True)
     max_phase = ChemblPositiveIntegerField(length=1, db_index=True, default=0, choices=MAX_PHASE_CHOICES, help_text='Maximum phase of development reached for the compound (4 = approved). Null where max phase has not yet been assigned.')
     molecule_type = ChemblCharField(max_length=30, blank=True, null=True, choices=MOLECULE_TYPE_CHOICES, help_text='Type of molecule (Small molecule, Protein, Antibody, Oligosaccharide, Oligonucleotide, Cell, Unknown)')
     first_approval = ChemblPositiveIntegerField(length=4, blank=True, null=True, help_text='Earliest known approval year for the molecule') # TODO: should be date!
