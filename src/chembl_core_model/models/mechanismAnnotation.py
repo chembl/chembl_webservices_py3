@@ -30,12 +30,12 @@ class DrugMechanism(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractM
         )
 
     mec_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key for each drug mechanism of action')
-    record = models.ForeignKey(CompoundRecords, help_text='Record_id for the drug (foreign key to compound_records table)')
-    molecule = models.ForeignKey(MoleculeDictionary, blank=True, null=True, db_column='molregno', help_text='Molregno for the drug (foreign key to molecule_dictionary table)')
+    record = models.ForeignKey(CompoundRecords, on_delete=models.PROTECT,  help_text='Record_id for the drug (foreign key to compound_records table)')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  blank=True, null=True, db_column='molregno', help_text='Molregno for the drug (foreign key to molecule_dictionary table)')
     mechanism_of_action = ChemblCharField(max_length=250, blank=True, null=True, help_text="Description of the mechanism of action e.g., 'Phosphodiesterase 5 inhibitor'")
-    target = models.ForeignKey(TargetDictionary, blank=True, null=True, db_column='tid', help_text='Target associated with this mechanism of action (foreign key to target_dictionary table)')
-    site = models.ForeignKey(BindingSites, blank=True, null=True, help_text='Binding site for the drug within the target (where known) - foreign key to binding_sites table')
-    action_type = models.ForeignKey(ActionType, blank=True, null=True, db_column='action_type', help_text='Type of action of the drug on the target e.g., agonist/antagonist etc (foreign key to action_type table)')
+    target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  blank=True, null=True, db_column='tid', help_text='Target associated with this mechanism of action (foreign key to target_dictionary table)')
+    site = models.ForeignKey(BindingSites, on_delete=models.PROTECT,  blank=True, null=True, help_text='Binding site for the drug within the target (where known) - foreign key to binding_sites table')
+    action_type = models.ForeignKey(ActionType, on_delete=models.PROTECT,  blank=True, null=True, db_column='action_type', help_text='Type of action of the drug on the target e.g., agonist/antagonist etc (foreign key to action_type table)')
     direct_interaction = ChemblNullableBooleanField(help_text='Flag to show whether the molecule is believed to interact directly with the target (1 = yes, 0 = no)')
     molecular_mechanism = ChemblNullableBooleanField(help_text='Flag to show whether the mechanism of action describes the molecular target of the drug, rather than a higher-level physiological mechanism e.g., vasodilator (1 = yes, 0 = no)')
     disease_efficacy = ChemblNullableBooleanField(help_text='Flag to show whether the target assigned is believed to play a role in the efficacy of the drug in the indication(s) for which it is approved (1 = yes, 0 = no)')
@@ -67,8 +67,8 @@ class DrugIndication(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstract
         )
 
     drugind_id = ChemblPositiveIntegerField(primary_key=True, length=9, help_text='Primary key')
-    record = models.ForeignKey(CompoundRecords, help_text='Foreign key to compound_records table. Links to the drug record to which this indication applies')
-    molecule = models.ForeignKey(MoleculeDictionary, blank=True, null=True, db_column='molregno', help_text='Molregno corresponding to the record_id in the compound_records table')
+    record = models.ForeignKey(CompoundRecords, on_delete=models.PROTECT,  help_text='Foreign key to compound_records table. Links to the drug record to which this indication applies')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  blank=True, null=True, db_column='molregno', help_text='Molregno corresponding to the record_id in the compound_records table')
     max_phase_for_ind = ChemblPositiveIntegerField(length=1, blank=True, null=True, choices=MAX_PHASE_FOR_IND_CHOICES, help_text='The maximum phase of development that the drug is known to have reached for this particular indication')
     mesh_id = ChemblCharField(max_length=7, help_text='Medical Subject Headings (MeSH) disease identifier corresponding to the indication')
     mesh_heading = ChemblCharField(max_length=200, help_text='Medical Subject Heading term for the MeSH disease ID')
@@ -83,7 +83,7 @@ class DrugIndication(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstract
 
 class LigandEff(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    activity = models.OneToOneField(Activities, primary_key=True, help_text='Link key to activities table')
+    activity = models.OneToOneField(Activities, on_delete=models.PROTECT, primary_key=True, help_text='Link key to activities table')
     bei = ChemblPositiveDecimalField(blank=True, null=True, max_digits=9, decimal_places=2, help_text='Binding Efficiency Index = p(XC50) *1000/MW_freebase')
     sei = ChemblPositiveDecimalField(blank=True, null=True, max_digits=9, decimal_places=2, help_text='Surface Efficiency Index = p(XC50)*100/PSA')
     le = ChemblPositiveDecimalField(blank=True, null=True, max_digits=9, decimal_places=2, help_text='Ligand Efficiency = deltaG/heavy_atoms  [from the Hopkins DDT paper 2004]')
@@ -110,8 +110,8 @@ class PredictedBindingDomains(six.with_metaclass(ChemblModelMetaClass, ChemblCor
         )
 
     predbind_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    activity = models.ForeignKey(Activities, blank=True, null=True, help_text='Foreign key to the activities table, indicating the compound/assay(+target) combination for which this prediction is made.')
-    site = models.ForeignKey(BindingSites, blank=True, null=True, help_text='Foreign key to the binding_sites table, indicating the binding site (domain) that the compound is predicted to bind to.')
+    activity = models.ForeignKey(Activities, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the activities table, indicating the compound/assay(+target) combination for which this prediction is made.')
+    site = models.ForeignKey(BindingSites, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the binding_sites table, indicating the binding site (domain) that the compound is predicted to bind to.')
     prediction_method = ChemblCharField(max_length=50, blank=True, null=True, choices=PREDICTION_METHOD_CHOICES, help_text="The method used to assign the binding domain (e.g., 'Single domain' where the protein has only 1 domain, 'Multi domain' where the protein has multiple domains, but only 1 is known to bind small molecules in other proteins).")
     confidence = ChemblCharField(max_length=10, blank=True, null=True, choices=CONFIDENCE_CHOICES, help_text='The level of confidence assigned to the prediction (high where the protein has only 1 domain, medium where the compound has multiple domains, but only 1 known small molecule-binding domain).')
 
@@ -143,7 +143,7 @@ class MechanismRefs(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractM
         )
 
     mecref_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key')
-    mechanism = models.ForeignKey(DrugMechanism, db_column='mec_id', help_text='Foreign key to drug_mechanism table - indicating the mechanism to which the references refer')
+    mechanism = models.ForeignKey(DrugMechanism, on_delete=models.PROTECT,  db_column='mec_id', help_text='Foreign key to drug_mechanism table - indicating the mechanism to which the references refer')
     ref_type = ChemblCharField(max_length=50, choices=REF_TYPE_CHOICES, help_text="Type/source of reference (e.g., 'PubMed','DailyMed')")
     ref_id = ChemblCharField(max_length=200, blank=True, null=True, help_text='Identifier for the reference in the source (e.g., PubMed ID or DailyMed setid)')
     ref_url = ChemblCharField(max_length=400, blank=True, null=True, help_text='Full URL linking to the reference')
@@ -166,7 +166,7 @@ class IndicationRefs(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstract
         )
 
     indref_id = ChemblPositiveIntegerField(primary_key=True, length=9, help_text='Primary key')
-    drug_indication = models.ForeignKey(DrugIndication, db_column='drugind_id', help_text='Foreign key to the DRUG_INDICATION table, indicating the drug-indication link that this reference applies to')
+    drug_indication = models.ForeignKey(DrugIndication, on_delete=models.PROTECT,  db_column='drugind_id', help_text='Foreign key to the DRUG_INDICATION table, indicating the drug-indication link that this reference applies to')
     ref_type = ChemblCharField(max_length=50, choices=REF_TYPE_CHOICES, help_text='Type/source of reference')
     ref_id = ChemblCharField(max_length=2000, help_text='Identifier for the reference in the source')
     ref_url = ChemblCharField(max_length=4000, help_text='Full URL linking to the reference')
