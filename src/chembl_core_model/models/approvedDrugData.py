@@ -203,7 +203,7 @@ class DefinedDailyDose(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
         ('tablet', 'tablet'),
         )
 
-    atc_code = models.ForeignKey(AtcClassification, db_column='atc_code', help_text='ATC code for the compound (foreign key to ATC_CLASSIFICATION table)')
+    atc_code = models.ForeignKey(AtcClassification, on_delete=models.PROTECT,  db_column='atc_code', help_text='ATC code for the compound (foreign key to ATC_CLASSIFICATION table)')
     ddd_value = ChemblPositiveDecimalField(blank=True, null=True, max_digits=9, decimal_places=2, help_text='Value of defined daily dose')
     ddd_units = ChemblCharField(max_length=200, blank=True, null=True, choices=DDD_UNITS_CHOICES, help_text='Units of defined daily dose')
     ddd_admr = ChemblCharField(max_length=1000, blank=True, null=True, help_text='Administration route for dose')
@@ -219,12 +219,12 @@ class DefinedDailyDose(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
 class ProductPatents(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     prod_pat_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key')
-    product = models.ForeignKey(Products, help_text='Foreign key to products table - FDA application number for the product')
+    product = models.ForeignKey(Products, on_delete=models.PROTECT,  help_text='Foreign key to products table - FDA application number for the product')
     patent_no = ChemblCharField(max_length=11, help_text='Patent numbers as submitted by the applicant holder for patents covered by the statutory provisions')
     patent_expire_date = ChemblDateField(help_text='Date the patent expires as submitted by the applicant holder including applicable extensions')
     drug_substance_flag = ChemblBooleanField(default=False, help_text='Patents submitted on FDA Form 3542 and listed after August 18, 2003 may have a drug substance flag set to 1, indicating the sponsor submitted the patent as claiming the drug substance')
     drug_product_flag = ChemblBooleanField(default=False, help_text='Patents submitted on FDA Form 3542 and listed after August 18, 2003 may have a drug product flag set to 1, indicating the sponsor submitted the patent as claiming the drug product')
-    patent_use_code = models.ForeignKey(PatentUseCodes, blank=True, null=True, db_column='patent_use_code', help_text='Code to designate a use patent that covers the approved indication or use of a drug product')
+    patent_use_code = models.ForeignKey(PatentUseCodes, on_delete=models.PROTECT,  blank=True, null=True, db_column='patent_use_code', help_text='Code to designate a use patent that covers the approved indication or use of a drug product')
     delist_flag = ChemblBooleanField(default=False, help_text='Sponsor has requested patent be delisted if set to 1.  This patent has remained listed because, under Section 505(j)(5)(D)(i) of the Act, a first applicant may retain eligibility for 180-day exclusivity based on a paragraph IV certification to this patent for a certain period.  Applicants under Section 505(b)(2) are not required to certify to patents where this flag is set to 1')
     in_products = ChemblPositiveIntegerField(length=1, default=0, help_text='Indicates whether the PRODUCT_ID can be found in the PRODUCTS table (where set to 1)')
 
@@ -237,8 +237,8 @@ class ProductPatents(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstract
 class MoleculeAtcClassification(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     mol_atc_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key')
-    atc_classification = models.ForeignKey(AtcClassification, db_column='level5', help_text='ATC code (foreign key to atc_classification table)')
-    molecule = models.ForeignKey(MoleculeDictionary, db_column='molregno', help_text='Drug to which the ATC code applies (foreign key to molecule_dictionary table)')
+    atc_classification = models.ForeignKey(AtcClassification, on_delete=models.PROTECT,  db_column='level5', help_text='ATC code (foreign key to atc_classification table)')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_column='molregno', help_text='Drug to which the ATC code applies (foreign key to molecule_dictionary table)')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         pass
@@ -249,8 +249,8 @@ class MoleculeAtcClassification(six.with_metaclass(ChemblModelMetaClass, ChemblC
 class MoleculeIracClassification(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     mol_irac_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    irac_class = models.ForeignKey(IracClassification, help_text='Foreign key to the irac_classification table showing the mechanism of action classification for the compound.')
-    molecule = models.ForeignKey(MoleculeDictionary, db_column='molregno', help_text='Foreign key to the molecule_dictionary table, showing the compound to which the classification applies.')
+    irac_class = models.ForeignKey(IracClassification, on_delete=models.PROTECT,  help_text='Foreign key to the irac_classification table showing the mechanism of action classification for the compound.')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_column='molregno', help_text='Foreign key to the molecule_dictionary table, showing the compound to which the classification applies.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         unique_together = (("irac_class", "molecule"),)
@@ -261,8 +261,8 @@ class MoleculeIracClassification(six.with_metaclass(ChemblModelMetaClass, Chembl
 class MoleculeFracClassification(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     mol_frac_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    frac_class = models.ForeignKey(FracClassification, help_text='Foreign key to frac_classification table showing the mechanism of action classification of the compound.')
-    molecule = models.ForeignKey(MoleculeDictionary, db_column='molregno', help_text='Foreign key to molecule_dictionary, showing the compound to which the classification applies.')
+    frac_class = models.ForeignKey(FracClassification, on_delete=models.PROTECT,  help_text='Foreign key to frac_classification table showing the mechanism of action classification of the compound.')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_column='molregno', help_text='Foreign key to molecule_dictionary, showing the compound to which the classification applies.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         unique_together = (("frac_class", "molecule"),)
@@ -273,8 +273,8 @@ class MoleculeFracClassification(six.with_metaclass(ChemblModelMetaClass, Chembl
 class MoleculeHracClassification(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     mol_hrac_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key')
-    hrac_class = models.ForeignKey(HracClassification, help_text='Foreign key to hrac_classification table showing the classification for the compound.')
-    molecule = models.ForeignKey(MoleculeDictionary, db_column='molregno', help_text='Foreign key to molecule_dictionary, showing the compound to which this classification applies.')
+    hrac_class = models.ForeignKey(HracClassification, on_delete=models.PROTECT,  help_text='Foreign key to hrac_classification table showing the classification for the compound.')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  db_column='molregno', help_text='Foreign key to molecule_dictionary, showing the compound to which this classification applies.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         unique_together = (("hrac_class", "molecule"),)
@@ -284,11 +284,11 @@ class MoleculeHracClassification(six.with_metaclass(ChemblModelMetaClass, Chembl
 
 class Formulations(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    product = models.ForeignKey(Products, help_text='Unique identifier of the product. FK to PRODUCTS')
+    product = models.ForeignKey(Products, on_delete=models.PROTECT,  help_text='Unique identifier of the product. FK to PRODUCTS')
     ingredient = ChemblCharField(max_length=200, blank=True, null=True, help_text='Name of the approved ingredient within the product')
     strength = ChemblCharField(max_length=200, blank=True, null=True, help_text='Dose strength')
-    record = models.ForeignKey(CompoundRecords, help_text='Foreign key to the compound_records table.')
-    molecule = models.ForeignKey(MoleculeDictionary, blank=True, null=True, db_column='molregno', help_text='Unique identifier of the ingredient FK to MOLECULE_DICTIONARY')
+    record = models.ForeignKey(CompoundRecords, on_delete=models.PROTECT,  help_text='Foreign key to the compound_records table.')
+    molecule = models.ForeignKey(MoleculeDictionary, on_delete=models.PROTECT,  blank=True, null=True, db_column='molregno', help_text='Unique identifier of the ingredient FK to MOLECULE_DICTIONARY')
     formulation_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
