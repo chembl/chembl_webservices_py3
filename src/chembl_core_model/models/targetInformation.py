@@ -38,7 +38,7 @@ class OrganismClass(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractM
 
 class OrganismSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    tax = models.ForeignKey(OrganismClass, primary_key=True, to_field='tax_id', help_text='NCBI tax_id for organism')
+    tax = models.ForeignKey(OrganismClass, on_delete=models.PROTECT,  primary_key=True, to_field='tax_id', help_text='NCBI tax_id for organism')
     synonyms = ChemblCharField(max_length=3000, help_text='Synonyms for this NCBI tax_id')
     source = ChemblCharField(max_length=600, help_text='The name of the source of this synonym')
 
@@ -206,13 +206,13 @@ class TargetDictionary(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
         )
 
     tid = ChemblAutoField(primary_key=True, length=9, help_text='Unique ID for the target')
-    target_type = models.ForeignKey(TargetType, blank=True, null=True, db_column='target_type', help_text='Describes whether target is a protein, an organism, a tissue etc. Foreign key to TARGET_TYPE table.')
+    target_type = models.ForeignKey(TargetType, on_delete=models.PROTECT,  blank=True, null=True, db_column='target_type', help_text='Describes whether target is a protein, an organism, a tissue etc. Foreign key to TARGET_TYPE table.')
     pref_name = ChemblCharField(max_length=200, db_index=True, help_text='Preferred target name: manually curated')
     tax_id = ChemblPositiveIntegerField(length=11, db_index=True, blank=True, null=True, help_text='NCBI taxonomy id of target') # TODO: should be FK to OrganismClass.tax_id
     organism = ChemblCharField(max_length=150, db_index=True, blank=True, null=True, help_text='Source organism of molecuar target or tissue, or the target organism if compound activity is reported in an organism rather than a protein or tissue')
     updated_on = ChemblDateField(blank=True, null=True)
     updated_by = ChemblCharField(max_length=100, blank=True, null=True)
-    chembl = models.ForeignKey(ChemblIdLookup, blank=True, null=False, help_text='ChEMBL identifier for this target (for use on web interface etc)') # This combination of null and blank is actually very important!
+    chembl = models.ForeignKey(ChemblIdLookup, on_delete=models.PROTECT,  blank=True, null=False, help_text='ChEMBL identifier for this target (for use on web interface etc)') # This combination of null and blank is actually very important!
     insert_date = ChemblDateField(blank=False, null=True, default=datetime.date.today) # blank is false because it has default value
     target_parent_type = ChemblCharField(max_length=100, blank=True, null=True, choices=TARGET_PARENT_TYPE_CHOICES)
     species_group_flag = ChemblBooleanField(default=False, help_text="Flag to indicate whether the target represents a group of species, rather than an individual species (e.g., 'Bacterial DHFR'). Where set to 1, indicates that any associated target components will be a representative, rather than a comprehensive set.")
@@ -229,9 +229,9 @@ class TargetDictionary(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
 class TargetPredictions(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     pred_id = ChemblAutoField(primary_key=True, length=11, help_text='Unique ID for the prediction')
-    molecule = models.ForeignKey('MoleculeDictionary', db_column='parent_molregno', help_text='Foreign key to the molecule_dictionary, indicating the molecule to which the predictions belong.')
+    molecule = models.ForeignKey('MoleculeDictionary', on_delete=models.PROTECT,  db_column='parent_molregno', help_text='Foreign key to the molecule_dictionary, indicating the molecule to which the predictions belong.')
     molecule_chembl_id = ChemblCharField(max_length=20, db_column='chembl_id', blank=True, null=True)
-    target = models.ForeignKey(TargetDictionary, db_column='tid', help_text='Foreign key to the target_dictionary, indicating the target to which the predictions belong.')
+    target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  db_column='tid', help_text='Foreign key to the target_dictionary, indicating the target to which the predictions belong.')
     target_chembl_id = ChemblCharField(max_length=60)
     target_accession = ChemblCharField(max_length=60)
     probability = ChemblPositiveDecimalField(max_digits=12, decimal_places=11)
@@ -246,8 +246,8 @@ class TargetPredictions(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstr
 
 class ComponentClass(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    component = models.ForeignKey(ComponentSequences, help_text='Foreign key to component_sequences table.')
-    protein_class = models.ForeignKey(ProteinClassification, help_text='Foreign key to the protein_classification table.')
+    component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  help_text='Foreign key to component_sequences table.')
+    protein_class = models.ForeignKey(ProteinClassification, on_delete=models.PROTECT,  help_text='Foreign key to the protein_classification table.')
     comp_class_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
@@ -268,7 +268,7 @@ class ComponentSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstr
         )
 
     compsyn_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    component = models.ForeignKey(ComponentSequences, help_text='Foreign key to the component_sequences table. The component to which this synonym applies.')
+    component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  help_text='Foreign key to the component_sequences table. The component to which this synonym applies.')
     component_synonym = ChemblCharField(max_length=500, blank=True, null=True, help_text='The synonym for the component.')
     syn_type = ChemblCharField(max_length=20, blank=True, null=True, choices=SYN_TYPE_CHOICES, help_text='The type or origin of the synonym (e.g., GENE_SYMBOL).')
 
@@ -281,7 +281,7 @@ class ComponentSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstr
 class ComponentXref(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     comp_xref_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    component = models.ForeignKey(ComponentSequences, help_text='Foreign key to component_sequences table.')
+    component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  help_text='Foreign key to component_sequences table.')
     xref_src_db = ChemblCharField(max_length=150)
     xref_id = ChemblCharField(max_length=300)
     xref_name = ChemblCharField(max_length=3000, blank=True, null=True)
@@ -306,7 +306,7 @@ class CellDictionary(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstract
     cellosaurus_id = ChemblCharField(max_length=15, blank=True, null=True, help_text='ID for the corresponding cell line in Cellosaurus Ontology')
     downgraded = ChemblNullableBooleanField(default=False, help_text='Indicates the cell line has been removed (if set to 1)')
     cl_lincs_id = ChemblCharField(max_length=8, blank=True, null=True, help_text='Cell ID used in LINCS (Library of Integrated Network-based Cellular Signatures)')
-    chembl = models.OneToOneField(ChemblIdLookup, blank=True, null=True, help_text='ChEMBL identifier for the cell (used in web interface etc)')
+    chembl = models.OneToOneField(ChemblIdLookup, on_delete=models.PROTECT, blank=True, null=True, help_text='ChEMBL identifier for the cell (used in web interface etc)')
     curator_comment = ChemblCharField(max_length=6000, blank=True, null=True)
 
     class Meta(ChemblCoreAbstractModel.Meta):
@@ -326,7 +326,7 @@ class ProteinClassSynonyms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAb
         )
 
     protclasssyn_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
-    protein_class = models.ForeignKey(ProteinClassification, help_text='Foreign key to the PROTEIN_CLASSIFICATION table. The protein_class to which this synonym applies.')
+    protein_class = models.ForeignKey(ProteinClassification, on_delete=models.PROTECT,  help_text='Foreign key to the PROTEIN_CLASSIFICATION table. The protein_class to which this synonym applies.')
     protein_class_synonym = ChemblCharField(max_length=1000, blank=True, null=True, help_text='The synonym for the protein class.')
     syn_type = ChemblCharField(max_length=20, blank=True, null=True, choices=SYN_TYPE_CHOICES, help_text='The type or origin of the synonym (e.g., ChEMBL, Concept Wiki, UMLS).')
 
@@ -342,7 +342,7 @@ class TissueDictionary(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
     uberon_id = ChemblCharField(max_length=15, blank=True, null=True, help_text='Uberon ontology identifier for this tissue.')
     pref_name = ChemblCharField(max_length=200, help_text='Name for the tissue (in most cases Uberon name).')
     efo_id = ChemblCharField(max_length=20, blank=True, null=True, help_text='Experimental Factor Ontology identifier for the tissue.')
-    chembl = models.OneToOneField(ChemblIdLookup, help_text='ChEMBL identifier for this tissue (for use on web interface etc)')
+    chembl = models.OneToOneField(ChemblIdLookup, on_delete=models.PROTECT, help_text='ChEMBL identifier for this tissue (for use on web interface etc)')
     bto_id = ChemblCharField(max_length=20, blank=True, null=True, help_text='BRENDA Tissue Ontology identifier for the tissue.')
     caloha_id = ChemblCharField(max_length=7, blank=True, null=True, help_text='Swiss Institute for Bioinformatics CALOHA Ontology identifier for the tissue.')
 
@@ -355,8 +355,8 @@ class TissueDictionary(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
 class ComponentGo(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     comp_go_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key')
-    component = models.ForeignKey(ComponentSequences, help_text='Foreign key to COMPONENT_SEQUENCES table. The protein component this GO term applies to')
-    go = models.ForeignKey(GoClassification, help_text='Foreign key to the GO_CLASSIFICATION table. The GO term that this protein is mapped to')
+    component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  help_text='Foreign key to COMPONENT_SEQUENCES table. The protein component this GO term applies to')
+    go = models.ForeignKey(GoClassification, on_delete=models.PROTECT,  help_text='Foreign key to the GO_CLASSIFICATION table. The GO term that this protein is mapped to')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         unique_together = (("component", "go"),)
@@ -392,8 +392,8 @@ class TargetComponents(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
         (12, '12'),
         )
 
-    target = models.ForeignKey(TargetDictionary, db_column='tid', help_text='Foreign key to the target_dictionary, indicating the target to which the components belong.')
-    component = models.ForeignKey(ComponentSequences, help_text='Foreign key to the component_sequences table, indicating which components belong to the target.')
+    target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  db_column='tid', help_text='Foreign key to the target_dictionary, indicating the target to which the components belong.')
+    component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  help_text='Foreign key to the component_sequences table, indicating which components belong to the target.')
     relationship = ChemblCharField(max_length=20, default='UNCURATED', choices=RELATIONSHIP_CHOICES)
     stoichiometry = ChemblPositiveIntegerField(length=3, blank=True, null=True, choices=STOICHIOMETRY_CHOICES)
     targcomp_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key.')
@@ -414,9 +414,9 @@ class TargetRelations(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstrac
         ('SUPERSET OF', 'SUPERSET OF'),
         )
 
-    target = models.ForeignKey(TargetDictionary, related_name='to', db_column='tid', help_text='Identifier for target of interest (foreign key to target_dictionary table)')
+    target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  related_name='to', db_column='tid', help_text='Identifier for target of interest (foreign key to target_dictionary table)')
     relationship = ChemblCharField(max_length=20, choices=RELATIONSHIP_CHOICES, help_text='Relationship between two targets (e.g., SUBSET OF, SUPERSET OF, OVERLAPS WITH)')
-    related_target = models.ForeignKey(TargetDictionary, related_name='fro', db_column='related_tid', help_text='Identifier for the target that is related to the target of interest (foreign key to target_dicitionary table)')
+    related_target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  related_name='fro', db_column='related_tid', help_text='Identifier for the target that is related to the target of interest (foreign key to target_dicitionary table)')
     targrel_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key')
 
     class Meta(ChemblCoreAbstractModel.Meta):
@@ -427,8 +427,8 @@ class TargetRelations(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstrac
 
 class TargetXref(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
-    target = models.ForeignKey(TargetDictionary, db_column='tid', help_text='Foreign key to target_dictionary table')
-    xref_src_db = models.ForeignKey(XrefSource, db_column='xref_src_db', help_text='Name of the database that this cross-reference links to')
+    target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  db_column='tid', help_text='Foreign key to target_dictionary table')
+    xref_src_db = models.ForeignKey(XrefSource, on_delete=models.PROTECT,  db_column='xref_src_db', help_text='Name of the database that this cross-reference links to')
     xref_id = ChemblCharField(max_length=300, unique=True, help_text='Identifier for the entry in the cross-referenced database')
     xref_name = ChemblCharField(max_length=3000, blank=True, null=True, help_text='Name for the entry in the cross-referenced database, where applicable')
     targ_xref_id = ChemblPositiveIntegerField(primary_key=True, length=9)
