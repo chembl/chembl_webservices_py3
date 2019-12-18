@@ -33,7 +33,7 @@ class ProteinClassResource(ChemblModelResource):
                      'l8': CHAR_FILTERS,
                      'protein_class_id': NUMBER_FILTERS
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
         resource_name = 'protein_class'
         collection_name = 'protein_classes'
         serializer = ChEMBLApiSerializer(resource_name, {collection_name: resource_name})
