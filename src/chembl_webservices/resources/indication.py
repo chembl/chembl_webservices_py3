@@ -7,16 +7,9 @@ from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
-try:
-    from chembl_compatibility.models import DrugIndication
-    from chembl_compatibility.models import IndicationRefs
-except ImportError:
-    from chembl_core_model.models import DrugIndication
-    from chembl_core_model.models import IndicationRefs
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import DrugIndication
+from chembl_core_model.models import IndicationRefs
+from chembl_core_model.models import MoleculeDictionary
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

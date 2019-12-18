@@ -8,28 +8,12 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import Metabolism
-    from chembl_compatibility.models import MetabolismRefs
-except ImportError:
-    from chembl_core_model.models import Metabolism
-    from chembl_core_model.models import MetabolismRefs
-try:
-    from chembl_compatibility.models import CompoundRecords
-except ImportError:
-    from chembl_core_model.models import CompoundRecords
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import Metabolism
+from chembl_core_model.models import MetabolismRefs
+from chembl_core_model.models import CompoundRecords
+from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import TargetDictionary
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
