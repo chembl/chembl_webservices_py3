@@ -6,7 +6,7 @@ from tastypie.exceptions import UnsupportedFormat
 from tastypie.bundle import Bundle
 from simplejson import JSONDecodeError
 from tastypie.exceptions import BadRequest
-import urlparse
+import urllib.parse
 import logging
 import json
 
@@ -76,7 +76,7 @@ class ChEMBLApiSerializer(Serializer):
 
         format = format.split(';')[0]
 
-        for short_format, long_format in self.content_types.items():
+        for short_format, long_format in list(self.content_types.items()):
             if format == long_format:
                 if hasattr(self, "from_%s" % short_format):
                     desired_format = short_format
@@ -113,14 +113,14 @@ class ChEMBLApiSerializer(Serializer):
         qs = defaultdict(list)
         for k, v in ret:
             qs[k].append(v)
-        return dict((k, v if len(v) > 1 else v[0]) for k, v in qs.items())
+        return dict((k, v if len(v) > 1 else v[0]) for k, v in list(qs.items()))
 
 # ----------------------------------------------------------------------------------------------------------------------
 
     def from_urlencode(self, data, options=None):
 
         qs = dict((k, v if len(v) > 1 else v[0] )
-                  for k, v in urlparse.parse_qs(data).iteritems())
+                  for k, v in urllib.parse.parse_qs(data).items())
         return qs
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -151,12 +151,12 @@ class ChEMBLApiSerializer(Serializer):
                 element = Element(name or 'response')
             else:
                 element = Element(name or self.objName)
-            for (key, value) in data.items():
+            for (key, value) in list(data.items()):
                 element.append(self.to_etree(value, options, name=key, depth=depth+1))
                 element[:] = sorted(element, key=lambda x: x.tag)
         elif isinstance(data, Bundle):
             element = Element(name or self.objName)
-            for field_name, field_object in data.data.items():
+            for field_name, field_object in list(data.data.items()):
                 element.append(self.to_etree(field_object, options, name=field_name, depth=depth+1))
                 element[:] = sorted(element, key=lambda x: x.tag)
         elif hasattr(data, 'dehydrated_type'):
@@ -181,12 +181,12 @@ class ChEMBLApiSerializer(Serializer):
             simple_data = self.to_simple(data, options)
             if simple_data:
                 try:
-                    element.text = unicode(simple_data)
+                    element.text = str(simple_data)
                 except ValueError as e:
                     self.log.error('Not valid XML character detected in ', exc_info=True,
                         extra={'data': simple_data, 'original_exception': e})
                     cleaned_string = ''.join(c for c in simple_data if valid_xml_char_ordinal(c))
-                    element.text = unicode(cleaned_string)
+                    element.text = str(cleaned_string)
 
         return element
 
