@@ -81,7 +81,6 @@ class SimilarityResource(MoleculeResource):
 
     def obj_get_list(self, bundle, **kwargs):
         smiles = kwargs.pop('smiles', None)
-        print(smiles)
         try:
             std_inchi_key = kwargs.pop('standard_inchi_key', None)
             chembl_id = kwargs.pop('chembl_id', None)
