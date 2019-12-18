@@ -83,7 +83,7 @@ class DrugsResource(ChemblModelResource):
             'withdrawn_year': NUMBER_FILTERS,
             'withdrawn_class': CHAR_FILTERS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -109,11 +109,11 @@ class DrugsResource(ChemblModelResource):
     def alter_detail_data_to_serialize(self, request, bundle):
 
         data = bundle.data
-        data['applicants'] = map(lambda x: x.strip(), data['applicants'].split(';')) if data.get('applicants') else None
-        data['research_codes'] = map(lambda x: x.strip(), data['research_codes'].split(';')) if data.get('research_codes') else None
-        data['synonyms'] = map(lambda x: x.strip(), data['synonyms'].split(';')) if data.get('synonyms') else None
+        data['applicants'] = [x.strip() for x in data['applicants'].split(';')] if data.get('applicants') else None
+        data['research_codes'] = [x.strip() for x in data['research_codes'].split(';')] if data.get('research_codes') else None
+        data['synonyms'] = [x.strip() for x in data['synonyms'].split(';')] if data.get('synonyms') else None
         data['atc_code_description'] = [{'code': x.split()[0], 'description': x.split('[')[1][:-1]} for x in
-                                        map(lambda x: x.strip(), data['atc_code_description'].split('];'))] \
+                                        [x.strip() for x in data['atc_code_description'].split('];')]] \
             if data.get('atc_code_description') else None
         if data.get('atc_code_description'):
             data['atc_classification'] = data.pop('atc_code_description')
