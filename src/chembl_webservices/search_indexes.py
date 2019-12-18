@@ -3,60 +3,27 @@ __author__ = 'mnowotka'
 from haystack.indexes import *
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import Assays
-except ImportError:
-    from chembl_core_model.models import Assays
+from chembl_core_model.models import Assays
 
-try:
-    from chembl_compatibility.models import Activities
-except ImportError:
-    from chembl_core_model.models import Activities
+from chembl_core_model.models import Activities
 
-try:
-    from chembl_compatibility.models import Docs
-except ImportError:
-    from chembl_core_model.models import Docs
+from chembl_core_model.models import Docs
 
-try:
-    from chembl_compatibility.models import CompoundRecords
-except ImportError:
-    from chembl_core_model.models import CompoundRecords
+from chembl_core_model.models import CompoundRecords
 
-try:
-    from chembl_compatibility.models import ComponentSequences
-except ImportError:
-    from chembl_core_model.models import ComponentSequences
+from chembl_core_model.models import ComponentSequences
 
-try:
-    from chembl_compatibility.models import ComponentSynonyms
-except ImportError:
-    from chembl_core_model.models import ComponentSynonyms
+from chembl_core_model.models import ComponentSynonyms
 
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import MoleculeDictionary
 
-try:
-    from chembl_compatibility.models import MoleculeSynonyms
-except ImportError:
-    from chembl_core_model.models import MoleculeSynonyms
+from chembl_core_model.models import MoleculeSynonyms
 
-try:
-    from chembl_compatibility.models import TargetComponents
-except ImportError:
-    from chembl_core_model.models import TargetComponents
+from chembl_core_model.models import TargetComponents
 
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import TargetDictionary
 
-try:
-    from chembl_compatibility.models import ProteinFamilyClassification
-except ImportError:
-    from chembl_core_model.models import ProteinFamilyClassification
+from chembl_core_model.models import ProteinFamilyClassification
 
 # ----------------------------------------------------------------------------------------------------------------------
 
