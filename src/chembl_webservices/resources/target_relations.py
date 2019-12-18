@@ -10,18 +10,9 @@ from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS, FLAG_FIL
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import TargetRelations
-except ImportError:
-    from chembl_core_model.models import TargetRelations
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import TargetRelations
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import TargetDictionary
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

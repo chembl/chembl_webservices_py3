@@ -19,20 +19,11 @@ from tastypie.exceptions import InvalidSortError
 from chembl_webservices.core.utils import list_flatten
 from tastypie.exceptions import ImmediateHttpResponse
 
-try:
-    from chembl_compatibility.models import CompoundMols
-except ImportError:
-    from chembl_core_model.models import CompoundMols
+from chembl_core_model.models import CompoundMols
 
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import MoleculeDictionary
 
-try:
-    from chembl_compatibility.models import MoleculeHierarchy
-except ImportError:
-    from chembl_core_model.models import MoleculeHierarchy
+from chembl_core_model.models import MoleculeHierarchy
 
 try:
     WS_DEBUG = settings.WS_DEBUG

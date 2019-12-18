@@ -9,18 +9,9 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import Docs
-except ImportError:
-    from chembl_core_model.models import Docs
-try:
-    from chembl_compatibility.models import Journals
-except ImportError:
-    from chembl_core_model.models import Journals
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import Docs
+from chembl_core_model.models import Journals
+from chembl_core_model.models import ChemblIdLookup
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

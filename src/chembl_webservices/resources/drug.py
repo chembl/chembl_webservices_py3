@@ -9,10 +9,7 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import MoleculeBrowseDrugs
-except ImportError:
-    from chembl_core_model.models import MoleculeBrowseDrugs
+from chembl_core_model.models import MoleculeBrowseDrugs
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

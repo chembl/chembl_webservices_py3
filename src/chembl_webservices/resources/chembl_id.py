@@ -13,10 +13,7 @@ from chembl_webservices.resources.assays import AssayResource
 from chembl_webservices.resources.target import TargetResource
 from chembl_webservices.resources.docs import DocsResource
 from chembl_webservices.resources.cell_line import CellLineResource
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import ChemblIdLookup
 
 try:
     from haystack.query import SearchQuerySet

@@ -8,22 +8,10 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import BindingSites
-except ImportError:
-    from chembl_core_model.models import BindingSites
-try:
-    from chembl_compatibility.models import SiteComponents
-except ImportError:
-    from chembl_core_model.models import SiteComponents
-try:
-    from chembl_compatibility.models import Domains
-except ImportError:
-    from chembl_core_model.models import Domains
-try:
-    from chembl_compatibility.models import ComponentSequences
-except ImportError:
-    from chembl_core_model.models import ComponentSequences
+from chembl_core_model.models import BindingSites
+from chembl_core_model.models import SiteComponents
+from chembl_core_model.models import Domains
+from chembl_core_model.models import ComponentSequences
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

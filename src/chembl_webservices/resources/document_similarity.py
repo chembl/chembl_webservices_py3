@@ -8,18 +8,9 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS, FLAG_FILTERS
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import Docs
-except ImportError:
-    from chembl_core_model.models import Docs
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import PaperSimilarity
-except ImportError:
-    from chembl_core_model.models import PaperSimilarity
+from chembl_core_model.models import Docs
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import PaperSimilarity
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

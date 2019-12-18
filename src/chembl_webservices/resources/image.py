@@ -20,18 +20,9 @@ from chembl_webservices.resources.molecule import MoleculeResource
 from chembl_webservices.core.utils import COLOR_NAMES
 from chembl_webservices.core.utils import render_rdkit
 
-try:
-    from chembl_compatibility.models import CompoundStructures
-except ImportError:
-    from chembl_core_model.models import CompoundStructures
-try:
-    from chembl_compatibility.models import MoleculeHierarchy
-except ImportError:
-    from chembl_core_model.models import MoleculeHierarchy
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import CompoundStructures
+from chembl_core_model.models import MoleculeHierarchy
+from chembl_core_model.models import MoleculeDictionary
 
 # If ``csrf_exempt`` isn't present, stub it.
 try:

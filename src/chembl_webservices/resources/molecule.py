@@ -19,38 +19,14 @@ from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
 
 from chembl_core_model.models import CompoundMols
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
-try:
-    from chembl_compatibility.models import CompoundProperties
-except ImportError:
-    from chembl_core_model.models import CompoundProperties
-try:
-    from chembl_compatibility.models import CompoundStructures
-except ImportError:
-    from chembl_core_model.models import CompoundStructures
-try:
-    from chembl_compatibility.models import MoleculeSynonyms
-except ImportError:
-    from chembl_core_model.models import MoleculeSynonyms
-try:
-    from chembl_compatibility.models import MoleculeHierarchy
-except ImportError:
-    from chembl_core_model.models import MoleculeHierarchy
-try:
-    from chembl_compatibility.models import CompoundXref
-except ImportError:
-    from chembl_core_model.models import CompoundXref
-try:
-    from chembl_compatibility.models import XrefSource
-except ImportError:
-    from chembl_core_model.models import XrefSource
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import CompoundProperties
+from chembl_core_model.models import CompoundStructures
+from chembl_core_model.models import MoleculeSynonyms
+from chembl_core_model.models import MoleculeHierarchy
+from chembl_core_model.models import CompoundXref
+from chembl_core_model.models import XrefSource
 
 
 try:

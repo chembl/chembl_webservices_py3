@@ -19,27 +19,12 @@ from django.conf import settings
 from tastypie.exceptions import ImmediateHttpResponse
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import CompoundStructuralAlerts
-except ImportError:
-    from chembl_core_model.models import CompoundStructuralAlerts
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
-try:
-    from chembl_compatibility.models import StructuralAlerts
-except ImportError:
-    from chembl_core_model.models import StructuralAlerts
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import CompoundStructuralAlerts
+from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import StructuralAlerts
 
-try:
-    from chembl_compatibility.models import StructuralAlertSets
-except ImportError:
-    from chembl_core_model.models import StructuralAlertSets
+from chembl_core_model.models import StructuralAlertSets
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

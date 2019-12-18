@@ -10,15 +10,9 @@ from django.db.models import Prefetch
 from django.db.models.constants import LOOKUP_SEP
 from tastypie.utils import dict_strip_unicode_keys
 
-try:
-    from chembl_compatibility.models import OrganismClass
-except ImportError:
-    from chembl_core_model.models import OrganismClass
+from chembl_core_model.models import OrganismClass
 
-try:
-    from chembl_compatibility.models import OrganismSynonyms
-except ImportError:
-    from chembl_core_model.models import OrganismSynonyms
+from chembl_core_model.models import OrganismSynonyms
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

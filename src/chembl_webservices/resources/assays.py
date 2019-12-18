@@ -10,58 +10,19 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import Assays
-except ImportError:
-    from chembl_core_model.models import Assays
-try:
-    from chembl_compatibility.models import AssayClassification
-except ImportError:
-    from chembl_core_model.models import AssayClassification
-try:
-    from chembl_compatibility.models import AssayParameters
-except ImportError:
-    from chembl_core_model.models import AssayParameters
-try:
-    from chembl_compatibility.models import AssayType
-except ImportError:
-    from chembl_core_model.models import AssayType
-try:
-    from chembl_compatibility.models import BioassayOntology
-except ImportError:
-    from chembl_core_model.models import BioassayOntology
-try:
-    from chembl_compatibility.models import CellDictionary
-except ImportError:
-    from chembl_core_model.models import CellDictionary
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import ConfidenceScoreLookup
-except ImportError:
-    from chembl_core_model.models import ConfidenceScoreLookup
-try:
-    from chembl_compatibility.models import Docs
-except ImportError:
-    from chembl_core_model.models import Docs
-try:
-    from chembl_compatibility.models import RelationshipType
-except ImportError:
-    from chembl_core_model.models import RelationshipType
-try:
-    from chembl_compatibility.models import Source
-except ImportError:
-    from chembl_core_model.models import Source
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
-try:
-    from chembl_compatibility.models import TissueDictionary
-except ImportError:
-    from chembl_core_model.models import TissueDictionary
+from chembl_core_model.models import Assays
+from chembl_core_model.models import AssayClassification
+from chembl_core_model.models import AssayParameters
+from chembl_core_model.models import AssayType
+from chembl_core_model.models import BioassayOntology
+from chembl_core_model.models import CellDictionary
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import ConfidenceScoreLookup
+from chembl_core_model.models import Docs
+from chembl_core_model.models import RelationshipType
+from chembl_core_model.models import Source
+from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import TissueDictionary
 
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field

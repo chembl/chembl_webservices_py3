@@ -6,10 +6,7 @@ from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 
-try:
-    from chembl_compatibility.models import XrefSource
-except ImportError:
-    from chembl_core_model.models import XrefSource
+from chembl_core_model.models import XrefSource
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

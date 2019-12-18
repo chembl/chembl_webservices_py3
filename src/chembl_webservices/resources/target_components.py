@@ -8,38 +8,14 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.meta import ChemblResourceMeta
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import ComponentSynonyms
-except ImportError:
-    from chembl_core_model.models import ComponentSynonyms
-try:
-    from chembl_compatibility.models import ComponentXref
-except ImportError:
-    from chembl_core_model.models import ComponentXref
-try:
-    from chembl_compatibility.models import TargetComponents
-except ImportError:
-    from chembl_core_model.models import TargetComponents
-try:
-    from chembl_compatibility.models import ComponentSequences
-except ImportError:
-    from chembl_core_model.models import ComponentSequences
-try:
-    from chembl_compatibility.models import ProteinClassification
-except ImportError:
-    from chembl_core_model.models import ProteinClassification
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
-try:
-    from chembl_compatibility.models import GoClassification
-except ImportError:
-    from chembl_core_model.models import GoClassification
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import ComponentSynonyms
+from chembl_core_model.models import ComponentXref
+from chembl_core_model.models import TargetComponents
+from chembl_core_model.models import ComponentSequences
+from chembl_core_model.models import ProteinClassification
+from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import GoClassification
 
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field

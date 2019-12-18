@@ -18,18 +18,9 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
 from chembl_webservices.core.resource import WS_DEBUG
 
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import MoleculeHierarchy
-except ImportError:
-    from chembl_core_model.models import MoleculeHierarchy
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import MoleculeHierarchy
+from chembl_core_model.models import MoleculeDictionary
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

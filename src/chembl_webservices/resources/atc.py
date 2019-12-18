@@ -10,10 +10,7 @@ from chembl_webservices.core.resource import WS_DEBUG
 from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
-try:
-    from chembl_compatibility.models import AtcClassification
-except ImportError:
-    from chembl_core_model.models import AtcClassification
+from chembl_core_model.models import AtcClassification
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

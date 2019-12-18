@@ -8,38 +8,14 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.meta import ChemblResourceMeta
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import ActionType
-except ImportError:
-    from chembl_core_model.models import ActionType
-try:
-    from chembl_compatibility.models import BindingSites
-except ImportError:
-    from chembl_core_model.models import BindingSites
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import CompoundRecords
-except ImportError:
-    from chembl_core_model.models import CompoundRecords
-try:
-    from chembl_compatibility.models import DrugMechanism
-except ImportError:
-    from chembl_core_model.models import DrugMechanism
-try:
-    from chembl_compatibility.models import MechanismRefs
-except ImportError:
-    from chembl_core_model.models import MechanismRefs
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import ActionType
+from chembl_core_model.models import BindingSites
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import CompoundRecords
+from chembl_core_model.models import DrugMechanism
+from chembl_core_model.models import MechanismRefs
+from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import TargetDictionary
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

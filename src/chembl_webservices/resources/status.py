@@ -7,30 +7,12 @@ from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 
-try:
-    from chembl_compatibility.models import Version
-except ImportError:
-    from chembl_core_model.models import Version
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
-try:
-    from chembl_compatibility.models import CompoundRecords
-except ImportError:
-    from chembl_core_model.models import CompoundRecords
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
-try:
-    from chembl_compatibility.models import Activities
-except ImportError:
-    from chembl_core_model.models import Activities
-try:
-    from chembl_compatibility.models import Docs
-except ImportError:
-    from chembl_core_model.models import Docs
+from chembl_core_model.models import Version
+from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import CompoundRecords
+from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import Activities
+from chembl_core_model.models import Docs
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

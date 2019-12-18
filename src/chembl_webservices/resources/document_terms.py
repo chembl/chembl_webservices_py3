@@ -12,18 +12,9 @@ try:
     from chembl_compatibility.models import Doc2Term
 except ImportError:
     from chembl_core_model.models import Doc2Term
-try:
-    from chembl_compatibility.models import DocumentTerms
-except ImportError:
-    from chembl_core_model.models import DocumentTerms
-try:
-    from chembl_compatibility.models import Docs
-except ImportError:
-    from chembl_core_model.models import Docs
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import DocumentTerms
+from chembl_core_model.models import Docs
+from chembl_core_model.models import ChemblIdLookup
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

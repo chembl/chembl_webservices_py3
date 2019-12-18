@@ -10,74 +10,23 @@ from django.db.models import Prefetch
 from django.conf.urls import url
 from tastypie.utils import trailing_slash
 
-try:
-    from chembl_compatibility.models import Activities
-except ImportError:
-    from chembl_core_model.models import Activities
-try:
-    from chembl_compatibility.models import ActivityProperties
-except ImportError:
-    from chembl_core_model.models import ActivityProperties
-try:
-    from chembl_compatibility.models import ActivitySupp
-except ImportError:
-    from chembl_core_model.models import ActivitySupp
-try:
-    from chembl_compatibility.models import ActivitySmid
-except ImportError:
-    from chembl_core_model.models import ActivitySmid
-try:
-    from chembl_compatibility.models import ActivitySuppMap
-except ImportError:
-    from chembl_core_model.models import ActivitySuppMap
-try:
-    from chembl_compatibility.models import Assays
-except ImportError:
-    from chembl_core_model.models import Assays
-try:
-    from chembl_compatibility.models import AssayType
-except ImportError:
-    from chembl_core_model.models import AssayType
-try:
-    from chembl_compatibility.models import BioassayOntology
-except ImportError:
-    from chembl_core_model.models import BioassayOntology
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import CompoundRecords
-except ImportError:
-    from chembl_core_model.models import CompoundRecords
-try:
-    from chembl_compatibility.models import CompoundStructures
-except ImportError:
-    from chembl_core_model.models import CompoundStructures
-try:
-    from chembl_compatibility.models import DataValidityLookup
-except ImportError:
-    from chembl_core_model.models import DataValidityLookup
-try:
-    from chembl_compatibility.models import Docs
-except ImportError:
-    from chembl_core_model.models import Docs
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
-try:
-    from chembl_compatibility.models import Source
-except ImportError:
-    from chembl_core_model.models import Source
-try:
-    from chembl_compatibility.models import LigandEff
-except ImportError:
-    from chembl_core_model.models import LigandEff
+from chembl_core_model.models import Activities
+from chembl_core_model.models import ActivityProperties
+from chembl_core_model.models import ActivitySupp
+from chembl_core_model.models import ActivitySmid
+from chembl_core_model.models import ActivitySuppMap
+from chembl_core_model.models import Assays
+from chembl_core_model.models import AssayType
+from chembl_core_model.models import BioassayOntology
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import CompoundRecords
+from chembl_core_model.models import CompoundStructures
+from chembl_core_model.models import DataValidityLookup
+from chembl_core_model.models import Docs
+from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import Source
+from chembl_core_model.models import LigandEff
 
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field

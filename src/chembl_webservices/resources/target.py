@@ -12,42 +12,15 @@ from django.db.models.constants import LOOKUP_SEP
 from tastypie.utils import dict_strip_unicode_keys
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
-try:
-    from chembl_compatibility.models import TargetDictionary
-except ImportError:
-    from chembl_core_model.models import TargetDictionary
-try:
-    from chembl_compatibility.models import TargetType
-except ImportError:
-    from chembl_core_model.models import TargetType
-try:
-    from chembl_compatibility.models import TargetComponents
-except ImportError:
-    from chembl_core_model.models import TargetComponents
-try:
-    from chembl_compatibility.models import ComponentSequences
-except ImportError:
-    from chembl_core_model.models import ComponentSequences
-try:
-    from chembl_compatibility.models import ComponentSynonyms
-except ImportError:
-    from chembl_core_model.models import ComponentSynonyms
-try:
-    from chembl_compatibility.models import ComponentXref
-except ImportError:
-    from chembl_core_model.models import ComponentXref
-try:
-    from chembl_compatibility.models import TargetXref
-except ImportError:
-    from chembl_core_model.models import TargetXref
-try:
-    from chembl_compatibility.models import XrefSource
-except ImportError:
-    from chembl_core_model.models import XrefSource
+from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import TargetDictionary
+from chembl_core_model.models import TargetType
+from chembl_core_model.models import TargetComponents
+from chembl_core_model.models import ComponentSequences
+from chembl_core_model.models import ComponentSynonyms
+from chembl_core_model.models import ComponentXref
+from chembl_core_model.models import TargetXref
+from chembl_core_model.models import XrefSource
 try:
     from haystack.query import SearchQuerySet
     sqs = SearchQuerySet()

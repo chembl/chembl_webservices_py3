@@ -10,20 +10,11 @@ from chembl_webservices.core.utils import list_flatten
 import itertools
 from django.conf import settings
 
-try:
-    from chembl_compatibility.models import CompoundMols
-except ImportError:
-    from chembl_core_model.models import CompoundMols
+from chembl_core_model.models import CompoundMols
 
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import MoleculeDictionary
 
-try:
-    from chembl_compatibility.models import MoleculeHierarchy
-except ImportError:
-    from chembl_core_model.models import MoleculeHierarchy
+from chembl_core_model.models import MoleculeHierarchy
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

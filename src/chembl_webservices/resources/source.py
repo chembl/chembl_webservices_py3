@@ -4,10 +4,7 @@ from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS
 from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
-try:
-    from chembl_compatibility.models import Source
-except ImportError:
-    from chembl_core_model.models import Source
+from chembl_core_model.models import Source
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

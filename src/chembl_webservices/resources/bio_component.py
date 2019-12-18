@@ -8,23 +8,11 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import BioComponentSequences
-except ImportError:
-    from chembl_core_model.models import BioComponentSequences
+from chembl_core_model.models import BioComponentSequences
 
-try:
-    from chembl_compatibility.models import Biotherapeutics
-except ImportError:
-    from chembl_core_model.models import Biotherapeutics
-try:
-    from chembl_compatibility.models import MoleculeDictionary
-except ImportError:
-    from chembl_core_model.models import MoleculeDictionary
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import Biotherapeutics
+from chembl_core_model.models import MoleculeDictionary
+from chembl_core_model.models import ChemblIdLookup
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

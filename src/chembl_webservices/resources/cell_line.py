@@ -11,14 +11,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from tastypie.exceptions import Unauthorized
 from django.db.models import Prefetch
 
-try:
-    from chembl_compatibility.models import CellDictionary
-except ImportError:
-    from chembl_core_model.models import CellDictionary
-try:
-    from chembl_compatibility.models import ChemblIdLookup
-except ImportError:
-    from chembl_core_model.models import ChemblIdLookup
+from chembl_core_model.models import CellDictionary
+from chembl_core_model.models import ChemblIdLookup
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
