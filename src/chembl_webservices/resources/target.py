@@ -9,7 +9,6 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.utils import CHAR_FILTERS, FLAG_FILTERS, NUMBER_FILTERS
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models.sql.constants import QUERY_TERMS
 from tastypie.utils import dict_strip_unicode_keys
 from django.db.models import Prefetch
 
@@ -245,7 +244,7 @@ class TargetResource(ChemblModelResource):
 
     def preprocess_filters(self, filters, for_cache_key=False):
         ret = {}
-        for filter_expr, value in filters.items():
+        for filter_expr, value in list(filters.items()):
             filter_bits = filter_expr.split(LOOKUP_SEP)
             field_name = filter_bits.pop(0)
 
