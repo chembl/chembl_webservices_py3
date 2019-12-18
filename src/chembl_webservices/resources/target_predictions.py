@@ -55,6 +55,6 @@ class TargetPredictionsResource(ChemblModelResource):
             'in_training': FLAG_FILTERS,
             'value': NUMBER_FILTERS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
