@@ -85,7 +85,7 @@ class AssayClassResource(ChemblModelResource):
             'bao_id': CHAR_FILTERS,
             'source': CHAR_FILTERS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
         fields = (
             'assay_class_id',
@@ -119,7 +119,7 @@ class AssayParametersResource(ChemblModelResource):
             'standard_type_fixed': CHAR_FILTERS,
             'active': NUMBER_FILTERS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
         fields = (
             'type',
@@ -230,7 +230,7 @@ class AssayResource(ChemblModelResource):
             'src_id': NUMBER_FILTERS,
             'target_chembl_id': ALL,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
