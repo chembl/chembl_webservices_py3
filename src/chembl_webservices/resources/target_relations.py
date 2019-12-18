@@ -55,7 +55,7 @@ class TargetRelationsResource(ChemblModelResource):
             'related_target_chembl_id': CHAR_FILTERS,
             'relationship': CHAR_FILTERS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or
                                                                 'description' in field or 'canonical_smiles' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
