@@ -1,6 +1,6 @@
 __author__ = 'mnowotka'
 
-import StringIO
+import io
 # from chembl_beaker.beaker.draw import cairoCanvas
 # from chembl_beaker.beaker import draw
 from collections import defaultdict
@@ -27,14 +27,14 @@ try:
 except:
     pass
 
-try:
-    import indigo
-    from indigo import IndigoException
-    import indigo_renderer
-    indigoObj = indigo.Indigo()
-except ImportError:
-    indigo = None
-    indigo_renderer = None
+# try:
+#     import indigo
+#     from indigo import IndigoException
+#     import indigo_renderer
+#     indigoObj = indigo.Indigo()
+# except ImportError:
+#     indigo = None
+#     indigo_renderer = None
 
 try:
     import cairo
@@ -238,19 +238,20 @@ COLOR_NAMES = {
 
 
 def render_indigo(mol, options, frmt, margin, size, colors, ignoreCoords):
-
-    renderer = indigo_renderer.IndigoRenderer(indigoObj)
-    if options and hasattr(options, 'bgColor') and options.bgColor:
-        indigoObj.setOption("render-background-color", "%s, %s, %s" % options.bgColor)
-    indigoObj.setOption("render-output-format", frmt)
-    indigoObj.setOption("render-margins", margin, margin)
-    indigoObj.setOption("render-image-size", size, size)
-    indigoObj.setOption("render-coloring", colors)
-    indigoObj.setOption("ignore-stereochemistry-errors", "true")
-    if ignoreCoords:
-        mol.layout()
-    image = renderer.renderToBuffer(mol)
-    return image.tostring()
+    pass
+    #
+    # renderer = indigo_renderer.IndigoRenderer(indigoObj)
+    # if options and hasattr(options, 'bgColor') and options.bgColor:
+    #     indigoObj.setOption("render-background-color", "%s, %s, %s" % options.bgColor)
+    # indigoObj.setOption("render-output-format", frmt)
+    # indigoObj.setOption("render-margins", margin, margin)
+    # indigoObj.setOption("render-image-size", size, size)
+    # indigoObj.setOption("render-coloring", colors)
+    # indigoObj.setOption("ignore-stereochemistry-errors", "true")
+    # if ignoreCoords:
+    #     mol.layout()
+    # image = renderer.renderToBuffer(mol)
+    # return image.tostring()
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -309,7 +310,7 @@ def render_rdkit_legacy(mol, highlight, options, frmt, size, colors, legend):
         options.elemDict = STANDARD_RDKIT_COLORS
 
     if frmt == 'png':
-        buf = StringIO.StringIO()
+        buf = io.StringIO()
         image = draw.MolToImage(mol, size=(size, size), legend=legend, fitImage=True, options=options,
                                 highlightAtoms=highlight)
         image.save(buf, "PNG")
@@ -319,7 +320,7 @@ def render_rdkit_legacy(mol, highlight, options, frmt, size, colors, legend):
         if cffi and cairocffi.version <= (1, 10, 0):
             imageData = io.BytesIO()
         else:
-            imageData = StringIO.StringIO()
+            imageData = io.StringIO()
         surf = cairo.SVGSurface(imageData, size, size)
         ctx = cairo.Context(surf)
         canv = cairoCanvas.Canvas(ctx=ctx, size=(size, size), imageType='svg')
@@ -352,16 +353,16 @@ def highlight_substructure_rdkit(molstring, smarts):
 
 
 def highlight_substructure_indigo(molstring, smarts):
-
-    try:
-        mol = indigoObj.loadMolecule(str(molstring))
-        patt = indigoObj.loadSmarts(str(smarts))
-        match = indigoObj.substructureMatcher(mol).match(patt)
-    except IndigoException:
-        return
-    if not match:
-        return
-    return match.highlightedTarget()
+    pass
+    # try:
+    #     mol = indigoObj.loadMolecule(str(molstring))
+    #     patt = indigoObj.loadSmarts(str(smarts))
+    #     match = indigoObj.substructureMatcher(mol).match(patt)
+    # except IndigoException:
+    #     return
+    # if not match:
+    #     return
+    # return match.highlightedTarget()
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -393,7 +394,7 @@ def unpack_request_params(params):
     ret = []
     for x in params:
         first, second = x
-        if type(second) == list and len(second) == 1 and isinstance(second[0], basestring):
+        if type(second) == list and len(second) == 1 and isinstance(second[0], str):
             ret.append((first, second[0]))
         else:
             ret.append(x)
