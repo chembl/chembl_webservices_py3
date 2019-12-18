@@ -1,5 +1,5 @@
 # encoding: utf-8
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import re
 import logging
@@ -32,8 +32,8 @@ def plural(string):
                 ('[^aeiou]y$', 'y$', 'ies'),
                 ('$', '$', 's')]
 
-    rules = map(lambda (pattern, search, replace): lambda word: re.search(pattern, word) and
-                                                                re.sub(search, replace, word), patterns)
+    rules = [lambda word: re.pattern_search_replace[1](pattern_search_replace[0], word) and
+                                                                re.sub(pattern_search_replace[1], pattern_search_replace[2], word) for pattern_search_replace in patterns]
     for rule in rules:
         result = rule(string)
         if result:
@@ -118,7 +118,7 @@ class Command(BaseCommand):
 
         self.backends = options.get('using')
         if not self.backends:
-            self.backends = haystack_connections.connections_info.keys()
+            self.backends = list(haystack_connections.connections_info.keys())
 
         age = options.get('age', DEFAULT_AGE)
         start_date = options.get('start_date')
@@ -175,7 +175,7 @@ class Command(BaseCommand):
             total = qs.count()
 
             if self.verbosity >= 1:
-                self.stdout.write(u"Indexing %d %s" % (
+                self.stdout.write("Indexing %d %s" % (
                     total, plural(force_text(model._meta.verbose_name)))
                 )
 
