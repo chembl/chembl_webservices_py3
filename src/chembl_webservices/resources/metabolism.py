@@ -60,7 +60,7 @@ class MetabolismRefsResource(ChemblModelResource):
             'ref_url': CHAR_FILTERS,
         }
 
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -129,6 +129,6 @@ class MetabolismResource(ChemblModelResource):
             'metabolite_name': CHAR_FILTERS,
         }
 
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
