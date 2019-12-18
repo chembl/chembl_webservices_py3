@@ -45,6 +45,8 @@ class StatusResource(ChemblModelResource):
     class Meta(ChemblResourceMeta):
         resource_name = 'status'
         serializer = ChEMBLApiSerializer(resource_name)
+        # This line is required to prevent Django ImproperlyConfigured: ModelResource
+        object_class = None
 
 # ----------------------------------------------------------------------------------------------------------------------
 
