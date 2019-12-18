@@ -12,9 +12,9 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.exceptions import Unauthorized
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models.sql.constants import QUERY_TERMS
 from tastypie.utils import dict_strip_unicode_keys
 from django.db.models import Prefetch
+from tastypie.bundle import Bundle
 from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
 
@@ -79,33 +79,47 @@ class MoleculeSerializer(ChEMBLApiSerializer):
         'xml': 'application/xml',
         'yaml': 'text/yaml',
         'urlencode': 'application/x-www-form-urlencoded',
-        'mol': 'text/plain',
-        'sdf': 'text/plain',
+        'mol': 'chemical/x-mdl-molfile',
+        'sdf': 'chemical/x-mdl-sdfile',
     }
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-    def to_sdf(self, data, options=None):
-        ret = data.compoundstructures.molfile.rstrip() + '\n'
-        if not options or 'no_chembl_id' in options:
-            ret += '> <chembl_id>\n{0}\n\n'.format(data.chembl_id)
-        if options and 'chebi_id' in options:
-            ret += '> <chebi_id>\n{0}\n\n'.format(data.chebi_id)
-        return ret
+    def to_sdf(self, bundle_or_dict, options=None, sdf_properties=True):
+        if isinstance(bundle_or_dict, dict):
+            data_dict = bundle_or_dict
+            if 'page_meta' in data_dict and 'molecules' in data_dict:
+                ret_text = ''
+                for molecule_bundle in data_dict['molecules']:
+                    ret_text += self.to_sdf(molecule_bundle, options, sdf_properties)+ '$$$$\n'
+                return ret_text
+            else:
+                raise Exception('Error, unexpected dictionary received with keys: {0}'.format(type(data_dict.keys())))
+        elif isinstance(bundle_or_dict, Bundle):
+            data_bundle = bundle_or_dict
+            molecule_sdf = data_bundle.data.get('molecule_structures', Bundle()).data.get('molfile', None)
+            if not molecule_sdf:
+                return ''
+            ret = molecule_sdf.rstrip() + '\n'
+            if sdf_properties:
+                if not options or not 'no_chembl_id' in options:
+                    ret += '> <chembl_id>\n{0}\n\n'.format(data_bundle.data.get('molecule_chembl_id'))
+                if options and 'chebi_par_id' in options:
+                    chebi_par_id = data_bundle.data.get('chebi_par_id')
+                    chebi_id = 'CHEBI:{0}'
+                    if chebi_par_id:
+                        chebi_id = chebi_id.format(chebi_par_id)
+                    else:
+                        chebi_id = 'Unknown'
+                    ret += '> <chebi_id>\n{0}\n\n'.format(chebi_id)
+            return ret
+        else:
+            raise Exception('Error, unexpected type received: {0}'.format(type(bundle_or_dict)))
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-    def to_mol(self, data, options=None):
-        if not isinstance(data, dict):
-            return self.to_sdf(data.obj, options)
-        ret = ''
-        if 'molecules' in data:
-            for bundle in data['molecules']:
-                try:
-                    ret += (self.to_sdf(bundle.obj) + '$$$$\n')
-                except:
-                    continue
-        return ret
+    def to_mol(self, bundle_or_dict, options=None):
+        return self.to_sdf(bundle_or_dict, options, sdf_properties=False)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -126,7 +140,7 @@ class MoleculeHierarchyResource(ChemblModelResource):
             Prefetch('molecule', queryset=MoleculeDictionary.objects.only('chembl')),
             Prefetch('parent_molecule', queryset=MoleculeDictionary.objects.only('chembl')),
         ]
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -167,7 +181,7 @@ class MoleculeStructuresResource(ChemblModelResource):
 
     class Meta(ChemblResourceMeta):
         queryset = CompoundStructures.objects.all()
-        excludes = ['molfile']
+        # excludes = ['molfile']
         resource_name = 'molecule_structures'
         collection_name = 'molecule_structures'
         serializer = ChEMBLApiSerializer(resource_name, {collection_name: resource_name})
@@ -176,6 +190,7 @@ class MoleculeStructuresResource(ChemblModelResource):
             'standard_inchi',
             'standard_inchi_key',
             'canonical_smiles',
+            'molfile'
         )
 
         filtering = {
@@ -245,7 +260,7 @@ class MoleculePropertiesResource(ChemblModelResource):
             'hbd_lipinski': NUMBER_FILTERS,
             'num_lipinski_ro5_violations': NUMBER_FILTERS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -476,7 +491,7 @@ _SMILES_.
         detail_uri_name = None
         obj_identifiers = None
 
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             if key.endswith('_list'):
                 detail_uri_name = key.split('_list')[0]
                 obj_identifiers = value.split(';')
@@ -508,15 +523,15 @@ _SMILES_.
 # ----------------------------------------------------------------------------------------------------------------------
 
     def decode_plus(self, kwargs):
-        return {k: v.replace(' ', '+') if (isinstance(k, basestring)
+        return {k: v.replace(' ', '+') if (isinstance(k, str)
                                            and k.startswith('molecule_structures__canonical_smiles'))
-        else v for k, v in kwargs.items()}
+        else v for k, v in list(kwargs.items())}
 
 # ----------------------------------------------------------------------------------------------------------------------
 
     def remove_api_resource_names(self, kwargs):
         aliases = {'smiles': 'molecule_structures__canonical_smiles'}
-        for alias, name in aliases.items():
+        for alias, name in list(aliases.items()):
             if alias in kwargs:
                 kwargs[name] = kwargs.pop(alias)
         decoded_kwargs = self.decode_plus(kwargs)
@@ -543,7 +558,7 @@ _SMILES_.
 
     def preprocess_filters(self, filters, for_cache_key=False):
         ret = {}
-        for filter_expr, value in filters.items():
+        for filter_expr, value in list(filters.items()):
             filter_bits = filter_expr.split(LOOKUP_SEP)
             if filter_expr == 'similarity':
                 continue
@@ -570,7 +585,7 @@ _SMILES_.
         cache_ordered_dict = super(MoleculeResource, self)._get_cache_args(*args, **kwargs)
         smooshed = []
         filters, _ = self.build_filters(kwargs, for_cache_key=True)
-        for key, value in filters.items():
+        for key, value in list(filters.items()):
             smooshed.append("%s=%s" % (key, value))
         cache_ordered_dict['filters'] = '|'.join(sorted(smooshed))
         return cache_ordered_dict
