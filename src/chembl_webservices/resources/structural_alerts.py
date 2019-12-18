@@ -12,11 +12,8 @@ from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS
 from chembl_webservices.resources.image import SUPPORTED_ENGINES
 from tastypie.resources import ALL, ALL_WITH_RELATIONS
 from chembl_webservices.core.utils import COLOR_NAMES
-# from chembl_webservices.core.utils import options
-from chembl_webservices.core.utils import render_indigo
 from chembl_webservices.core.utils import render_rdkit
 from chembl_webservices.core.utils import highlight_substructure_rdkit
-from chembl_webservices.core.utils import highlight_substructure_indigo
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.conf import settings
 from tastypie.exceptions import ImmediateHttpResponse
@@ -72,7 +69,7 @@ class StructuralAlertSetsResource(ChemblModelResource):
             'priority': NUMBER_FILTERS,
         }
 
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field or
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field or
                                                                 'canonical_smiles' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -103,7 +100,7 @@ class StructuralAlertsResource(ChemblModelResource):
             'alert_set': ALL_WITH_RELATIONS,
         }
 
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field or
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field or
                                                                 'canonical_smiles' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -148,7 +145,7 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
             'alert': ALL_WITH_RELATIONS,
             'molecule_chembl_id': ALL,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field or
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field or
                                                                 'canonical_smiles' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -211,7 +208,7 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
         ignoreCoords = kwargs.get("ignoreCoords", False)
 
         bgColor = kwargs.get("bgColor")
-        if bgColor and isinstance(bgColor, basestring):
+        if bgColor and isinstance(bgColor, str):
             bgColor = bgColor.lower()
             if bgColor in COLOR_NAMES:
                 options.bgColor = COLOR_NAMES[bgColor]
@@ -254,12 +251,6 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
             mol, matching = highlight
             ret = render_rdkit(mol, matching, options, 'svg', size, False, ignoreCoords)
 
-        elif engine == 'indigo':
-            mol = highlight_substructure_indigo(molstring, smarts)
-            if not mol:
-                raise ImmediateHttpResponse(response=http.HttpNotFound())
-            ret = render_indigo(mol, options, 'svg', 10, size, False, ignoreCoords)
-
         return ret, "image/svg+xml"
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -280,12 +271,6 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
                 raise ImmediateHttpResponse(response=http.HttpNotFound())
             mol, matching = highlight
             ret = render_rdkit(mol, matching, options, 'png', size, False, ignoreCoords)
-
-        elif engine == 'indigo':
-            mol = highlight_substructure_indigo(molstring, smarts)
-            if not mol:
-                raise ImmediateHttpResponse(response=http.HttpNotFound())
-            ret = render_indigo(mol, options, 'png', 10, size, False, ignoreCoords)
 
         return ret, "image/png"
 
