@@ -83,7 +83,7 @@ class DocsResource(ChemblModelResource):
             'patent_id': CHAR_FILTERS,
             'journal_full_title': CHAR_FILTERS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
