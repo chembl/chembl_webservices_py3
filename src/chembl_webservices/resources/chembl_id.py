@@ -56,7 +56,7 @@ class ChemblIdLookupResource(ChemblModelResource):
             'entity_type': CHAR_FILTERS,
             'status': CHAR_FILTERS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -118,22 +118,22 @@ class ChemblIdLookupResource(ChemblModelResource):
             molecule_qs = molecule._meta.queryset
             molecules = molecule.evaluate_results(molecule.get_search_results(user_query))
             res.extend([(a, molecules[str(b)]) for (a, b) in
-                        molecule_qs.filter(pk__in=molecules.keys()).values_list('chembl_id', 'pk')])
+                        molecule_qs.filter(pk__in=list(molecules.keys())).values_list('chembl_id', 'pk')])
 
             target_qs = target._meta.queryset
             targets = target.evaluate_results(target.get_search_results(user_query))
             res.extend([(a, targets[b]) for (a, b) in
-                        target_qs.filter(pk__in=targets.keys()).values_list('chembl_id', 'pk')])
+                        target_qs.filter(pk__in=list(targets.keys())).values_list('chembl_id', 'pk')])
 
             assay_qs = assay._meta.queryset
             assays = assay.evaluate_results(assay.get_search_results(user_query))
             res.extend([(a, assays[str(b)]) for (a, b) in
-                        assay_qs.filter(pk__in=assays.keys()).values_list('chembl_id', 'pk')])
+                        assay_qs.filter(pk__in=list(assays.keys())).values_list('chembl_id', 'pk')])
 
             doc_qs = document._meta.queryset
             docs = document.evaluate_results(document.get_search_results(user_query))
             res.extend([(a, docs[str(b)]) for (a, b) in
-                        doc_qs.filter(pk__in=docs.keys()).values_list('chembl_id', 'pk')])
+                        doc_qs.filter(pk__in=list(docs.keys())).values_list('chembl_id', 'pk')])
 
         except Exception as e:
             self.log.error('Searching exception', exc_info=True, extra={'user_query': user_query, })
