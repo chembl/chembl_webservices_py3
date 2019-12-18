@@ -161,6 +161,6 @@ class TargetComponentsResource(ChemblModelResource):
             'protein_classifications': ALL_WITH_RELATIONS,
         }
 
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
 # ----------------------------------------------------------------------------------------------------------------------
