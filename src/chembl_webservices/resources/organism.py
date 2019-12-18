@@ -8,7 +8,6 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models.sql.constants import QUERY_TERMS
 from tastypie.utils import dict_strip_unicode_keys
 
 try:
@@ -39,7 +38,7 @@ class OrganismSynonymsResource(ChemblModelResource):
         filtering = {
             'synonyms': ALL_WITH_RELATIONS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -65,7 +64,7 @@ class OrganismResource(ChemblModelResource):
             'l3': CHAR_FILTERS,
             'l4_synonyms': ALL_WITH_RELATIONS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -89,7 +88,7 @@ class OrganismResource(ChemblModelResource):
 
     def preprocess_filters(self, filters, for_cache_key=False):
         ret = {}
-        for filter_expr, value in filters.items():
+        for filter_expr, value in list(filters.items()):
             filter_bits = filter_expr.split(LOOKUP_SEP)
             field_name = filter_bits.pop(0)
             if field_name == 'l4_synonyms' and (not filter_bits or filter_bits[0] != 'synonyms'):
