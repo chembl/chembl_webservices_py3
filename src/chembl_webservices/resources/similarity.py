@@ -12,7 +12,7 @@ from django.db.models.constants import LOOKUP_SEP
 from django.db import DatabaseError
 from django.conf import settings
 from django.conf.urls import url
-from django.core.urlresolvers import NoReverseMatch
+from django.urls import NoReverseMatch
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from chembl_webservices.resources.molecule import MoleculeResource
 from tastypie.exceptions import InvalidSortError
@@ -81,7 +81,7 @@ class SimilarityResource(MoleculeResource):
 
     def obj_get_list(self, bundle, **kwargs):
         smiles = kwargs.pop('smiles', None)
-        print smiles
+        print(smiles)
         try:
             std_inchi_key = kwargs.pop('standard_inchi_key', None)
             chembl_id = kwargs.pop('chembl_id', None)
@@ -98,7 +98,7 @@ class SimilarityResource(MoleculeResource):
                 try:
                     objects = self.apply_filters(bundle.request, mol_filters).values_list(
                         'compoundstructures__canonical_smiles', flat=True)
-                    stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in mol_filters.items()])
+                    stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in list(mol_filters.items())])
                     length = len(objects)
                     if length <= 0:
                         raise ObjectDoesNotExist("Couldn't find an instance of '%s' which matched '%s'." %
@@ -118,7 +118,7 @@ class SimilarityResource(MoleculeResource):
                 except ValueError:
                     raise BadRequest("Invalid resource lookup data provided (mismatched type).")
 
-            if not isinstance(smiles, basestring):
+            if not isinstance(smiles, str):
                 raise BadRequest("Similarity can only handle a single chemical structure identified by SMILES, "
                                  "InChiKey or ChEMBL ID.")
 
@@ -139,7 +139,7 @@ class SimilarityResource(MoleculeResource):
                 only = filters.get('only')
                 if only:
                     del filters['only']
-                    if isinstance(only, basestring):
+                    if isinstance(only, str):
                         only = only.split(',')
                     only = list(set(list_flatten(only)))
                 objects = self.get_object_list(bundle.request).filter(pk__in=[sim[0] for sim in similar]).filter(**filters)
@@ -265,7 +265,7 @@ class SimilarityResource(MoleculeResource):
                 sim = similarity_map[obj.molregno]
                 obj.similarity = sim
                 similarity_map[obj.molregno] = obj
-            vals = [sim for sim in similarity_map.values() if type(sim) == MoleculeDictionary]
+            vals = [sim for sim in list(similarity_map.values()) if type(sim) == MoleculeDictionary]
             return list(reversed(vals)) if '-similarity' in order_bits else vals
 
         else:
