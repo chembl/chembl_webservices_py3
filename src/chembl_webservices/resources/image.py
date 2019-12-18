@@ -2,7 +2,7 @@ __author__ = 'mnowotka'
 
 import time
 import base64
-import StringIO
+import io
 from tastypie.utils import trailing_slash
 from tastypie import http
 from tastypie import fields
@@ -11,8 +11,6 @@ from tastypie.exceptions import BadRequest
 from django.conf.urls import url
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-# from chembl_beaker.beaker.core_apps.jsonImages.jsonCanvas import MolToJSON
-# from chembl_beaker.beaker import draw
 from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.resource import WS_DEBUG
 from chembl_webservices.core.meta import ChemblResourceMeta
@@ -20,9 +18,6 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.dis import SineWarp
 from chembl_webservices.resources.molecule import MoleculeResource
 from chembl_webservices.core.utils import COLOR_NAMES
-# from chembl_webservices.core.utils import options
-from chembl_webservices.core.utils import indigoObj
-from chembl_webservices.core.utils import render_indigo
 from chembl_webservices.core.utils import render_rdkit
 
 try:
@@ -61,7 +56,7 @@ except ImportError:
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
 
-SUPPORTED_ENGINES = ['rdkit', 'indigo']
+SUPPORTED_ENGINES = ['rdkit']
 
 fakeSerializer = ChEMBLApiSerializer('image')
 fakeSerializer.formats = ['png', 'svg', 'json']
@@ -90,7 +85,7 @@ Get image of the compound, specified by
 
 You can specify optional parameters:
 
-*  __engine__ - chemistry toolkit used for rendering, can be _rdkit_ or _indigo_, default: _rdkit_.
+*  __engine__ - chemistry toolkit used for rendering, can be _rdkit_ only, default: _rdkit_.
 *  __dimensions__ - size of the image (the length of the square image side). Can't be more than _500_, default: _500_.
 *  __ignoreCoords__ - Ignore 2D coordinates encoded in the molfile and let the chemistry toolkit to recompute them.
 
@@ -151,7 +146,7 @@ You can specify optional parameters:
 
             request.format = kwargs.get('format', None)
 
-            if 'molecule__chembl_id' in kwargs and isinstance(kwargs['molecule__chembl_id'], basestring):
+            if 'molecule__chembl_id' in kwargs and isinstance(kwargs['molecule__chembl_id'], str):
                 kwargs['molecule__chembl_id'] = kwargs['molecule__chembl_id'].upper()
 
             wrapped_view = super(ChemblModelResource, self).wrap_view(view)
@@ -196,8 +191,8 @@ You can specify optional parameters:
         if not chembl_id and not standard_inchi_key:
             raise BadRequest("ChEMBL ID or standard InChi Key required.")
 
-        filters = dict((k,v) for k,v in kwargs.items() if k in ('molecule__chembl_id','standard_inchi_key'))
-        stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in filters.items()])
+        filters = dict((k,v) for k,v in list(kwargs.items()) if k in ('molecule__chembl_id','standard_inchi_key'))
+        stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in list(filters.items())])
 
         filters.update({
             'molecule__chembl__entity_type':'COMPOUND',
@@ -230,7 +225,7 @@ You can specify optional parameters:
         ignoreCoords = kwargs.get("ignoreCoords", False)
 
         bgColor = kwargs.get("bgColor")
-        if bgColor and isinstance(bgColor, basestring):
+        if bgColor and isinstance(bgColor, str):
             bgColor = bgColor.lower()
             if bgColor in COLOR_NAMES:
                 options.bgColor = COLOR_NAMES[bgColor]
@@ -274,9 +269,6 @@ You can specify optional parameters:
             mol = Chem.MolFromMolBlock(str(molstring), sanitize=False)
             mol.UpdatePropertyCache(strict=False)
             ret = render_rdkit(mol, None, options, 'svg', size, True, ignoreCoords)
-        elif engine == 'indigo':
-            mol = indigoObj.loadMolecule(str(molstring))
-            ret = render_indigo(mol, options, 'svg', 10, size, True, ignoreCoords)
         return ret, "image/svg+xml"
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -302,9 +294,6 @@ You can specify optional parameters:
             mol = Chem.MolFromMolBlock(str(molstring), sanitize=False)
             mol.UpdatePropertyCache(strict=False)
             ret = render_rdkit(mol, None, options, 'png', size, True, ignoreCoords)
-        elif engine == 'indigo':
-            mol = indigoObj.loadMolecule(str(molstring))
-            ret = render_indigo(mol, options, 'png', 10, size, True, ignoreCoords)
         return ret, "image/png"
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -356,7 +345,7 @@ You can specify optional parameters:
 # ----------------------------------------------------------------------------------------------------------------------
 
     def render_chemcha(self, molstring, size, ignoreCoords):
-        buf = StringIO.StringIO()
+        buf = io.StringIO()
         fontSize = int(size / 33)
         if size < 200:
             fontSize = 1
