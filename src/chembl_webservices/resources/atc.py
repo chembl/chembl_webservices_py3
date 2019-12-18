@@ -41,7 +41,7 @@ class AtcResource(ChemblModelResource):
             'who_id': CHAR_FILTERS,
             'who_name': CHAR_FILTERS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
     def get_level(self, pk):
         length = len(pk)
@@ -65,7 +65,7 @@ class AtcResource(ChemblModelResource):
         used to narrow the query.
         """
         filters = {}
-        stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in kwargs.items()])
+        stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in list(kwargs.items())])
         pk = kwargs.get('pk')
         if pk:
             del kwargs['pk']
