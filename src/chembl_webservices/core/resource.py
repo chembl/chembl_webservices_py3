@@ -7,7 +7,7 @@ import re
 import time
 import logging
 import itertools
-from urllib import unquote
+from urllib.parse import unquote
 from tastypie import http
 from tastypie.exceptions import BadRequest
 from tastypie.exceptions import UnsupportedFormat
@@ -34,7 +34,6 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import FieldError
 from django.core.exceptions import TooManyFieldsSent
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models.sql.constants import QUERY_TERMS
 from django.db import DatabaseError
 from chembl_webservices.core.utils import represents_int
 from chembl_webservices.core.utils import list_flatten
@@ -135,8 +134,8 @@ class ChemblModelResource(ModelResource):
 
     def build_columns_info(self):
         columns = []
-        core_fields = set([k for k, v in self.fields.items() if not getattr(v, 'is_related', False)])
-        for field_name, field_object in self.fields.items():
+        core_fields = set([k for k, v in list(self.fields.items()) if not getattr(v, 'is_related', False)])
+        for field_name, field_object in list(self.fields.items()):
             if not getattr(field_object, 'is_related', False):
                 if field_object.use_in != 'all':
                     continue
@@ -163,7 +162,7 @@ class ChemblModelResource(ModelResource):
 
     def build_schema(self):
         data = super(ChemblModelResource, self).build_schema()
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             if getattr(field_object, 'is_related', False):
                 nested_schema = field_object.get_related_resource(None).build_schema()
                 del nested_schema['allowed_detail_http_methods']
@@ -261,10 +260,10 @@ class ChemblModelResource(ModelResource):
 
                 request.format = kwargs.pop('format', None)
 
-                if 'chembl_id' in kwargs and isinstance(kwargs['chembl_id'], basestring):
+                if 'chembl_id' in kwargs and isinstance(kwargs['chembl_id'], str):
                     kwargs['chembl_id'] = kwargs['chembl_id'].upper()
 
-                if 'chembl_id_list' in kwargs and isinstance(kwargs['chembl_id_list'], basestring):
+                if 'chembl_id_list' in kwargs and isinstance(kwargs['chembl_id_list'], str):
                     kwargs['chembl_id_list'] = kwargs['chembl_id_list'].upper()
 
                 callback = getattr(self, view)
@@ -328,7 +327,7 @@ class ChemblModelResource(ModelResource):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def unquote_args(self, args):
-        if isinstance(args, basestring):
+        if isinstance(args, str):
             if '%10' in args:
                 return args
             return unquote(args)
@@ -345,10 +344,6 @@ class ChemblModelResource(ModelResource):
 
     def _handle_database_error(self, error, request, kwargs):
         msg = str(error.message)
-        print msg
-        import pprint
-        pprint.pprint(request)
-        pprint.pprint(kwargs)
         if 'MDL-1622' in msg:
             raise BadRequest("Input string %s is not a valid SMILES string" % kwargs.get('smiles'))
         if 'MDL-2063' in msg:
@@ -413,8 +408,9 @@ class ChemblModelResource(ModelResource):
             max_limit = self._meta.max_limit
 
             try:
-                start_slice = (paginator_info['offset'] / max_limit) * max_limit
-                end_slice = ((paginator_info['offset'] + paginator_info['limit']) / max_limit) * max_limit
+                start_slice = (paginator_info['offset'] // max_limit) * max_limit
+                # start_slice = math.floor(start_slice)
+                end_slice = ((paginator_info['offset'] + paginator_info['limit']) // max_limit) * max_limit
             except ValueError:
                 raise BadRequest("Invalid limit or offset provided. Please provide integers.")
             if start_slice == end_slice:
@@ -529,7 +525,6 @@ class ChemblModelResource(ModelResource):
                                                       meta['total_count'])
 
             offset = meta.get('offset') - start_slice
-
             obj_list = {
                 self._meta.collection_name: objs[offset:offset + meta.get('limit')],
                 'page_meta': meta,
@@ -574,7 +569,7 @@ class ChemblModelResource(ModelResource):
             self.log.error('Empty user query', exc_info=True, extra={'bundle': bundle, 'kwargs': kwargs})
             raise BadRequest('No search query provided')
 
-        if user_query and not isinstance(user_query, unicode):
+        if user_query and not isinstance(user_query, str):
             user_query = user_query.decode('utf-8')
 
         self.check_user_search_query(user_query)
@@ -603,13 +598,13 @@ class ChemblModelResource(ModelResource):
         if not isinstance(res, dict):
             res = self.evaluate_results(res)
         try:
-            objects = self.chain_filters(queryset.filter(pk__in=res.keys()), applicable_filters)
+            objects = self.chain_filters(queryset.filter(pk__in=list(res.keys())), applicable_filters)
             if distinct:
                 to_defer = [f.name for f in objects.model._meta.fields if 'TextField' in f.__class__.__name__]
                 objects = objects.defer(*to_defer).distinct()
             objects = self.authorized_read_list(objects, bundle)
             objects = self.prefetch_related(objects, **kwargs)
-            if res.keys() and isinstance(res.keys()[0], int):
+            if list(res.keys()) and isinstance(list(res.keys())[0], int):
                 for obj in objects:
                     obj.score = float(int(res[obj.pk]))
             else:
@@ -708,6 +703,11 @@ class ChemblModelResource(ModelResource):
             res = self.create_response(request, bundle)
             if WS_DEBUG:
                 end = time.time()
+                # Prevent the download of sdf/mol files on the browser
+                if res.get('Content-Type', '').startswith('chemical/x-mdl'):
+                    res['Content-Type'] = res['Content-Type'].replace('chemical/x-mdl-molfile', 'text/plain')
+                    res['Content-Type'] = res['Content-Type'].replace('chemical/x-mdl-sdfile', 'text/plain')
+                res['Content-Disposition'] = 'inline'
                 res['X-ChEMBL-in-cache'] = in_cache
                 res['X-ChEMBL-retrieval-time'] = end - start
             return res
@@ -726,11 +726,11 @@ class ChemblModelResource(ModelResource):
         else:
             use_in = ['all', 'search']
         only = kwargs.get('only')
-        if only and isinstance(only, basestring):
+        if only and isinstance(only, str):
             only = [x.strip() for x in only.split(',')]
 
         # Dehydrate each field.
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             # If it's not for use in this mode, skip
             if only and all([field_name not in x for x in only]):
                 continue
@@ -885,11 +885,11 @@ class ChemblModelResource(ModelResource):
 
         if getattr(self._meta, 'queryset', None) is not None:
             # Get the possible query terms from the current QuerySet.
-            query_terms = self._meta.queryset.query.query_terms
-        else:
-            query_terms = QUERY_TERMS
+            query_terms = getattr(self._meta.queryset.query, 'query_terms', {})
+        # else:
+        #     query_terms = QUERY_TERMS
 
-        for filter_expr, value in filters.items():
+        for filter_expr, value in list(filters.items()):
             filter_bits = filter_expr.split(LOOKUP_SEP)
             field_name = filter_bits.pop(0)
             filter_type = 'exact'
@@ -898,7 +898,7 @@ class ChemblModelResource(ModelResource):
                 if filter_expr == 'pk' or filter_expr == self._meta.detail_uri_name:
                     qs_filters[filter_expr] = value
                 elif filter_expr == 'only':
-                    if isinstance(value, basestring):
+                    if isinstance(value, str):
                         value = [x.strip() for x in value.split(',')]
                     if filter_expr in qs_filters:
                         qs_filters[filter_expr].extend(value)
@@ -921,7 +921,7 @@ class ChemblModelResource(ModelResource):
                     raise
             if any([x.endswith('_set') for x in lookup_bits]):
                 distinct = True
-                lookup_bits = map(lambda x: x[0:-4] if x.endswith('_set') else x, lookup_bits)
+                lookup_bits = [x[0:-4] if x.endswith('_set') else x for x in lookup_bits]
             value = self.filter_value_to_python(value, field_name, filters, filter_expr, filter_type)
 
             db_field_name = LOOKUP_SEP.join(lookup_bits)
@@ -967,7 +967,7 @@ class ChemblModelResource(ModelResource):
                 to_defer = [f.name for f in object_list.model._meta.fields if 'TextField' in f.__class__.__name__]
                 object_list = object_list.defer(*to_defer).distinct()
             object_list = self.prefetch_related(object_list, **kwargs)
-            stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in kwargs.items()])
+            stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in list(kwargs.items())])
 
             if len(object_list) <= 0:
                 raise ObjectDoesNotExist("Couldn't find an instance of '%s' which matched '%s'." %
@@ -988,7 +988,7 @@ class ChemblModelResource(ModelResource):
         only = applicable_filters.get('only')
         if only:
             del applicable_filters['only']
-            if isinstance(only, basestring):
+            if isinstance(only, str):
                 only = only.split(',')
             only = list(set(list_flatten(only)))
         ret = query
@@ -1013,7 +1013,7 @@ class ChemblModelResource(ModelResource):
         except (TypeError, FieldError) as e:
             if any('chembl_id' in filtr for filtr in applicable_filters):
                 applicable_filters = {
-                    k.replace('chembl_id', 'chembl__chembl_id'): v for (k, v) in applicable_filters.items()}
+                    k.replace('chembl_id', 'chembl__chembl_id'): v for (k, v) in list(applicable_filters.items())}
                 return self.chain_filters(self.get_object_list(request), applicable_filters)
             raise TypeError(e.message)
 
@@ -1029,9 +1029,9 @@ class ChemblModelResource(ModelResource):
                     key.endswith('__in') or key.endswith('__range'):
                 applicable_filters[key] = [applicable_filters[key]]
         # reserve as much *distinct* dicts as the longest sequence
-        result = [{} for i in range(max(map(len, applicable_filters.values())))]
+        result = [{} for i in range(max(list(map(len, list(applicable_filters.values())))))]
         # fill each dict, one key at a time
-        for k, seq in applicable_filters.items():
+        for k, seq in list(applicable_filters.items()):
             for oneDict, oneValue in zip(result, seq):
                 oneDict[k] = oneValue
         return result
@@ -1086,17 +1086,17 @@ class ChemblModelResource(ModelResource):
                 value = []
 
                 for part in filters.getlist(filter_expr):
-                    if isinstance(part, basestring):
+                    if isinstance(part, str):
                         value.extend(part.split(','))
                     else:
-                        if len(part) == 1 and isinstance(part[0], basestring):
+                        if len(part) == 1 and isinstance(part[0], str):
                             value.extend(part[0].split(','))
                         else:
                             value.extend(part)
             else:
-                if isinstance(value, basestring):
+                if isinstance(value, str):
                     value = value.split(',')
-                elif type(value) in (list, tuple) and len(value) == 1 and isinstance(value[0], basestring):
+                elif type(value) in (list, tuple) and len(value) == 1 and isinstance(value[0], str):
                     value = value[0].split(',')
         if filter_type == 'range':
             if len(value) != 2 or not represents_int(value[0]) or not represents_int(value[1]):
@@ -1212,7 +1212,7 @@ class ChemblModelResource(ModelResource):
         else:
             order_bits = kwargs.get(parameter_name, [])
 
-        if isinstance(order_bits, basestring):
+        if isinstance(order_bits, str):
             order_bits = [order_bits]
 
         limit = kwargs.get('limit', '') if ('list' in args or 'search' in args) else ''
@@ -1220,10 +1220,10 @@ class ChemblModelResource(ModelResource):
         query = kwargs.get('q', '') if 'search' in args else ''
         only = kwargs.get('only', '')
 
-        for key, value in filters.items():
+        for key, value in list(filters.items()):
             smooshed.append("%s=%s" % (key, value))
 
-        if isinstance(query, unicode):
+        if isinstance(query, str):
             query = query.encode('utf-8')
 
         cache_ordered_dict['api_name'] = self._meta.api_name
@@ -1243,7 +1243,7 @@ class ChemblModelResource(ModelResource):
     def generate_cache_key(self, *args, **kwargs):
 
         cache_ordered_dict = self._get_cache_args(*args, **kwargs)
-        ret = ':'.join(str(x) for x in cache_ordered_dict.values())
+        ret = ':'.join(str(x) for x in list(cache_ordered_dict.values()))
         return ret
 
 # ----------------------------------------------------------------------------------------------------------------------
