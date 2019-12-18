@@ -27,15 +27,6 @@ try:
 except:
     pass
 
-# try:
-#     import indigo
-#     from indigo import IndigoException
-#     import indigo_renderer
-#     indigoObj = indigo.Indigo()
-# except ImportError:
-#     indigo = None
-#     indigo_renderer = None
-
 try:
     import cairo
     cffi = False
@@ -237,25 +228,6 @@ COLOR_NAMES = {
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def render_indigo(mol, options, frmt, margin, size, colors, ignoreCoords):
-    pass
-    #
-    # renderer = indigo_renderer.IndigoRenderer(indigoObj)
-    # if options and hasattr(options, 'bgColor') and options.bgColor:
-    #     indigoObj.setOption("render-background-color", "%s, %s, %s" % options.bgColor)
-    # indigoObj.setOption("render-output-format", frmt)
-    # indigoObj.setOption("render-margins", margin, margin)
-    # indigoObj.setOption("render-image-size", size, size)
-    # indigoObj.setOption("render-coloring", colors)
-    # indigoObj.setOption("ignore-stereochemistry-errors", "true")
-    # if ignoreCoords:
-    #     mol.layout()
-    # image = renderer.renderToBuffer(mol)
-    # return image.tostring()
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
 def render_rdkit(mol, highlight, options, frmt, size, colors, ignoreCoords):
 
     leg = mol.GetProp("_Name") if mol.HasProp("_Name") else None
@@ -348,21 +320,6 @@ def highlight_substructure_rdkit(molstring, smarts):
         return
     matching = mol.GetSubstructMatch(patt)
     return mol, matching
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def highlight_substructure_indigo(molstring, smarts):
-    pass
-    # try:
-    #     mol = indigoObj.loadMolecule(str(molstring))
-    #     patt = indigoObj.loadSmarts(str(smarts))
-    #     match = indigoObj.substructureMatcher(mol).match(patt)
-    # except IndigoException:
-    #     return
-    # if not match:
-    #     return
-    # return match.highlightedTarget()
 
 # ----------------------------------------------------------------------------------------------------------------------
 
