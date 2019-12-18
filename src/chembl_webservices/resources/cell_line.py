@@ -64,7 +64,7 @@ class CellLineResource(ChemblModelResource):
             'efo_id': CHAR_FILTERS,
             'cl_lincs_id': CHAR_FILTERS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ class CellLineResource(ChemblModelResource):
         detail_uri_name = None
         obj_identifiers = None
 
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             if key.endswith('_list'):
                 detail_uri_name = key.split('_list')[0]
                 obj_identifiers = value.split(';')
