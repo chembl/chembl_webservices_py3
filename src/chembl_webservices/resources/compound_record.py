@@ -53,6 +53,6 @@ class CompoundRecordsResource(ChemblModelResource):
             'curated': FLAG_FILTERS,
             'src_id': NUMBER_FILTERS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field)]
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
