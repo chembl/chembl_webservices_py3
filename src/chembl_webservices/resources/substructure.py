@@ -3,7 +3,7 @@ __author__ = 'mnowotka'
 from tastypie.exceptions import BadRequest
 from tastypie.utils import trailing_slash
 from django.conf.urls import url
-from django.core.urlresolvers import NoReverseMatch
+from django.urls import NoReverseMatch
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from chembl_webservices.resources.molecule import MoleculeResource
 from chembl_webservices.core.utils import list_flatten
@@ -80,7 +80,7 @@ class SubstructureResource(MoleculeResource):
                     mol_filters = {'compoundstructures__standard_inchi_key': std_inchi_key}
                 objects = self.apply_filters(bundle.request, mol_filters).values_list(
                     'compoundstructures__canonical_smiles', flat=True)
-                stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in mol_filters.items()])
+                stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in list(mol_filters.items())])
                 length = len(objects)
                 if length <= 0:
                     raise ObjectDoesNotExist("Couldn't find an instance of '%s' which matched '%s'." %
@@ -100,7 +100,7 @@ class SubstructureResource(MoleculeResource):
             except ValueError:
                 raise BadRequest("Invalid resource lookup data provided (mismatched type).")
 
-        if not isinstance(smiles, basestring):
+        if not isinstance(smiles, str):
             raise BadRequest("Substructure can only handle a single chemical query identified by SMILES, "
                              "InChiKey or ChEMBL ID.")
 
@@ -118,7 +118,7 @@ class SubstructureResource(MoleculeResource):
         only = filters.get('only')
         if only:
             del filters['only']
-            if isinstance(only, basestring):
+            if isinstance(only, str):
                 only = only.split(',')
             only = list(set(list_flatten(only)))
         objects = self.get_object_list(bundle.request).filter(pk__in=mols).filter(**filters)
