@@ -46,7 +46,7 @@ class ComponentDomainsResource(ChemblModelResource):
             'domain_type': CHAR_FILTERS,
             'source_domain_id': CHAR_FILTERS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ class SiteComponentsResource(ChemblModelResource):
             'sitecomp_id': NUMBER_FILTERS,
             'domain': ALL_WITH_RELATIONS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -94,6 +94,6 @@ class BindingSiteResource(ChemblModelResource):
             'site_name': CHAR_FILTERS,
             'site_components': ALL_WITH_RELATIONS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
 # ----------------------------------------------------------------------------------------------------------------------
