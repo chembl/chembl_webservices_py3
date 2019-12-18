@@ -99,7 +99,7 @@ class LigandEfficiencyResource(ChemblModelResource):
             'le': NUMBER_FILTERS,
             'lle': NUMBER_FILTERS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ class ActivityPropertiesResource(ChemblModelResource):
             'comments': CHAR_FILTERS,
             'result_flag': CHAR_FILTERS,
         }
-        ordering = filtering.keys()
+        ordering = list(filtering.keys())
 
         fields = (
             'type',
@@ -276,7 +276,7 @@ class ActivityResource(ChemblModelResource):
             'value': NUMBER_FILTERS,
             'ligand_efficiency': ALL_WITH_RELATIONS,
         }
-        ordering = [field for field in filtering.keys() if not ('comment' in field or 'description' in field or
+        ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field or
                                                                 'canonical_smiles' in field)]
 
     def prepend_urls(self):
