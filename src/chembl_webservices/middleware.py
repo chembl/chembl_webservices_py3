@@ -7,7 +7,7 @@ import os
 import re
 import hotshot, hotshot.stats
 import tempfile
-import StringIO
+import io
 from django.db import connection
 from django.conf import settings
 import os
@@ -51,7 +51,7 @@ class ProfileMiddleware(object):
                 return name[0]
 
     def get_summary(self, results_dict, sum):
-        list = [ (item[1], item[0]) for item in results_dict.items() ]
+        list = [ (item[1], item[0]) for item in list(results_dict.items()) ]
         list.sort( reverse = True )
         list = list[:40]
 
@@ -94,7 +94,7 @@ class ProfileMiddleware(object):
         if (settings.DEBUG or request.user.is_superuser) and 'prof' in request.GET:
             self.prof.close()
 
-            out = StringIO.StringIO()
+            out = io.StringIO()
             old_stdout = sys.stdout
             sys.stdout = out
 
@@ -158,13 +158,13 @@ class SqlPrintingMiddleware(object):
                 sql_string = sql_parts[0].replace("QUERY = u'", '')
                 sql_string = SqlPrintingMiddleware.sql_format_regex.sub('\n\\1', sql_string)
                 sql_string = SqlPrintingMiddleware.sql_indent_format_regex.sub('\\1\n    ', sql_string)
-                print "QUERY TIME: %s secs" % query['time']
-                print 'QUERY:' + sql_string + '\n'
+                print("QUERY TIME: %s secs" % query['time'])
+                print('QUERY:' + sql_string + '\n')
                 if len(sql_parts) > 1:
-                    print 'PARAMS:\n' + sql_parts[1] + '\n'
+                    print('PARAMS:\n' + sql_parts[1] + '\n')
                 total_time = total_time + float(query['time'])
 
             replace_tuple = (" "*indentation, str(total_time))
-            print "%s\033[1;32m[TOTAL TIME: %s seconds]\033[0m" % replace_tuple
+            print("%s\033[1;32m[TOTAL TIME: %s seconds]\033[0m" % replace_tuple)
 
         return response
