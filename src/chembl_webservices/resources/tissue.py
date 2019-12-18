@@ -55,7 +55,7 @@ class TissueResource(ChemblModelResource):
             'caloha_id': ALL,
         }
 
-        ordering = [field for field in filtering.keys() if
+        ordering = [field for field in list(filtering.keys()) if
                     not ('comment' in field or 'description' in field or 'canonical_smiles' in field)]
 
 # ----------------------------------------------------------------------------------------------------------------------
