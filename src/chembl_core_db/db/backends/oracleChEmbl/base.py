@@ -3,7 +3,7 @@ Oracle database backend for Django.
 
 Requires cx_Oracle: http://cx-oracle.sourceforge.net/
 """
-from __future__ import unicode_literals
+
 
 import datetime
 import decimal
@@ -173,9 +173,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     _standard_pattern_ops = {k: "LIKE TRANSLATE( " + v + " USING NCHAR_CS)"
                                 " ESCAPE TRANSLATE('\\' USING NCHAR_CS)"
-                             for k, v in _pattern_ops.items()}
+                             for k, v in list(_pattern_ops.items())}
     _likec_pattern_ops = {k: "LIKEC " + v + " ESCAPE '\\'"
-                          for k, v in _pattern_ops.items()}
+                          for k, v in list(_pattern_ops.items())}
 
     Database = Database
     SchemaEditorClass = DatabaseSchemaEditor
@@ -423,7 +423,7 @@ class FormatStylePlaceholderCursor(object):
 
     def _format_params(self, params):
         try:
-            return {k: OracleParam(v, self, True) for k, v in params.items()}
+            return {k: OracleParam(v, self, True) for k, v in list(params.items())}
         except AttributeError:
             return tuple(OracleParam(p, self, True) for p in params)
 
@@ -432,7 +432,7 @@ class FormatStylePlaceholderCursor(object):
         if hasattr(params_list[0], 'keys'):
             sizes = {}
             for params in params_list:
-                for k, value in params.items():
+                for k, value in list(params.items()):
                     if value.input_size:
                         sizes[k] = value.input_size
             self.setinputsizes(**sizes)
@@ -448,7 +448,7 @@ class FormatStylePlaceholderCursor(object):
     def _param_generator(self, params):
         # Try dict handling; if that fails, treat as sequence
         if hasattr(params, 'items'):
-            return {k: v.force_bytes for k, v in params.items()}
+            return {k: v.force_bytes for k, v in list(params.items())}
         else:
             return [p.force_bytes for p in params]
 
@@ -464,7 +464,7 @@ class FormatStylePlaceholderCursor(object):
             query = convert_unicode(query, self.charset)
         elif hasattr(params, 'keys'):
             # Handle params as dict
-            args = {k: ":%s" % k for k in params.keys()}
+            args = {k: ":%s" % k for k in list(params.keys())}
             query = convert_unicode(query % args, self.charset)
         else:
             # Handle params as sequence
