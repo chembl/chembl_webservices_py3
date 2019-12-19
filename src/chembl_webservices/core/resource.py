@@ -28,6 +28,7 @@ from django.conf.urls import url
 from django.utils.cache import patch_cache_control, patch_vary_headers
 from django.conf import settings
 from django.core.signals import got_request_exception
+from django.core.exceptions import FieldDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.exceptions import ValidationError
@@ -875,37 +876,54 @@ class ChemblModelResource(ModelResource):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def build_filters(self, filters=None, ignore_bad_filters=False, for_cache_key=False):
+        """
+        Given a dictionary of filters, create the necessary ORM-level filters.
 
+        Keys should be resource fields, **NOT** model fields.
+
+        Valid values are either a list of Django filter types (i.e.
+        ``['startswith', 'exact', 'lte']``), the ``ALL`` constant or the
+        ``ALL_WITH_RELATIONS`` constant.
+        """
+        # At the declarative level:
+        #     filtering = {
+        #         'resource_field_name': ['exact', 'startswith', 'endswith', 'contains'],
+        #         'resource_field_name_2': ['exact', 'gt', 'gte', 'lt', 'lte', 'range'],
+        #         'resource_field_name_3': ALL,
+        #         'resource_field_name_4': ALL_WITH_RELATIONS,
+        #         ...
+        #     }
+        # Accepts the filters as a dict. None by default, meaning no filters.
         distinct = False
         if filters is None:
             filters = {}
-        filters = self.preprocess_filters(filters, for_cache_key)
 
         qs_filters = {}
 
-        if getattr(self._meta, 'queryset', None) is not None:
-            # Get the possible query terms from the current QuerySet.
-            query_terms = getattr(self._meta.queryset.query, 'query_terms', {})
-        # else:
-        #     query_terms = QUERY_TERMS
-
-        for filter_expr, value in list(filters.items()):
+        for filter_expr, value in filters.items():
             filter_bits = filter_expr.split(LOOKUP_SEP)
             field_name = filter_bits.pop(0)
             filter_type = 'exact'
 
-            if not field_name in self.fields:
-                if filter_expr == 'pk' or filter_expr == self._meta.detail_uri_name:
-                    qs_filters[filter_expr] = value
-                elif filter_expr == 'only':
-                    if isinstance(value, str):
-                        value = [x.strip() for x in value.split(',')]
-                    if filter_expr in qs_filters:
-                        qs_filters[filter_expr].extend(value)
-                    else:
-                        qs_filters[filter_expr] = [value]
+            if field_name not in self.fields:
+                # It's not a field we know about. Move along citizen.
                 continue
 
+            # Validate filter types other than 'exact' that are supported by the field type
+            try:
+                django_field_name = self.fields[field_name].attribute
+                field_name_parts = django_field_name.split(LOOKUP_SEP)
+                # This fixes the validation for fields that belong in related models
+                current_model = self._meta.object_class
+                for field_part_i in field_name_parts[:-1]:
+                    current_model = current_model._meta.get_field(field_part_i).related_model
+                django_field = current_model._meta.get_field(field_name_parts[-1])
+                if hasattr(django_field, 'field'):
+                    django_field = django_field.field  # related field
+            except FieldDoesNotExist:
+                raise InvalidFilterError("The '%s' field is not a valid field name" % field_name)
+
+            query_terms = django_field.get_lookups().keys()
             if len(filter_bits) and filter_bits[-1] in query_terms:
                 filter_type = filter_bits.pop()
 
@@ -913,9 +931,6 @@ class ChemblModelResource(ModelResource):
                 lookup_bits = self.check_filtering(field_name, filter_type, filter_bits)
             except InvalidFilterError:
                 if ignore_bad_filters:
-                    continue
-                elif for_cache_key:
-                    qs_filters[filter_expr] = value
                     continue
                 else:
                     raise
