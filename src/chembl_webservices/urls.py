@@ -1,5 +1,5 @@
 __author__ = 'mnowotka'
 
-from chembl_webservices import api as webservices
+from chembl_webservices.api_config import api as webservices
 
 urlpatterns = webservices.urls
