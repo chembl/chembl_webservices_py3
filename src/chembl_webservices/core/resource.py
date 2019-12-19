@@ -912,6 +912,9 @@ class ChemblModelResource(ModelResource):
             # Validate filter types other than 'exact' that are supported by the field type
             try:
                 django_field_name = self.fields[field_name].attribute
+                # Django model get_field does not require the _set ending
+                if django_field_name.endswith('_set'):
+                    django_field_name = django_field_name[:-4]
                 field_name_parts = django_field_name.split(LOOKUP_SEP)
                 # This fixes the validation for fields that belong in related models
                 current_model = self._meta.object_class
