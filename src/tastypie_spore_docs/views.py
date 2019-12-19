@@ -1,7 +1,8 @@
 __author__ = 'mnowotka'
 
 from django.http import HttpResponse
-from django.core.urlresolvers import reverse, NoReverseMatch
+
+from django.urls import reverse, NoReverseMatch
 from django.test import RequestFactory
 from collections import OrderedDict
 import json
