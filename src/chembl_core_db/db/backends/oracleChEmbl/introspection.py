@@ -37,18 +37,17 @@ class DatabaseIntrospection(OracleDatabaseIntrospection):
             if precision == 0 and scale == (-127):
                 return 'ChemblNoLimitDecimalField'
             if precision == 1 and scale == 0:
-                if ins and any(map(lambda x : IN_REGEX.search(x).groups()[1] == '(0,1)', ins)):
-                        if description[6] == 0 or any(map(lambda x : IS_NOT_NULL_REGEX.match(x), constraints)):
+                if ins and any([IN_REGEX.search(x).groups()[1] == '(0,1)' for x in ins]):
+                        if description[6] == 0 or any([IS_NOT_NULL_REGEX.match(x) for x in constraints]):
                             return 'ChemblBooleanField'
                         return 'ChemblNullableBooleanField'
-                elif ins and any(map(lambda x : IN_REGEX.search(x).groups()[1] == '(-1,0,1)', ins)):
+                elif ins and any([IN_REGEX.search(x).groups()[1] == '(-1,0,1)' for x in ins]):
                     return 'ChemblNullBooleanField'
             if description[5] == 0:
-                if any(map(lambda x:IS_POSITIVE_REGEX.match(x), constraints)) or any(map(lambda x :
-                                                            IN_REGEX.search(x).groups()[1].startswith('(0,'), ins)):
+                if any([IS_POSITIVE_REGEX.match(x) for x in constraints]) or any([IN_REGEX.search(x).groups()[1].startswith('(0,') for x in ins]):
                     return 'ChemblPositiveIntegerField'
                 return 'ChemblIntegerField'
-            if any(map(lambda x:IS_POSITIVE_REGEX.match(x), constraints)):
+            if any([IS_POSITIVE_REGEX.match(x) for x in constraints]):
                 return 'ChemblPositiveDecimalField'
             return 'DecimalField'
         else:
@@ -132,7 +131,7 @@ class DatabaseIntrospection(OracleDatabaseIntrospection):
             else:
                 uniques[row[0]] = [row[1]]
         if sum >= 767:
-            print '\033[0m\033[1;%dmWarning [%s]: Uniqe together index for these columns may be to long for MySQL capabilities: %s' % (34, 5, str(uniques))
+            print('\033[0m\033[1;%dmWarning [%s]: Uniqe together index for these columns may be to long for MySQL capabilities: %s' % (34, 5, str(uniques)))
         return uniques
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -154,9 +153,9 @@ AND (data_scale = 0 OR data_scale is null);""", [table_name])
 #-----------------------------------------------------------------------------------------------------------------------
 
     def get_choices(self, constraints, arity, cursor, table_name, comments):
-        ar = filter(lambda x: arity[x][0] > 1 and arity[x][0] <= DISTINCT_CUTOFF, arity)
+        ar = [x for x in arity if arity[x][0] > 1 and arity[x][0] <= DISTINCT_CUTOFF]
         ins = [c for c in constraints if IN_REGEX.match(c)]
-        res = map(lambda x: (IN_REGEX.search(x).groups()[0], IN_REGEX.search(x).groups()[1][1:-1]), ins)
+        res = [(IN_REGEX.search(x).groups()[0], IN_REGEX.search(x).groups()[1][1:-1]) for x in ins]
         ret = {}
         null_flags = []
         flags = []
@@ -174,42 +173,42 @@ AND (data_scale = 0 OR data_scale is null);""", [table_name])
                         ch = int(ch)
                     choices.append((ch, str(ch)))
             except Exception as e:
-                print constraints
-                print "exception for choices: --->%s<---- (%s)" % (r[1], res)
+                print(constraints)
+                print("exception for choices: --->%s<---- (%s)" % (r[1], res))
                 raise e
             ret[r[0]] = tuple(choices)
 
-        choices_without_constraints = filter(lambda x: x not in ret.keys() ,ar)
+        choices_without_constraints = [x for x in ar if x not in list(ret.keys())]
         for ch in choices_without_constraints:
             distinct = self.get_distinct_values(cursor, table_name, ch)
             no_null_distinct = [x for x in distinct if x != None]
             if not no_null_distinct:
-                print "\033[0m\033[1;%dmWarning [%s]: column %s.%s is empty\033[0m" % (30, 1, table_name, ch)
+                print("\033[0m\033[1;%dmWarning [%s]: column %s.%s is empty\033[0m" % (30, 1, table_name, ch))
                 continue
             if 'CHAR' in arity[ch][2]:
-                max_len  = max(map(lambda x:len(x) if x else 0, no_null_distinct))
+                max_len  = max([len(x) if x else 0 for x in no_null_distinct])
                 if  max_len *2 < arity[ch][3]:
-                    print "\033[0m\033[1;%dmWarning [%s]: Longest string in %s.%s is more than two times shorter (%s) than maximal allowed length (%s)\033[0m" % (35, 6, table_name, ch, max_len, arity[ch][3])
+                    print("\033[0m\033[1;%dmWarning [%s]: Longest string in %s.%s is more than two times shorter (%s) than maximal allowed length (%s)\033[0m" % (35, 6, table_name, ch, max_len, arity[ch][3]))
             if len(distinct) == 2 and len(no_null_distinct) == 1:
                 if no_null_distinct[0] == 1:
                     null_flags.append(ch)
                     if not ch.endswith('_flag') and not comments.get(ch, '').lower().startswith('flag'):
-                        print "\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (NULL, %s) - should it be a flag?\033[0m" % (36, 7, table_name, ch, str(no_null_distinct[0]))
+                        print("\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (NULL, %s) - should it be a flag?\033[0m" % (36, 7, table_name, ch, str(no_null_distinct[0])))
                 else:
-                    print "\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (NULL, %s) - should it be a flag?\033[0m" % (36, 7, table_name, ch, str(no_null_distinct[0]))
+                    print("\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (NULL, %s) - should it be a flag?\033[0m" % (36, 7, table_name, ch, str(no_null_distinct[0])))
                 continue
             if len(no_null_distinct) > 2:
                 if len(no_null_distinct) == 3 and no_null_distinct[0] == -1 and no_null_distinct[1] == 0 and no_null_distinct[2] == 1:
                     tri_state_flags.append(ch)
                     if ch.endswith('_flag') and not comments.get(ch, '').lower().startswith('flag'):
-                        print "\033[0m\033[1;%dmWarning [%s]: column %s.%s has only %s distinct values (%s) but no constraint.\033[0m" % (37, 8, table_name, ch, len(no_null_distinct), ', '.join(map(lambda x: str(x),no_null_distinct)))
+                        print("\033[0m\033[1;%dmWarning [%s]: column %s.%s has only %s distinct values (%s) but no constraint.\033[0m" % (37, 8, table_name, ch, len(no_null_distinct), ', '.join([str(x) for x in no_null_distinct])))
                 else:
                     if not ch.endswith(('_type', '_lookup', '_version', '_by')):
-                        print "\033[0m\033[1;%dmWarning [%s]: column %s.%s has only %s distinct values (%s) but no constraint.\033[0m" % (37, 8, table_name, ch, len(no_null_distinct), ', '.join(map(lambda x: str(x),no_null_distinct)))
+                        print("\033[0m\033[1;%dmWarning [%s]: column %s.%s has only %s distinct values (%s) but no constraint.\033[0m" % (37, 8, table_name, ch, len(no_null_distinct), ', '.join([str(x) for x in no_null_distinct])))
                     if 'CHAR' in arity[ch][2]:
-                        ret[ch] = tuple(map(lambda x: (str(x), str(x)), no_null_distinct))
+                        ret[ch] = tuple([(str(x), str(x)) for x in no_null_distinct])
                     else:
-                        ret[ch] = tuple(map(lambda x: (x, str(x)), no_null_distinct))
+                        ret[ch] = tuple([(x, str(x)) for x in no_null_distinct])
             elif len(no_null_distinct) == 2:
                 if no_null_distinct[0] == 0 and no_null_distinct[1] == 1:
                     if arity[ch][1] == 'Y':
@@ -217,13 +216,13 @@ AND (data_scale = 0 OR data_scale is null);""", [table_name])
                     else:
                         flags.append(ch)
                     if not ch.endswith('_flag') and not comments.get(ch, '').lower().startswith('flag'):
-                        print "\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (%s) - should it be a flag?\033[0m" % (30, 9, table_name, ch, ', '.join(map(lambda x: str(x),no_null_distinct)))
+                        print("\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (%s) - should it be a flag?\033[0m" % (30, 9, table_name, ch, ', '.join([str(x) for x in no_null_distinct])))
                 else:
-                    print "\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (%s) - should it be a flag?\033[0m" % (30, 9, table_name, ch, ', '.join(map(lambda x: str(x),no_null_distinct)))
+                    print("\033[0m\033[1;%dmWarning [%s]: column %s.%s has only two distinct values (%s) - should it be a flag?\033[0m" % (30, 9, table_name, ch, ', '.join([str(x) for x in no_null_distinct])))
                     if 'CHAR' in arity[ch][2]:
-                        ret[ch] = tuple(map(lambda x: (str(x), str(x)), no_null_distinct))
+                        ret[ch] = tuple([(str(x), str(x)) for x in no_null_distinct])
                     else:
-                        ret[ch] = tuple(map(lambda x: (x, str(x)), no_null_distinct))
+                        ret[ch] = tuple([(x, str(x)) for x in no_null_distinct])
         return ret, null_flags, flags, tri_state_flags
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -280,7 +279,7 @@ AND (data_scale = 0 OR data_scale is null);""", [table_name])
         comments = {}
         for row in cursor.fetchall():
             if 'deprecated' in row[1].lower():
-                print "\033[0m\033[1;%dmWarning [%s]: column %s.%s may be deprecated \033[0m" % (32, 10, table_name, row[0])
+                print("\033[0m\033[1;%dmWarning [%s]: column %s.%s may be deprecated \033[0m" % (32, 10, table_name, row[0]))
             comments[row[0]] = (row[1])
         return comments
 
