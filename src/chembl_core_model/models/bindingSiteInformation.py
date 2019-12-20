@@ -17,10 +17,10 @@ class Domains(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel))
         )
 
     domain_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key. Unique identifier for each domain.')
-    domain_type = ChemblCharField(max_length=20, choices=DOMAIN_TYPE_CHOICES, help_text='Indicates the source of the domain (e.g., Pfam).')
-    source_domain_id = ChemblCharField(max_length=20, help_text='Identifier for the domain in the source database (e.g., Pfam ID such as PF00001).')
-    domain_name = ChemblCharField(max_length=20, blank=True, null=True, help_text='Name given to the domain in the source database (e.g., 7tm_1).')
-    domain_description = ChemblCharField(max_length=500, blank=True, null=True, help_text='Longer name or description for the domain.')
+    domain_type = models.CharField(max_length=20, choices=DOMAIN_TYPE_CHOICES, help_text='Indicates the source of the domain (e.g., Pfam).')
+    source_domain_id = models.CharField(max_length=20, help_text='Identifier for the domain in the source database (e.g., Pfam ID such as PF00001).')
+    domain_name = models.CharField(max_length=20, blank=True, null=True, help_text='Name given to the domain in the source database (e.g., 7tm_1).')
+    domain_description = models.CharField(max_length=500, blank=True, null=True, help_text='Longer name or description for the domain.')
     component_sequences = models.ManyToManyField('ComponentSequences', through="ComponentDomains", blank=True)
 
     class Meta(ChemblCoreAbstractModel.Meta):
@@ -46,7 +46,7 @@ class ComponentDomains(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
 class BindingSites(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
 
     site_id = ChemblAutoField(primary_key=True, length=9, help_text='Primary key. Unique identifier for a binding site in a given target.')
-    site_name = ChemblCharField(max_length=200, blank=True, null=True, help_text='Name/label for the binding site.')
+    site_name = models.CharField(max_length=200, blank=True, null=True, help_text='Name/label for the binding site.')
     target = models.ForeignKey(TargetDictionary, on_delete=models.PROTECT,  blank=True, null=True, db_column='tid', help_text='Foreign key to target_dictionary. Target on which the binding site is found.')
     domains = models.ManyToManyField('Domains', through="SiteComponents", blank=True)
 
@@ -62,7 +62,7 @@ class SiteComponents(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstract
     site = models.ForeignKey(BindingSites, on_delete=models.PROTECT,  help_text='Foreign key to binding_sites table.')
     component = models.ForeignKey(ComponentSequences, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the component_sequences table, indicating which molecular component of the target is involved in the binding site.')
     domain = models.ForeignKey(Domains, on_delete=models.PROTECT,  blank=True, null=True, help_text='Foreign key to the domains table, indicating which domain of the given molecular component is involved in the binding site (where not known, the domain_id may be null).')
-    site_residues = ChemblCharField(max_length=2000, blank=True, null=True, help_text='List of residues from the given molecular component that make up the binding site (where not know, will be null).')
+    site_residues = models.CharField(max_length=2000, blank=True, null=True, help_text='List of residues from the given molecular component that make up the binding site (where not know, will be null).')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         unique_together = (("site", "component", "domain"),)
