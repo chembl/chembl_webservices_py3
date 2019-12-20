@@ -125,9 +125,11 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
             Prefetch('molecule', queryset=MoleculeDictionary.objects.only('chembl')),
         ]
         fields = (
+            'cpd_str_alert_id'
         )
         filtering = {
             'alert': ALL_WITH_RELATIONS,
+            'cpd_str_alert_id': ALL,
             'molecule_chembl_id': ALL,
         }
         ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field or
@@ -193,14 +195,14 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
         ignoreCoords = kwargs.get("ignoreCoords", False)
 
         bgColor = kwargs.get("bgColor")
-        if bgColor and isinstance(bgColor, str):
-            bgColor = bgColor.lower()
-            if bgColor in COLOR_NAMES:
-                options.bgColor = COLOR_NAMES[bgColor]
-            else:
-                options.bgColor = None
-        else:
-            options.bgColor = None
+        # if bgColor and isinstance(bgColor, str):
+        #     bgColor = bgColor.lower()
+        #     if bgColor in COLOR_NAMES:
+        #         options.bgColor = COLOR_NAMES[bgColor]
+        #     else:
+        #         options.bgColor = None
+        # else:
+        #     options.bgColor = None
 
         if size < 1 or size > 500:
             return self.answerBadRequest(request, "Image dimensions supplied are invalid, max value is 500")
@@ -234,7 +236,7 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
             if not highlight:
                 raise ImmediateHttpResponse(response=http.HttpNotFound())
             mol, matching = highlight
-            ret = render_rdkit(mol, matching, options, 'svg', size, False, ignoreCoords)
+            ret = render_rdkit(mol, matching, 'svg', size, False, ignoreCoords)
 
         return ret, "image/svg+xml"
 
@@ -255,7 +257,7 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
             if not highlight:
                 raise ImmediateHttpResponse(response=http.HttpNotFound())
             mol, matching = highlight
-            ret = render_rdkit(mol, matching, options, 'png', size, False, ignoreCoords)
+            ret = render_rdkit(mol, matching, 'png', size, False, ignoreCoords)
 
         return ret, "image/png"
 
