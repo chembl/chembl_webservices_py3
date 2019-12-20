@@ -897,6 +897,7 @@ class ChemblModelResource(ModelResource):
         distinct = False
         if filters is None:
             filters = {}
+        filters = self.preprocess_filters(filters, for_cache_key)
 
         qs_filters = {}
 
@@ -905,8 +906,17 @@ class ChemblModelResource(ModelResource):
             field_name = filter_bits.pop(0)
             filter_type = 'exact'
 
-            if field_name not in self.fields:
-                # It's not a field we know about. Move along citizen.
+            if not field_name in self.fields:
+                # This is required for the dispatch_detail functionality
+                if filter_expr == 'pk' or filter_expr == self._meta.detail_uri_name:
+                    qs_filters[filter_expr] = value
+                elif filter_expr == 'only':
+                    if isinstance(value, str):
+                        value = [x.strip() for x in value.split(',')]
+                    if filter_expr in qs_filters:
+                        qs_filters[filter_expr].extend(value)
+                    else:
+                        qs_filters[filter_expr] = [value]
                 continue
 
             # Validate filter types other than 'exact' that are supported by the field type
@@ -1240,9 +1250,6 @@ class ChemblModelResource(ModelResource):
 
         for key, value in list(filters.items()):
             smooshed.append("%s=%s" % (key, value))
-
-        if isinstance(query, str):
-            query = query.encode('utf-8')
 
         cache_ordered_dict['api_name'] = self._meta.api_name
         cache_ordered_dict['resource_name'] = self._meta.resource_name
