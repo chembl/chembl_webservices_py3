@@ -292,6 +292,9 @@ class ChemblModelResource(ModelResource):
 
                 return response
 
+            except NotFound as e:
+                data = {"error_message": e.args[0]}
+                return self.error_response(request, data, response_class=http.HttpNotFound)
             except (BadRequest, fields.ApiFieldError) as e:
                 data = {"error_message": e.args[0] if getattr(e, 'args') else ''}
                 return self.error_response(request, data, response_class=http.HttpBadRequest)
@@ -940,21 +943,25 @@ class ChemblModelResource(ModelResource):
             if len(filter_bits) and filter_bits[-1] in query_terms:
                 filter_type = filter_bits.pop()
 
-            try:
-                lookup_bits = self.check_filtering(field_name, filter_type, filter_bits)
-            except InvalidFilterError:
-                if ignore_bad_filters:
-                    continue
-                else:
-                    raise
-            if any([x.endswith('_set') for x in lookup_bits]):
-                distinct = True
-                lookup_bits = [x[0:-4] if x.endswith('_set') else x for x in lookup_bits]
-            value = self.filter_value_to_python(value, field_name, filters, filter_expr, filter_type)
+            # do not validate filters if it is requested for cache key generation
+            if not for_cache_key:
+                try:
+                    lookup_bits = self.check_filtering(field_name, filter_type, filter_bits)
+                except InvalidFilterError:
+                    if ignore_bad_filters:
+                        continue
+                    else:
+                        raise
+                if any([x.endswith('_set') for x in lookup_bits]):
+                    distinct = True
+                    lookup_bits = [x[0:-4] if x.endswith('_set') else x for x in lookup_bits]
+                value = self.filter_value_to_python(value, field_name, filters, filter_expr, filter_type)
 
-            db_field_name = LOOKUP_SEP.join(lookup_bits)
-            qs_filter = "%s%s%s" % (db_field_name, LOOKUP_SEP, filter_type)
-            qs_filters[qs_filter] = value
+                db_field_name = LOOKUP_SEP.join(lookup_bits)
+                qs_filter = "%s%s%s" % (db_field_name, LOOKUP_SEP, filter_type)
+                qs_filters[qs_filter] = value
+            else:
+                qs_filters[filter_expr] = value
 
         return dict_strip_unicode_keys(qs_filters), distinct
 
