@@ -16,7 +16,7 @@ from tastypie.utils import dict_strip_unicode_keys
 from django.db.models import Prefetch
 from tastypie.bundle import Bundle
 from tastypie import http
-from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.exceptions import ImmediateHttpResponse, NotFound
 
 from chembl_core_model.models import CompoundMols
 from chembl_core_model.models import ChemblIdLookup
@@ -62,20 +62,27 @@ class MoleculeSerializer(ChEMBLApiSerializer):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def to_sdf(self, bundle_or_dict, options=None, sdf_properties=True):
+        no_struct_error_msg = 'Molecule has no structure records.'
         if isinstance(bundle_or_dict, dict):
             data_dict = bundle_or_dict
+            # if the dict include error_message data is an exception raised and should only return its text
+            if data_dict['error_message'] == no_struct_error_msg:
+                return no_struct_error_msg
             if 'page_meta' in data_dict and 'molecules' in data_dict:
                 ret_text = ''
                 for molecule_bundle in data_dict['molecules']:
                     ret_text += self.to_sdf(molecule_bundle, options, sdf_properties)+ '$$$$\n'
                 return ret_text
             else:
-                raise Exception('Error, unexpected dictionary received with keys: {0}'.format(type(data_dict.keys())))
+                raise Exception('Error, unexpected dictionary received with keys: {0}'.format(data_dict.keys()))
         elif isinstance(bundle_or_dict, Bundle):
             data_bundle = bundle_or_dict
-            molecule_sdf = data_bundle.data.get('molecule_structures', Bundle()).data.get('molfile', None)
+            molecule_structures = data_bundle.data.get('molecule_structures')
+            if not molecule_structures:
+                raise NotFound(no_struct_error_msg)
+            molecule_sdf = molecule_structures.data.get('molfile', None)
             if not molecule_sdf:
-                return ''
+                raise NotFound(no_struct_error_msg)
             ret = molecule_sdf.rstrip() + '\n'
             if sdf_properties:
                 if not options or not 'no_chembl_id' in options:
