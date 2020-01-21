@@ -26,7 +26,6 @@ from chembl_webservices.resources.tissue import TissueResource
 from chembl_webservices.resources.target_relations import TargetRelationsResource
 from chembl_webservices.resources.document_similarity import DocumentSimilarityResource
 from chembl_webservices.resources.structural_alerts import CompoundStructuralAlertsResource
-from chembl_webservices.resources.document_terms import DocumentTermsResource
 
 __all__ = [
     'ActivityResource',
@@ -55,5 +54,4 @@ __all__ = [
     'TargetRelationsResource',
     'DocumentSimilarityResource',
     'CompoundStructuralAlertsResource',
-    'DocumentTermsResource'
 ]
