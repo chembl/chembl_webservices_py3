@@ -106,30 +106,3 @@ class PaperSimilarity(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstrac
 
     class Meta(ChemblCoreAbstractModel.Meta):
         pass
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-class DocumentTerms(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
-
-    id = ChemblAutoField(primary_key=True, length=11)
-    term = models.CharField(max_length=500)
-    documents = models.ManyToManyField('Docs', through="Doc2Term", blank=True)
-
-    class Meta(ChemblCoreAbstractModel.Meta):
-        pass
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-class Doc2Term(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstractModel)):
-
-    id = ChemblAutoField(primary_key=True, length=11)
-    score = ChemblPositiveDecimalField(max_digits=11, decimal_places=6)
-    doc = models.ForeignKey(Docs, on_delete=models.PROTECT)
-    term = models.ForeignKey(DocumentTerms, on_delete=models.PROTECT)
-
-    class Meta(ChemblCoreAbstractModel.Meta):
-        unique_together = ( ("doc",  "term"),  )
-
-# ----------------------------------------------------------------------------------------------------------------------
-
