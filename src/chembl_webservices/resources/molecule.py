@@ -193,10 +193,10 @@ class MoleculePropertiesResource(ChemblModelResource):
         serializer = ChEMBLApiSerializer(resource_name, {collection_name: resource_name})
 
         fields = (
-            'acd_logd',
-            'acd_logp',
-            'acd_most_apka',
-            'acd_most_bpka',
+            'cx_logd',
+            'cx_logp',
+            'cx_most_apka',
+            'cx_most_bpka',
             'alogp',
             'aromatic_rings',
             'full_molformula',
@@ -219,10 +219,10 @@ class MoleculePropertiesResource(ChemblModelResource):
         )
 
         filtering = {
-            'acd_logd': NUMBER_FILTERS,
-            'acd_logp': NUMBER_FILTERS,
-            'acd_most_apka': NUMBER_FILTERS,
-            'acd_most_bpka': NUMBER_FILTERS,
+            'cx_logd': NUMBER_FILTERS,
+            'cx_logp': NUMBER_FILTERS,
+            'cx_most_apka': NUMBER_FILTERS,
+            'cx_most_bpka': NUMBER_FILTERS,
             'alogp': NUMBER_FILTERS,
             'aromatic_rings': NUMBER_FILTERS,
             'full_molformula': CHAR_FILTERS,
