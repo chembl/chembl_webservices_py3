@@ -50,7 +50,6 @@ class WebServicesConfig(AppConfig):
         from chembl_webservices.resources.target_relations import TargetRelationsResource
         from chembl_webservices.resources.document_similarity import DocumentSimilarityResource
         from chembl_webservices.resources.structural_alerts import CompoundStructuralAlertsResource
-        from chembl_webservices.resources.document_terms import DocumentTermsResource
         from chembl_webservices.resources.compound_record import CompoundRecordsResource
         from chembl_webservices.resources.drug import DrugsResource
         from chembl_webservices.resources.target_predictions import TargetPredictionsResource
@@ -85,7 +84,6 @@ class WebServicesConfig(AppConfig):
         api.register(TargetRelationsResource())
         api.register(DocumentSimilarityResource())
         api.register(CompoundStructuralAlertsResource())
-        api.register(DocumentTermsResource())
         api.register(CompoundRecordsResource())
         api.register(DrugsResource())
         api.register(TargetPredictionsResource())
