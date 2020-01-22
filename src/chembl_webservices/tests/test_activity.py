@@ -6,7 +6,7 @@ class ActivityTestCase(BaseWebServiceTestCase):
 
     resource = 'activity'
     id_property = 'activity_id'
-    resource_expected_count = 15504603
+    resource_expected_count = 15996368
     mandatory_properties = [
         'activity_comment',
         'activity_id',
@@ -60,19 +60,19 @@ class ActivityTestCase(BaseWebServiceTestCase):
             self.assertEqual(act_i['assay_type'], assay_type)
 
     def test_assay_type_A(self):
-        self.assay_type_filter_test_helper('A', 775430)
+        self.assay_type_filter_test_helper('A', 849651)
 
     def test_assay_type_B(self):
-        self.assay_type_filter_test_helper('B', 3198751)
+        self.assay_type_filter_test_helper('B', 3351342)
 
     def test_assay_type_F(self):
-        self.assay_type_filter_test_helper('F', 10774242)
+        self.assay_type_filter_test_helper('F', 11020469)
 
     def test_assay_type_U(self):
-        self.assay_type_filter_test_helper('U', 15311)
+        self.assay_type_filter_test_helper('U', 15377)
 
     def test_assay_type_P(self):
-        self.assay_type_filter_test_helper('P', 127430)
+        self.assay_type_filter_test_helper('P', 135981)
 
     def test_filtered_lists(self):
         act_list_req = self.get_current_resource_list({
