@@ -7,7 +7,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
 
     resource = 'molecule'
     id_property = 'molecule_chembl_id'
-    resource_expected_count = 1879206
+    resource_expected_count = 1950765
     sorting_test_props = ['pref_name']
     mandatory_properties = [
         'atc_classifications',
@@ -205,10 +205,10 @@ class CompoundTestCase(BaseWebServiceTestCase):
     def test_get_by_unique_identifier(self):
         chembl_ids = ['CHEMBL6498', 'CHEMBL6499', 'CHEMBL6505']
         inchi_keys = ['XSQLHVPPXBBUPP-UHFFFAOYSA-N', 'JXHVRXRRSSBGPY-UHFFFAOYSA-N', 'TUHYVXGNMOGVMR-GASGPIRDSA-N']
-        smiles_ids = ['CNC(=O)c1ccc(cc1)N(CC#C)Cc2ccc3nc(C)nc(O)c3c2',
-            'Cc1cc2SC(C)(C)CC(C)(C)c2cc1\\N=C(/S)\\Nc3ccc(cc3)S(=O)(=O)N',
-            'CC(C)C[C@H](NC(=O)[C@@H](NC(=O)[C@H](Cc1c[nH]c2ccccc12)NC(=O)'+
-            '[C@H]3CCCN3C(=O)C(CCCCN)CCCCN)C(C)(C)C)C(=O)O']
+        smiles_ids = ['C#CCN(Cc1ccc2nc(C)nc(O)c2c1)c1ccc(C(=O)NC)cc1',
+            'Cc1cc2c(cc1/N=C(\\S)Nc1ccc(S(N)(=O)=O)cc1)C(C)(C)CC(C)(C)S2',
+            'CC(C)C[C@H](NC(=O)[C@@H](NC(=O)[C@H](Cc1c[nH]c2ccccc12)NC(=O)'
+            '[C@H]1CCCN1C(=O)C(CCCCN)CCCCN)C(C)(C)C)C(=O)O']
 
         comp_list_req_by_inchi = self.get_current_resource_list({
             'molecule_structures__standard_inchi_key__in': ','.join(inchi_keys)
