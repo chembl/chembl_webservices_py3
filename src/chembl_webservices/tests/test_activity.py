@@ -45,7 +45,7 @@ class ActivityTestCase(BaseWebServiceTestCase):
 
     def test_activity_by_id(self):
         act = self.get_current_resource_by_id('66369')
-        self.assertEqual(act['canonical_smiles'], 'NC(=N)c1cccc(C[C@H](NS(=O)(=O)c2ccc3ccccc3c2)C(=O)N4CCOCC4)c1')
+        self.assertEqual(act['canonical_smiles'], 'N=C(N)c1cccc(C[C@H](NS(=O)(=O)c2ccc3ccccc3c2)C(=O)N2CCOCC2)c1')
         self.assertGreaterEqual(
             self.get_resource_list('target', {'target_components__accession__exact': 'Q13936'})
             ['page_meta']['total_count'], 5
