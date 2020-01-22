@@ -4,7 +4,7 @@ class DocumentTestCase(BaseWebServiceTestCase):
 
     resource = 'document'
     id_property = 'document_chembl_id'
-    resource_expected_count = 72271
+    resource_expected_count = 76076
     sorting_test_props = ['title']
     mandatory_properties = [
       'abstract',
