@@ -4,7 +4,7 @@ class DrugTestCase(BaseWebServiceTestCase):
 
     resource = 'drug'
     id_property = 'molecule_chembl_id'
-    resource_expected_count = 11628
+    resource_expected_count = 13308
     sorting_test_props = ['sc_patent', 'ob_patent']
     mandatory_properties = [
       'applicants',
