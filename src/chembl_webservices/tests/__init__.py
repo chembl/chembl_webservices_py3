@@ -25,8 +25,10 @@ class BaseWebServiceTestCase(unittest.TestCase):
     TIMEOUT = 30
     API_BASE_URL = 'https://www.ebi.ac.uk/chembl/api'
     WS_URL = API_BASE_URL + '/data'
-    # WS_URL = 'http://localhost:8000/chembl_webservices/chembl_ws'
+    WS_URL = 'http://localhost:8000/chembl_webservices/data'
     UTIL_URL = API_BASE_URL + '/utils'
+
+    TEST_STRUCTURES = False
 
     # ------------------------------------------------------------------------------------------------------------------
     # TestCase Override
