@@ -5,7 +5,7 @@ class ATCClassTestCase(BaseWebServiceTestCase):
 
     resource = 'atc_class'
     id_property = 'level5'
-    resource_expected_count = 4886
+    resource_expected_count = 4966
     sorting_test_props = ['level4', 'level4_description', 'level5']
     mandatory_properties = [
         'level1',
