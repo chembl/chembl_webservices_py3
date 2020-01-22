@@ -36,6 +36,7 @@ from django.core.exceptions import FieldError
 from django.core.exceptions import TooManyFieldsSent
 from django.db.models.constants import LOOKUP_SEP
 from django.db import DatabaseError
+from chembl_webservices.core.utils import CHAR_FILTERS
 from chembl_webservices.core.utils import represents_int
 from chembl_webservices.core.utils import list_flatten
 from chembl_webservices.core.utils import unpack_request_params
@@ -940,6 +941,11 @@ class ChemblModelResource(ModelResource):
                 raise InvalidFilterError("The '%s' field is not a valid field name" % field_name)
 
             query_terms = django_field.get_lookups().keys()
+
+            # TODO: Hack fix to filter chembl_ids using char filters
+            if field_name.endswith('chembl_id'):
+                query_terms = list(query_terms) + CHAR_FILTERS
+
             if len(filter_bits) and filter_bits[-1] in query_terms:
                 filter_type = filter_bits.pop()
 
