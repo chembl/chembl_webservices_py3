@@ -5,7 +5,7 @@ class TargetTestCase(BaseWebServiceTestCase):
 
     resource = 'protein_class'
     id_property = 'protein_class_id'
-    resource_expected_count = 857
+    resource_expected_count = 902
     sorting_test_props = ['l1', 'l2', 'l3']
     mandatory_properties = [
         'l1',
