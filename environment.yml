@@ -1,0 +1,28 @@
+name: chembl-webservices-py3
+channels:
+  - efelix
+  - conda-forge
+  - defaults
+dependencies:
+  - gunicorn=20.0.4
+  - libgdal=2.4.2
+  - pillow=5.3.0
+  - rdkit=2019.03.2
+  - django=2.2.0
+  - python=3.7.3
+  - fpsim2=0.1.5
+  - pip:
+    - django-compressor==2.3
+    - django-filters==0.2.1
+    - django-haystack==2.8.1
+    - django-tastypie==0.14.2
+    - lxml==4.4.2
+    - psycopg2==2.8.4
+    - pymongo==3.9.0
+    - pysolr==3.8.1
+    - python-mimeparse==0.1.4
+    - pyyaml==5.2
+    - raven==6.10.0
+    - requests==2.22.0
+    - simplejson==3.17.0
+    - unittest-parallel==0.8.2
