@@ -45,6 +45,10 @@ class CompoundTestCase(BaseWebServiceTestCase):
         'withdrawn_year',
         'withdrawn_country',
         'withdrawn_reason',
+        'molecule_properties.cx_most_apka',
+        'molecule_properties.cx_most_bpka',
+        'molecule_properties.cx_logp',
+        'molecule_properties.cx_logd',
         'molecule_properties.hba_lipinski',
         'molecule_properties.hbd_lipinski',
         'molecule_properties.num_lipinski_ro5_violations',
@@ -70,77 +74,6 @@ class CompoundTestCase(BaseWebServiceTestCase):
             self.get_current_resource_list(
                 {'molecule_structures__standard_inchi_key__exact': 'QFFGVLORLPOAEC-SNVBAGLBSA-N'}
             )['molecules'][0]['molecule_properties']['full_molformula'], 'C19H21ClFN3O3'
-        )
-
-    def test_compound_flexmatch(self):
-        self.assertEqual(
-            self.get_current_resource_list(
-                {
-                    'molecule_structures__canonical_smiles__flexmatch':
-                    'COc1ccc2[C@@H]3[C@H](COc2c1)C(C)(C)OC4=C3C(=O)C(=O)C5=C4OC(C)(C)[C@@H]6COc7cc(OC)ccc7[C@H]56'
-                }
-            )['molecules'][0]['molecule_structures']['standard_inchi_key'], 'GHBOEFUAGSHXPO-UWXQAFAOSA-N'
-        )
-        req = self.get_current_resource_list(
-            {
-                'molecule_structures__canonical_smiles__flexmatch':
-                'C\C(=C\C(=O)O)\C=C\C=C(/C)\C=C\C1=C(C)CCCC1(C)C'
-            }
-        )
-        self.assertGreaterEqual(
-            req['page_meta']['total_count'], 9
-        )
-        self.assertIn('ISOTRETINOIN', [c['pref_name'] for c in req['molecules']])
-
-        req = self.get_current_resource_list(
-            {
-                'molecule_structures__canonical_smiles__flexmatch':
-                'COC1(CN2CCC1CC2)C#CC(C#N)(c3ccccc3)c4ccccc4'
-            }
-        )
-        self.assertEqual(
-            req['page_meta']['total_count'], 1
-        )
-        self.assertEqual(
-            req['molecules'][0]['molecule_structures']['standard_inchi_key'], 'MMAOIAFUZKMAOY-UHFFFAOYSA-N'
-        )
-
-        req = self.get_current_resource_list(
-            {
-                'molecule_structures__canonical_smiles__flexmatch':
-                'CN1C\C(=C/c2ccc(C)cc2)\C3=C(C1)C(C(=C(N)O3)C#N)c4ccc(C)cc4'
-            }
-        )
-        self.assertEqual(
-            req['page_meta']['total_count'], 1
-        )
-        self.assertEqual(
-            req['molecules'][0]['molecule_chembl_id'], 'CHEMBL319317'
-        )
-
-    def test_compound_similarity(self):
-        self.assertGreaterEqual(
-            self.get_similar_molecules(
-                'COc1ccc2[C@@H]3[C@H](COc2c1)C(C)(C)OC4=C3C(=O)C(=O)C5=C4OC(C)(C)[C@@H]6COc7cc(OC)ccc7[C@H]56', 70
-            )['page_meta']['total_count'], 800
-        )
-        self.assertGreaterEqual(
-            self.get_similar_molecules(
-                'C\C(=C/C=C/C(=C/C(=O)O)/C)\C=C\C1=C(C)CCCC1(C)C', 70
-            )['page_meta']['total_count'], 200
-        )
-
-    def test_compound_substructure(self):
-        self.assertGreaterEqual(
-            self.get_substructure_molecules(
-                'c1ccnc2c1nccn2'
-            )['page_meta']['total_count'], 600
-        )
-
-        self.assertGreaterEqual(
-            self.get_substructure_molecules(
-                'C\C(=C/C=C/C(=C/C(=O)O)/C)\C=C\C1=C(C)CCCC1(C)C'
-            )['page_meta']['total_count'], 100
         )
 
     def test_bioactivities(self):
@@ -199,7 +132,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
 
     def test_filtered_lists(self):
         comp_list_req = self.get_current_resource_list({
-            'molecule_properties__acd_logp__gte': 1.9,
+            'molecule_properties__cx_logp__gte': 1.9,
             'molecule_properties__aromatic_rings__lte': 3,
             'chirality': -1,
         })
@@ -217,32 +150,6 @@ class CompoundTestCase(BaseWebServiceTestCase):
         self.assertEqual(comp_list_req['page_meta']['total_count'], 1)
         self.assertEqual(comp_list_req[self.get_current_plural()][0]['molecule_chembl_id'], 'CHEMBL446858')
 
-        comp_list_req = self.get_current_resource_list({
-            'molecule_structures__canonical_smiles__flexmatch':
-                'COc1ccc2[C@@H]3[C@H](COc2c1)C(C)(C)OC4=C3C(=O)C(=O)C5=C4OC(C)(C)[C@H]6COc7cc(OC)ccc7[C@@H]56',
-        })
-        self.assertEqual(comp_list_req['page_meta']['total_count'], 2)
-        self.assertIn(comp_list_req[self.get_current_plural()][0]['molecule_chembl_id'], ['CHEMBL446858', 'CHEMBL1'])
-
-    def test_flexmatch(self):
-        chembl_id = 'CHEMBL25'
-        smiles = self.get_current_resource_by_id(chembl_id)['molecule_structures']['canonical_smiles']
-
-        comp_list_req = self.get_current_resource_list({
-            'molecule_structures__canonical_smiles__flexmatch': smiles
-        })
-        found_ids_by_smiles = set()
-        for molecule_i in comp_list_req[self.get_current_plural()]:
-            found_ids_by_smiles.add(molecule_i['molecule_chembl_id'])
-
-        comp_list_req = self.get_current_resource_list({
-            'molecule_structures__canonical_smiles__flexmatch': chembl_id
-        })
-        found_ids_by_chembl_id = set()
-        for molecule_i in comp_list_req[self.get_current_plural()]:
-            found_ids_by_chembl_id.add(molecule_i['molecule_chembl_id'])
-        self.assertEqual(found_ids_by_smiles, found_ids_by_chembl_id)
-
     def test_sdf_and_inchi(self):
         molecules_to_test = ['CHEMBL25', 'CHEMBL2260549', 'CHEMBL458500', 'CHEMBL457234',
             'CHEMBL1161014', 'CHEMBL458299', 'CHEMBL163612', 'CHEMBL499817',
@@ -253,7 +160,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
             mol_data = self.get_current_resource_by_id(molecule_i)
             sdf_file = self.get_current_resource_by_id(molecule_i, custom_format='sdf')
             mol_file = self.get_current_resource_by_id(molecule_i, custom_format='mol')
-            self.assertEqual(sdf_file, mol_file, 'SDF and MOL file should be the same.')
+            self.assertTrue(sdf_file.startswith(mol_file), 'SDF file should start with the MOL file.')
             inchi_from_ctab = self.ctab2inchi(sdf_file)
             self.assertEqual(inchi_from_ctab, mol_data['molecule_structures']['standard_inchi'])
 
@@ -360,64 +267,6 @@ class CompoundTestCase(BaseWebServiceTestCase):
         })
         self.assertGreater(comp_list_req['page_meta']['total_count'], 0)
 
-    def test_longest_smiles(self):
-        longest_chembl_smiles = r"CCCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC1OC(CO)C(O)C(O)C1O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+" \
-                                r"]OC(CO)C(O)C(OC2OC(CO)C(O)C(O)C2O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC3OC(CO" \
-                                r")C(O)C(O)C3O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC4OC(CO)C(O)C(O)C4O)C(O)CO.C" \
-                                r"CCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC5OC(CO)C(O)C(O)C5O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]" \
-                                r"OC(CO)C(O)C(OC6OC(CO)C(O)C(O)C6O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC7OC(CO)" \
-                                r"C(O)C(O)C7O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC8OC(CO)C(O)C(O)C8O)C(O)CO.CC" \
-                                r"CCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC9OC(CO)C(O)C(O)C9O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]O" \
-                                r"C(CO)C(O)C(OC%10OC(CO)C(O)C(O)C%10O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC%11O" \
-                                r"C(CO)C(O)C(O)C%11O)C(O)CO.CCCCCCCCCCCCCCCC[NH2+]OC(CO)C(O)C(OC%12OC(CO)C(O)C(O)C%12" \
-                                r"O)C(O)CO.CCCCCCCCCC(C(=O)NCCc%13ccc(OP(=S)(Oc%14ccc(CCNC(=O)C(CCCCCCCCC)P(=O)(O)[O-" \
-                                r"])cc%14)N(C)\N=C\c%15ccc(Op%16(Oc%17ccc(\C=N\N(C)P(=S)(Oc%18ccc(CCNC(=O)C(CCCCCCCCC" \
-                                r")P(=O)(O)[O-])cc%18)Oc%19ccc(CCNC(=O)C(CCCCCCCCC)P(=O)(O)[O-])cc%19)cc%17)np(Oc%20c" \
-                                r"cc(\C=N\N(C)P(=S)(Oc%21ccc(CCNC(=O)C(CCCCCCCCC)P(=O)(O)[O-])cc%21)Oc%22ccc(CCNC(=O)" \
-                                r"C(CCCCCCCCC)P(=O)(O)[O-])cc%22)cc%20)(Oc%23ccc(\C=N\N(C)P(=S)(Oc%24ccc(CCNC(=O)C(CC" \
-                                r"CCCCCCC)P(=O)(O)[O-])cc%24)Oc%25ccc(CCNC(=O)C(CCCCCCCCC)P(=O)(O)[O-])cc%25)cc%23)np" \
-                                r"(Oc%26ccc(\C=N\N(C)P(=S)(Oc%27ccc(CCNC(=O)C(CCCCCCCCC)P(=O)(O)[O-])cc%27)Oc%28ccc(C" \
-                                r"CNC(=O)C(CCCCCCCCC)P(=O)(O)[O-])cc%28)cc%26)(Oc%29ccc(\C=N\N(C)P(=S)(Oc%30ccc(CCNC(" \
-                                r"=O)C(CCCCCCCCC)P(=O)(O)[O-])cc%30)Oc%31ccc(CCNC(=O)C(CCCCCCCCC)P(=O)(O)[O-])cc%31)c" \
-                                r"c%29)n%16)cc%15)cc%13)P(=O)(O)[O-]"
-        longest_smiles_chembl_id = 'CHEMBL1628285'
-        doc_1 = self.get_current_resource_by_id(longest_chembl_smiles)
-        doc_2 = self.get_current_resource_by_id(longest_smiles_chembl_id)
-        self.assertEqual(doc_1, doc_2)
-
-        comp_list_req = self.get_current_resource_list({
-            'molecule_structures__canonical_smiles': longest_chembl_smiles
-        })
-        results_list = comp_list_req[self.get_current_plural()]
-        self.assertGreater(
-            comp_list_req['page_meta']['total_count'], 0, 'Longest smiles not found with filter by canonical smiles.'
-        )
-        self.assertEqual(doc_1, results_list[0])
-
-        # Test by flexmatch
-        comp_list_req = self.get_current_resource_list({
-            'molecule_structures__canonical_smiles__flexmatch': longest_chembl_smiles
-        })
-        results_list = comp_list_req[self.get_current_plural()]
-        self.assertGreater(
-            comp_list_req['page_meta']['total_count'], 0,
-            'Longest smiles not found with filter by canonical smiles by flexmatch.'
-        )
-        self.assertEqual(doc_1, results_list[0])
-
-        # Test by substructure
-        comp_list_req = self.get_substructure_molecules(longest_chembl_smiles)
-        self.assertGreater(
-            comp_list_req['page_meta']['total_count'], 0,
-            'Longest smiles not found with filter by canonical smiles by substructure.'
-        )
-
-        # Test by similarity
-        comp_list_req = self.get_similar_molecules(longest_chembl_smiles, 100)
-        self.assertGreater(
-            comp_list_req['page_meta']['total_count'], 0,
-            'Longest smiles not found with filter by canonical smiles by substructure.'
-        )
 
     def test_atc_class(self):
         with_x_refs_chembl_id = 'CHEMBL25'
