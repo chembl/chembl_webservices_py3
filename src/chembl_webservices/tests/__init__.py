@@ -4,6 +4,7 @@ import time
 import unittest
 import requests
 import urllib.parse
+from random import randint
 
 
 class BaseWebServiceTestCase(unittest.TestCase):
@@ -103,7 +104,7 @@ class BaseWebServiceTestCase(unittest.TestCase):
         req_url = self.WS_URL + '/{0}/{1}.{2}'.format(resource_name, urllib.parse.quote(res_id), custom_format)
         return self.request_url(req_url, expected_code=expected_code, custom_format=custom_format)
 
-    def get_resource_list(self, resource_name, url_params=None):
+    def get_resource_list(self, resource_name, url_params=None, custom_format='json', expected_code=200):
         params_str = []
         if isinstance(url_params, list) or isinstance(url_params, tuple):
             for tuple_params in url_params:
@@ -111,8 +112,8 @@ class BaseWebServiceTestCase(unittest.TestCase):
         elif isinstance(url_params, dict):
             for key, value in url_params.items():
                 params_str.append('{0}={1}'.format(key, urllib.parse.quote('{0}'.format(value))))
-        req_url = self.WS_URL + '/{0}.json?{1}'.format(resource_name, '&'.join(params_str))
-        return self.request_url(req_url)
+        req_url = self.WS_URL + '/{0}.{1}?{2}'.format(resource_name, custom_format, '&'.join(params_str))
+        return self.request_url(req_url, custom_format=custom_format, expected_code=expected_code)
 
     def get_resource_list_by_ids(self, resource_name, res_ids):
         req_url = self.WS_URL + '/{0}/set/{1}.json'.format(resource_name, urllib.parse.quote(';'.join(res_ids)))
@@ -140,7 +141,8 @@ class BaseWebServiceTestCase(unittest.TestCase):
     def test_all(self):
         if self.resource:
             resource_req = self.get_resource_list(self.resource)
-            self.assertEqual(resource_req['page_meta']['total_count'], self.resource_expected_count)
+            total_count = resource_req['page_meta']['total_count']
+            self.assertEqual(total_count, self.resource_expected_count)
             first_resources = resource_req[self.get_current_plural()]
             if self.mandatory_properties:
                 for res_doc_i in first_resources:
@@ -153,7 +155,16 @@ class BaseWebServiceTestCase(unittest.TestCase):
                     desc_req = self.get_current_resource_list({'order_by': '-'+prop_i})
                     first_desc = desc_req[self.get_current_plural()][0]
                     self.assertNotEqual(first_asc[self.id_property], first_desc[self.id_property])
-        # TODO: include xml and yaml testing
+
+            # simple XML and YAML test
+            self.get_resource_list(self.resource, url_params={'offset':randint(0, total_count-20)},
+                                   custom_format='xml', expected_code=200)
+            self.get_resource_list(self.resource, url_params={'offset':randint(0, total_count-20)},
+                                   custom_format='yaml', expected_code=200)
+
+            # # unknown format test TODO: UNKNOWN formats defaults to XML
+            # self.get_resource_list(self.resource, custom_format='pdb', expected_code=404)
+            # self.get_resource_list(self.resource, custom_format='sql', expected_code=404)
 
     def get_current_resource_by_id(self, res_id, custom_format='json', expected_code=200):
         if self.resource:
