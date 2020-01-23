@@ -9,14 +9,7 @@ from tastypie.exceptions import BadRequest
 import urllib.parse
 import logging
 import json
-
-try:
-    import defusedxml.lxml as lxml
-    from defusedxml.common import DefusedXmlException
-    from defusedxml.lxml import parse as parse_xml
-    from lxml.etree import Element, tostring, LxmlError, XMLParser
-except ImportError:
-    lxml = None
+from lxml.etree import Element
 
 
 # ----------------------------------------------------------------------------------------------------------------------
