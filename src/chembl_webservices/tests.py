@@ -1,5 +1,5 @@
 from tastypie.test import ResourceTestCase
-from chembl_webservices import api_name
+from chembl_webservices.api_config import api_name
 from chembl_webservices.resources import *
 
 URL_PREFIX = '/chembl_webservices/'
