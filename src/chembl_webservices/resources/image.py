@@ -17,11 +17,8 @@ from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.dis import SineWarp
 from chembl_webservices.resources.molecule import MoleculeResource
-from chembl_webservices.core.utils import COLOR_NAMES
-from chembl_webservices.core.utils import render_rdkit
 
 from chembl_core_model.models import CompoundStructures
-from chembl_core_model.models import MoleculeHierarchy
 from chembl_core_model.models import MoleculeDictionary
 
 # If ``csrf_exempt`` isn't present, stub it.
@@ -38,11 +35,6 @@ except ImportError:
     Chem = None
     Draw = None
     AllChem = None
-
-try:
-    from chembl_beaker.beaker.draw import DrawingOptions
-except ImportError:
-    DrawingOptions = None
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()

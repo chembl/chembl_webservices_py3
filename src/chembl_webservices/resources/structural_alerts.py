@@ -11,9 +11,6 @@ from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS
 from chembl_webservices.resources.image import SUPPORTED_ENGINES
 from tastypie.resources import ALL, ALL_WITH_RELATIONS
-from chembl_webservices.core.utils import COLOR_NAMES
-from chembl_webservices.core.utils import render_rdkit
-from chembl_webservices.core.utils import highlight_substructure_rdkit
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.conf import settings
 from tastypie.exceptions import ImmediateHttpResponse
