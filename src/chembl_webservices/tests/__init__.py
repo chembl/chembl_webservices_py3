@@ -5,6 +5,8 @@ import unittest
 import requests
 import urllib.parse
 from random import randint
+# TODO use read timeot to fail tests and prompt the failed URL
+from requests.exceptions import ReadTimeout
 
 
 class BaseWebServiceTestCase(unittest.TestCase):
@@ -157,9 +159,9 @@ class BaseWebServiceTestCase(unittest.TestCase):
                     self.assertNotEqual(first_asc[self.id_property], first_desc[self.id_property])
 
             # simple XML and YAML test
-            self.get_resource_list(self.resource, url_params={'offset':randint(0, total_count-20)},
+            self.get_resource_list(self.resource, url_params={'offset':randint(0, min(total_count, 1000)-20)},
                                    custom_format='xml', expected_code=200)
-            self.get_resource_list(self.resource, url_params={'offset':randint(0, total_count-20)},
+            self.get_resource_list(self.resource, url_params={'offset':randint(0, min(total_count, 1000)-20)},
                                    custom_format='yaml', expected_code=200)
 
             # # unknown format test TODO: UNKNOWN formats defaults to XML
