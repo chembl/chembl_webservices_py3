@@ -6,13 +6,12 @@ import traceback
 import pickle
 import base64
 import pymongo
+# noinspection PyPackageRequirements ; it is covered by pymongo package
 from bson import Binary
 import re
-from datetime import datetime, timedelta
 from django.core.cache.backends.base import BaseCache
 import zlib
 import logging
-from urllib.parse import urlencode
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -114,7 +113,7 @@ class MongoDBCache(BaseCache):
 
     def _decode(self, data):
         if self._compression:
-            return pickle.loads(zlib.decompress(base64.decodestring(data)))
+            return pickle.loads(zlib.decompress(base64.decodebytes(data)))
         return pickle.loads(data)
 
 
@@ -122,7 +121,7 @@ class MongoDBCache(BaseCache):
 
     def _encode(self, data):
         if self._compression:
-            return base64.encodestring(zlib.compress(pickle.dumps(data, pickle.HIGHEST_PROTOCOL), self.compression_level))
+            return base64.encodebytes(zlib.compress(pickle.dumps(data, pickle.HIGHEST_PROTOCOL), self.compression_level))
         return Binary(pickle.dumps(data, pickle.HIGHEST_PROTOCOL))
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -200,12 +199,6 @@ class MongoDBCache(BaseCache):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def _initialize_collection(self):
-        try:
-            from gevent import monkey
-            monkey.patch_socket()
-        except ImportError:
-            pass
-
         self.connection = pymongo.MongoClient(connect=False, host=self._host, replicaset=self._rsname,
             sockettimeoutms=self._socket_timeout_ms, connecttimeoutms=self._connect_timeout_ms,
             serverSelectionTimeoutMS=self._server_selection_timeout_ms, read_preference=self._read_preference)
