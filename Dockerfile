@@ -1,5 +1,7 @@
 FROM debian:jessie-slim
 
+# revents Python from writing pyc files to disc and from buffering stdout and stderr
+ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install required ubuntu packages
