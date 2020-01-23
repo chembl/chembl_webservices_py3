@@ -52,7 +52,6 @@ class WebServicesConfig(AppConfig):
         from chembl_webservices.resources.structural_alerts import CompoundStructuralAlertsResource
         from chembl_webservices.resources.compound_record import CompoundRecordsResource
         from chembl_webservices.resources.drug import DrugsResource
-        from chembl_webservices.resources.target_predictions import TargetPredictionsResource
         from chembl_webservices.resources.organism import OrganismResource
         from chembl_webservices.resources.xref_source import XrefSourceResource
 
@@ -86,6 +85,5 @@ class WebServicesConfig(AppConfig):
         api.register(CompoundStructuralAlertsResource())
         api.register(CompoundRecordsResource())
         api.register(DrugsResource())
-        api.register(TargetPredictionsResource())
         api.register(OrganismResource())
         api.register(XrefSourceResource())
