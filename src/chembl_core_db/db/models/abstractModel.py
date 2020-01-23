@@ -25,7 +25,7 @@ class ChemblCoreAbstractModel(models.Model):
     class Meta:
         abstract = True
         app_label = 'chembl_core_model'
-        managed = settings.CORE_TABLES_MANAGED
+        managed = False
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ class ChemblCoreAbstractModel(models.Model):
 class ChemblAppAbstractModel(models.Model):
     class Meta:
         abstract = True
-        managed = settings.APP_SPECIFIC_TABLES_MANAGED
+        managed = False
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -53,11 +53,7 @@ class ChemblModelMetaClass(ModelBase):
             if hasattr(meta, "db_table"):
                 n = meta.db_table
         klas = super(ChemblModelMetaClass, cls).__new__(cls, name, bases, attrs)
-        if settings.EXPORT_MODE:
-            klas._meta.db_table = str(convert(n))
-        else:
-            klas._meta.db_table = '' + settings.CHEMBL_SCHEMA_NAME + '.' + convert(n) + ''
-
+        klas._meta.db_table = str(convert(n))
         return klas
 
 # ----------------------------------------------------------------------------------------------------------------------
