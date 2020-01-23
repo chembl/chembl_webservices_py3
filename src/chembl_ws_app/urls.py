@@ -2,6 +2,8 @@ from django.conf.urls import url, include
 from django.conf import settings
 from importlib import import_module
 
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 from django.core.handlers.wsgi import get_script_name
 from django.urls import set_script_prefix
 set_script_prefix(get_script_name({}))
@@ -15,10 +17,11 @@ except AttributeError:
 info = getattr(settings, 'API_INFO')
 
 urlpatterns =[
-    url(r'^chembl_webservices/', include('chembl_webservices.urls')),
-    url(r'^chembl_webservices/', include('tastypie_spore_docs.urls'))
+    url(r'^{0}/'.format(settings.SERVER_BASE_PATH[1:]), include('chembl_webservices.urls')),
+    url(r'^{0}/'.format(settings.SERVER_BASE_PATH[1:]), include('tastypie_spore_docs.urls'))
 ]
 
+urlpatterns += staticfiles_urlpatterns()
 
 def handler500(request):
     """
