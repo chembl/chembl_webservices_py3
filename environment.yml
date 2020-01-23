@@ -12,7 +12,9 @@ dependencies:
   - python=3.7.3
   - fpsim2=0.1.5
   - pip:
+    - defusedxml==0.6.0
     - django-compressor==2.3
+    - django-cors-headers==3.2.1
     - django-filters==0.2.1
     - django-haystack==2.8.1
     - django-tastypie==0.14.2
@@ -21,6 +23,7 @@ dependencies:
     - pymongo==3.9.0
     - pysolr==3.8.1
     - python-mimeparse==0.1.4
+    - pytz==2019.3
     - pyyaml==5.2
     - raven==6.10.0
     - requests==2.22.0
