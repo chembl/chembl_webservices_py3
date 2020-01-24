@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chembl-webservices-py3
+  labels:
+    app: chembl-webservices-py3
+spec:
+  selector:
+    matchLabels:
+      app: chembl-webservices-py3
+      tier: backend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: chembl-webservices-py3
+        tier: backend
+    spec:
+      containers:
+      - name: chembl-webservices-py3
+        image: <DOCKER_IMAGE>:<VERSION>
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+      imagePullSecrets:
+      - name: chembl-dev-registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chembl-webservices-py3
+spec:
+  selector:
+    app: chembl-webservices-py3
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: NodePort
