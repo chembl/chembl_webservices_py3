@@ -18,6 +18,9 @@ spec:
     spec:
       containers:
       - name: chembl-webservices-py3
+        envFrom:
+          - configMapRef:
+              name: chembl-webservices-py3-cm
         image: <DOCKER_IMAGE>:<VERSION>
         imagePullPolicy: Always
         ports:
