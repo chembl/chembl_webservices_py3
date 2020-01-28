@@ -6,8 +6,10 @@ SCRIPT_DIR = os.path.abspath(os.path.join(SCRIPT_PATH, os.pardir))
 APP_PATH = os.path.join(SCRIPT_DIR, 'src')
 sys.path.append(APP_PATH)
 
+ENV_FILE_LOADED = int(os.environ.get('CHEMBL_WS_PY3_ENV_LOADED', 0))
+
 ENV_FILE = os.environ.get('CHEMBL_WS_PY3_ENV')
-if ENV_FILE:
+if ENV_FILE and not ENV_FILE_LOADED:
     if os.path.exists(ENV_FILE) and os.path.isfile(ENV_FILE):
         # noinspection PyBroadException
         try:
@@ -22,6 +24,7 @@ if ENV_FILE:
                             continue
                         os.environ.setdefault(env_setting[0], '='.join(env_setting[1:]))
                         print('ENV VARIABLE LOADED: {0} => {1}'.format(env_setting[0], os.environ.get(env_setting[0])))
+                os.environ.setdefault('CHEMBL_WS_PY3_ENV_LOADED', '1')
         except:
             print('ENV FILE ERROR - - -'.format(ENV_FILE), file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
