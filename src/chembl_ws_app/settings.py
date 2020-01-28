@@ -6,6 +6,7 @@ REQUIRED_ENVIRONMENT_VARIABLES=[
     'DEBUG',
     'ADMIN_NAME',
     'ADMIN_EMAIL',
+    'FPSIM2_FILE',
     'SQL_DATABASE',
     'SQL_USER',
     'SQL_PASSWORD',
@@ -28,6 +29,9 @@ for env_var_i in REQUIRED_ENVIRONMENT_VARIABLES:
 
 if missing_required_vars:
     print('CONFIG ERROR: missing settings variables {0}.'.format(', '.join(missing_required_vars)), file=sys.stderr)
+    print('-----------------------------------------------------------------------------------------', file=sys.stderr)
+    print('You can use CHEMBL_WS_PY3_ENV environment variable to define an ENVIRONMENT file to load.', file=sys.stderr)
+    print('-----------------------------------------------------------------------------------------', file=sys.stderr)
     sys.exit(1)
 
 
@@ -79,6 +83,8 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+FPSIM2_FILE_PATH = os.environ.get('FPSIM2_FILE')
 
 DATABASES = {
     'default': {
