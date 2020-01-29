@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chembl-webservices-py3
+  name: chembl-webservices-py3-deployment
   labels:
-    app: chembl-webservices-py3
+    app: chembl-webservices-py3-deployment
 spec:
   selector:
     matchLabels:
@@ -29,10 +29,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: chembl-webservices-py3
+  name: chembl-webservices-py3-service
 spec:
   selector:
-    app: chembl-webservices-py3
+    app: chembl-webservices-py3-deployment
   ports:
   - protocol: TCP
     port: 8000
