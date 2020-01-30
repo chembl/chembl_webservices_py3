@@ -7,17 +7,19 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: chembl-webservices-py3
+      app: chembl-webservices-py3-template
       tier: backend
   replicas: 2
   template:
     metadata:
       labels:
-        app: chembl-webservices-py3
+        app: chembl-webservices-py3-template
         tier: backend
     spec:
       containers:
-      - name: chembl-webservices-py3
+      - name: chembl-webservices-py3-container
+        securityContext:
+          runAsUser: 2892 # UID for user cbl_adm
         envFrom:
           - configMapRef:
               name: chembl-webservices-py3-cm
