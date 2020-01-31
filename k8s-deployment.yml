@@ -19,7 +19,8 @@ spec:
       containers:
       - name: chembl-webservices-py3-container
         securityContext:
-          runAsUser: 2892 # UID for user cbl_adm
+          runAsUser: 2892 # UID for user cbl_adm TODO CHECK UID in HH and HX match
+        # TODO CHECK HOW TO MOUNT NFS FROM CHEMBL
         envFrom:
           - configMapRef:
               name: chembl-webservices-py3-cm
