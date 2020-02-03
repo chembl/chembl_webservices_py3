@@ -6,7 +6,8 @@ REQUIRED_ENVIRONMENT_VARIABLES=[
     'DEBUG',
     'ADMIN_NAME',
     'ADMIN_EMAIL',
-    'FPSIM2_FILE',
+    'FPSIM2_FILE_URL',
+    'FPSIM2_FILE_PATH',
     'SQL_DATABASE',
     'SQL_USER',
     'SQL_PASSWORD',
@@ -84,7 +85,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-FPSIM2_FILE_PATH = os.environ.get('FPSIM2_FILE')
+FPSIM2_FILE_URL = os.environ.get('FPSIM2_FILE_URL')
+FPSIM2_FILE_PATH = os.environ.get('FPSIM2_FILE_PATH')
 
 DATABASES = {
     'default': {
