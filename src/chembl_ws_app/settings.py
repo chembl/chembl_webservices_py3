@@ -1,6 +1,8 @@
 import os, sys
 import hashlib
 import traceback
+import pathlib
+import requests
 
 # Load ENV file if defined ---------------------------------------------------------------------------------------------
 
@@ -120,8 +122,34 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Validate required ENV variables --------------------------------------------------------------------------------------
+
 FPSIM2_FILE_URL = os.environ.get('FPSIM2_FILE_URL')
 FPSIM2_FILE_PATH = os.environ.get('FPSIM2_FILE_PATH')
+
+if not os.path.exists(FPSIM2_FILE_PATH):
+    # noinspection PyBroadException
+    try:
+        pathlib.Path(FPSIM2_FILE_PATH).touch()
+        download_req = requests.get(FPSIM2_FILE_URL)
+        if download_req.status_code != 200:
+            raise Exception('DOWNLOAD ERROR: STATUS: {0} URL: {1}'.format(download_req.status_code, FPSIM2_FILE_URL))
+        with open(FPSIM2_FILE_PATH, 'wb') as download_file:
+            download_file.write(download_req.content)
+    except:
+        print('- FPSIM2 FILE DOWNLOAD ERROR -------', file=sys.stderr)
+        traceback.print_exc()
+        print('- END FPSIM2 FILE DOWNLOAD ERROR ---', file=sys.stderr)
+        try:
+            pathlib.Path(FPSIM2_FILE_PATH).unlink()
+        except:
+            print('- FPSIM2 FILE CLEAN ERROR -------', file=sys.stderr)
+            traceback.print_exc()
+            print('- END FPSIM2 FILE CLEAN ERROR ---', file=sys.stderr)
+        sys.exit(1)
+
+
+# SQL Database connection ----------------------------------------------------------------------------------------------
 
 DATABASES = {
     'default': {
