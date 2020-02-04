@@ -131,11 +131,16 @@ if not os.path.exists(FPSIM2_FILE_PATH):
     # noinspection PyBroadException
     try:
         pathlib.Path(FPSIM2_FILE_PATH).touch()
-        download_req = requests.get(FPSIM2_FILE_URL)
+        print('DOWNLOADING FPSIM2 FILE . . .')
+        download_req = requests.get(FPSIM2_FILE_URL, stream=True)
         if download_req.status_code != 200:
             raise Exception('DOWNLOAD ERROR: STATUS: {0} URL: {1}'.format(download_req.status_code, FPSIM2_FILE_URL))
         with open(FPSIM2_FILE_PATH, 'wb') as download_file:
-            download_file.write(download_req.content)
+            for chunk in download_req.iter_content(chunk_size=8192):
+                if chunk: # filter out keep-alive new chunks
+                    download_file.write(chunk)
+
+        print('. . . FPSIM2 FILE DOWNLOADED')
     except:
         print('- FPSIM2 FILE DOWNLOAD ERROR -------', file=sys.stderr)
         traceback.print_exc()
@@ -147,6 +152,9 @@ if not os.path.exists(FPSIM2_FILE_PATH):
             traceback.print_exc()
             print('- END FPSIM2 FILE CLEAN ERROR ---', file=sys.stderr)
         sys.exit(1)
+else:
+    print('FPSIM2 FILE FOUND')
+
 
 
 # SQL Database connection ----------------------------------------------------------------------------------------------
