@@ -127,7 +127,9 @@ MANAGERS = ADMINS
 FPSIM2_FILE_URL = os.environ.get('FPSIM2_FILE_URL')
 FPSIM2_FILE_PATH = os.environ.get('FPSIM2_FILE_PATH')
 
-if not os.path.exists(FPSIM2_FILE_PATH):
+FPSIM2_FILE_CHECKED = int(os.environ.get('FPSIM2_FILE_CHECKED', 0))
+
+if not os.path.exists(FPSIM2_FILE_PATH) and not FPSIM2_FILE_CHECKED:
     # noinspection PyBroadException
     try:
         pathlib.Path(FPSIM2_FILE_PATH).touch()
@@ -148,8 +150,7 @@ if not os.path.exists(FPSIM2_FILE_PATH):
                     if download_percent > next_percent:
                         print('{0}% Downloaded'.format(next_percent))
                         next_percent += show_update_every
-
-
+        os.environ.setdefault('FPSIM2_FILE_CHECKED', '1')
         print('. . . FPSIM2 FILE DOWNLOADED')
     except:
         print('- FPSIM2 FILE DOWNLOAD ERROR -------', file=sys.stderr)
@@ -162,8 +163,18 @@ if not os.path.exists(FPSIM2_FILE_PATH):
             traceback.print_exc()
             print('- END FPSIM2 FILE CLEAN ERROR ---', file=sys.stderr)
         sys.exit(1)
-else:
+elif not FPSIM2_FILE_CHECKED:
+    os.environ.setdefault('FPSIM2_FILE_CHECKED', '1')
     print('FPSIM2 FILE FOUND')
+
+import chembl_webservices.core.fpsim2_helper as fpsim2_helper
+fpsim2_helper.FPSIM2_FILE_PATH = FPSIM2_FILE_PATH
+
+LOAD_FPSIM2_FILE = int(os.environ.get('LOAD_FPSIM2_FILE', 0))
+
+if LOAD_FPSIM2_FILE:
+    fpsim2_helper.get_fpsim_engine()
+    os.environ.setdefault('LOAD_FPSIM2_FILE', 0)
 
 
 
