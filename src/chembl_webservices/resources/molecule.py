@@ -66,7 +66,7 @@ class MoleculeSerializer(ChEMBLApiSerializer):
         if isinstance(bundle_or_dict, dict):
             data_dict = bundle_or_dict
             # if the dict include error_message data is an exception raised and should only return its text
-            if data_dict['error_message'] == no_struct_error_msg:
+            if 'error_message' in data_dict and data_dict['error_message'] == no_struct_error_msg:
                 return no_struct_error_msg
             if 'page_meta' in data_dict and 'molecules' in data_dict:
                 ret_text = ''
