@@ -132,13 +132,23 @@ if not os.path.exists(FPSIM2_FILE_PATH):
     try:
         pathlib.Path(FPSIM2_FILE_PATH).touch()
         print('DOWNLOADING FPSIM2 FILE . . .')
-        download_req = requests.get(FPSIM2_FILE_URL, stream=True)
+        download_req = requests.get(FPSIM2_FILE_URL, stream=True, headers={'Accept-Encoding': None})
         if download_req.status_code != 200:
             raise Exception('DOWNLOAD ERROR: STATUS: {0} URL: {1}'.format(download_req.status_code, FPSIM2_FILE_URL))
+        total_size = int(download_req.headers['content-length'])
+        downloaded_size = 0
+        show_update_every = 5
+        next_percent = show_update_every
         with open(FPSIM2_FILE_PATH, 'wb') as download_file:
             for chunk in download_req.iter_content(chunk_size=8192):
                 if chunk: # filter out keep-alive new chunks
                     download_file.write(chunk)
+                    downloaded_size += len(chunk)
+                    download_percent = downloaded_size/total_size * 100
+                    if download_percent > next_percent:
+                        print('{0}% Downloaded'.format(next_percent))
+                        next_percent += show_update_every
+
 
         print('. . . FPSIM2 FILE DOWNLOADED')
     except:
