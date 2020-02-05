@@ -5,6 +5,8 @@ SCRIPT_DIR = os.path.abspath(os.path.join(SCRIPT_PATH, os.pardir))
 APP_PATH = os.path.join(SCRIPT_DIR, 'src')
 sys.path.append(APP_PATH)
 
+# Load FPSIM file in memory to use with --preload (preload_app=True)
+os.environ.setdefault('LOAD_FPSIM2_FILE', '1')
 
 bind="0.0.0.0:8000"
 workers=8
@@ -17,3 +19,4 @@ accesslog="./gunicorn/_access.log"
 errorlog="./gunicorn/error.log"
 proc_name="chembl_ws_py3"
 pid="./gunicorn/run.pid"
+preload_app=True
