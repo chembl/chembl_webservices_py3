@@ -17,6 +17,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from chembl_webservices.resources.molecule import MoleculeResource
 from tastypie.exceptions import InvalidSortError
 from chembl_webservices.core.utils import list_flatten
+from chembl_webservices.core.fpsim2_helper import get_similar_molregnos
 from tastypie.exceptions import ImmediateHttpResponse
 
 from chembl_core_model.models import CompoundMols
@@ -112,11 +113,14 @@ class SimilarityResource(MoleculeResource):
                 raise BadRequest("Similarity can only handle a single chemical structure identified by SMILES, "
                                  "InChiKey or ChEMBL ID.")
 
-            similar = CompoundMols.objects.similar_to(smiles, similarity).values_list('molecule_id', 'similarity')
+            similar_molregnos = get_similar_molregnos(smiles, similarity/100.0)
+
+            # Use percentage to present similarity values
+            similar_molregnos = [(molregno_i, sim_i.item()*100) for molregno_i, sim_i in similar_molregnos]
 
             similarity_map = None
             try:
-                similarity_map = OrderedDict(sorted(similar, key=lambda x: x[1]))
+                similarity_map = OrderedDict(sorted(similar_molregnos, key=lambda x: x[1]))
             except DatabaseError as e:
                 self._handle_database_error(e, bundle.request, {'smiles': smiles})
 
@@ -132,7 +136,8 @@ class SimilarityResource(MoleculeResource):
                     if isinstance(only, str):
                         only = only.split(',')
                     only = list(set(list_flatten(only)))
-                objects = self.get_object_list(bundle.request).filter(pk__in=[sim[0] for sim in similar]).filter(**filters)
+                objects = self.get_object_list(bundle.request).filter(pk__in=[sim[0] for sim in similar_molregnos])\
+                    .filter(**filters)
                 if chembl_id:
                     objects = objects.exclude(chembl_id=chembl_id)
                 if only:
