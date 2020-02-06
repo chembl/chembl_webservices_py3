@@ -2,24 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: chembl-webservices-py3-deployment
-  labels:
-    app: chembl-webservices-py3-deployment
 spec:
   selector:
     matchLabels:
-      app: chembl-webservices-py3-template
+      app: chembl-webservices-py3-server
       tier: backend
   replicas: 2
   template:
     metadata:
       labels:
-        app: chembl-webservices-py3-template
+        app: chembl-webservices-py3-server
         tier: backend
     spec:
       containers:
       - name: chembl-webservices-py3-container
         securityContext:
-          runAsUser: 2892 # UID for user cbl_adm TODO CHECK UID in HH and HX match
+          runAsUser: <RUN_AS_USER_ID>
+          runAsGroup: <RUN_AS_GROUP_ID>
         # TODO CHECK HOW TO MOUNT NFS FROM CHEMBL
         envFrom:
           - configMapRef:
@@ -35,7 +34,7 @@ metadata:
   name: chembl-webservices-py3-service
 spec:
   selector:
-    app: chembl-webservices-py3-deployment
+    app: chembl-webservices-py3-server
   ports:
   - protocol: TCP
     port: 8000
