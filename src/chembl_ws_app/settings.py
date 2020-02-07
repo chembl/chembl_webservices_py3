@@ -43,6 +43,7 @@ REQUIRED_ENVIRONMENT_VARIABLES=[
     'DEBUG',
     'ADMIN_NAME',
     'ADMIN_EMAIL',
+    'BEAKER_URL',
     'FPSIM2_FILE_URL',
     'FPSIM2_FILE_PATH',
     'SQL_DATABASE',
@@ -121,6 +122,10 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+# Beaker URL -----------------------------------------------------------------------------------------------------------
+
+BEAKER_URL = os.environ.get('BEAKER_URL')
 
 # Validate required ENV variables --------------------------------------------------------------------------------------
 
