@@ -74,7 +74,7 @@ class MoleculeSerializer(ChEMBLApiSerializer):
                     ret_text += self.to_sdf(molecule_bundle, options, sdf_properties)+ '$$$$\n'
                 return ret_text
             else:
-                raise Exception('Error, unexpected dictionary received with keys: {0}'.format(data_dict.keys()))
+                raise ValueError('Error, unexpected dictionary received with keys: {0}'.format(data_dict.keys()))
         elif isinstance(bundle_or_dict, Bundle):
             data_bundle = bundle_or_dict
             molecule_structures = data_bundle.data.get('molecule_structures')
@@ -97,7 +97,7 @@ class MoleculeSerializer(ChEMBLApiSerializer):
                     ret += '> <chebi_id>\n{0}\n\n'.format(chebi_id)
             return ret
         else:
-            raise Exception('Error, unexpected type received: {0}'.format(type(bundle_or_dict)))
+            raise ValueError('Error, unexpected type received: {0}'.format(type(bundle_or_dict)))
 
 # ----------------------------------------------------------------------------------------------------------------------
 
