@@ -44,6 +44,10 @@ WORKDIR ${WORKDIR}
 RUN mkdir ${WORKDIR}/gunicorn
 RUN chown -R ${UID}:${GID} ${WORKDIR}/gunicorn
 
+# setup data folder
+RUN mkdir ${WORKDIR}/data
+RUN chown -R ${UID}:${GID} ${WORKDIR}/data
+
 # copy webservices code and config files
 COPY gunicorn.conf.py gunicorn.conf.py
 COPY src src
