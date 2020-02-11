@@ -203,6 +203,9 @@ You can specify optional parameters:
         if engine not in SUPPORTED_ENGINES:
             return self.answerBadRequest(request, "Unsupported engine %s" % engine)
 
+        img_mime_type = None
+        mol_img = None
+
         if engine == 'rdkit':
             img_url = BEAKER_CTAB_TO_SVG_URL
             img_url += '?size={0}'.format(size)
@@ -212,7 +215,7 @@ You can specify optional parameters:
             mol_img = img_request.content
             img_mime_type = "image/svg+xml"
         else:
-            raise ValueError('Unsupported rendering engine "{0}"'.format(engine))
+            self.answerBadRequest(request, 'Unsupported rendering engine "{0}"'.format(engine))
 
         response = HttpResponse(content_type=img_mime_type)
         response.write(mol_img)
