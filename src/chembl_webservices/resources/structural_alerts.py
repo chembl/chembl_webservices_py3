@@ -2,6 +2,7 @@ __author__ = 'mnowotka'
 
 import time
 import base64
+import requests
 from tastypie import http
 from django.http import HttpResponse
 from tastypie import fields
@@ -25,6 +26,8 @@ from chembl_core_model.models import StructuralAlertSets
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
+
+BEAKER_CTAB_TO_SVG_URL = settings.BEAKER_URL + '/highlightCtabFragmentSvg'
 
 try:
     WS_DEBUG = settings.WS_DEBUG
@@ -90,7 +93,7 @@ class StructuralAlertsResource(ChemblModelResource):
 
 class ImageAwareSerializer(ChEMBLApiSerializer):
 
-    formats = ['xml', 'json', 'jsonp', 'yaml', 'png', 'svg']
+    formats = ['xml', 'json', 'jsonp', 'yaml', 'svg']
 
     content_types = {
         'json': 'application/json',
@@ -98,8 +101,7 @@ class ImageAwareSerializer(ChEMBLApiSerializer):
         'xml': 'application/xml',
         'yaml': 'text/yaml',
         'urlencode': 'application/x-www-form-urlencoded',
-        'png': 'image/png',
-        'svg': 'image/svg',
+        'svg': 'image/svg+xml',
     }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -146,13 +148,11 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
 
         if not frmt:
             if 'HTTP_ACCEPT' in request.META:
-                if request.META['HTTP_ACCEPT'] == 'image/svg':
+                if request.META['HTTP_ACCEPT'] == 'image/svg' or request.META['HTTP_ACCEPT'] == 'image/svg+xml':
                     frmt = 'svg'
-                elif request.META['HTTP_ACCEPT'] == 'image/png':
-                    frmt = 'png'
                 request.format = frmt
 
-        if frmt in ['png', 'svg']:
+        if frmt in ['svg']:
             get_failed = False
             cache_key = self.generate_cache_key('image', **dict({'is_ajax': request.is_ajax()}, **kwargs))
             try:
@@ -183,87 +183,48 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
 
     def render_image(self, obj, request, **kwargs):
         frmt = getattr(request, 'format', self._meta.default_format)
-        img = None
-        mimetype = None
         try:
             size = int(kwargs.get("dimensions", 500))
         except ValueError:
             return self.answerBadRequest(request, "Image dimensions supplied are invalid")
         ignoreCoords = kwargs.get("ignoreCoords", False)
 
-        bgColor = kwargs.get("bgColor")
-        # if bgColor and isinstance(bgColor, str):
-        #     bgColor = bgColor.lower()
-        #     if bgColor in COLOR_NAMES:
-        #         options.bgColor = COLOR_NAMES[bgColor]
-        #     else:
-        #         options.bgColor = None
-        # else:
-        #     options.bgColor = None
 
-        if size < 1 or size > 500:
+        if size < 1 or size > 1500:
             return self.answerBadRequest(request, "Image dimensions supplied are invalid, max value is 500")
+        engine = kwargs.get("engine", 'rdkit').lower()
 
-        if frmt == 'png':
-            engine = kwargs.get("engine", 'rdkit').lower()
-            if engine not in SUPPORTED_ENGINES:
-                return self.answerBadRequest(request, "Unsupported engine %s" % engine)
-            img, mimetype = self.render_png(obj, size, engine, ignoreCoords)
-            if request.is_ajax():
-                img = base64.b64encode(img)
-        elif frmt == 'svg':
-            engine = kwargs.get("engine", 'rdkit').lower()
-            if engine not in SUPPORTED_ENGINES:
-                return self.answerBadRequest(request, "Unsupported engine %s" % engine)
-            img, mimetype = self.render_svg(obj, size, engine, ignoreCoords)
-        response = HttpResponse(content_type=mimetype)
-        response.write(img)
+        img_mime_type = None
+        highlighted_mol_img = None
+
+        if engine == 'rdkit':
+            img_url = BEAKER_CTAB_TO_SVG_URL
+            img_url += '?size={0}'.format(size)
+            if ignoreCoords:
+                img_url += '&computeCoords=1'
+
+            molstring = obj.molecule.compoundstructures.molfile
+            smarts = obj.alert.smarts
+
+            img_url += '&smarts={0}'.format(smarts)
+
+            img_request = requests.post(img_url, data=molstring)
+            highlighted_mol_img = img_request.content
+            img_mime_type = "image/svg+xml"
+        else:
+            self.answerBadRequest(request, 'Unsupported rendering engine "{0}"'.format(engine))
+
+        response = HttpResponse(content_type=img_mime_type)
+        response.write(highlighted_mol_img)
+
         return response
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def render_svg(self, obj, size, engine, ignoreCoords):
-
-        ret = None
-        molstring = obj.molecule.compoundstructures.molfile
-        smarts = obj.alert.smarts
-
-        if engine == 'rdkit':
-            highlight = highlight_substructure_rdkit(molstring, smarts)
-            if not highlight:
-                raise ImmediateHttpResponse(response=http.HttpNotFound())
-            mol, matching = highlight
-            ret = render_rdkit(mol, matching, 'svg', size, False, ignoreCoords)
-
-        return ret, "image/svg+xml"
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def render_png(self, obj, size, engine, ignoreCoords):
-
-        molstring = obj.molecule.compoundstructures.molfile
-        smarts = obj.alert.smarts
-        ret = None
-
-        if engine == 'rdkit':
-            fontSize = int(size / 33)
-            if size < 200:
-                fontSize = 1
-            options.atomLabelFontSize = fontSize
-            highlight = highlight_substructure_rdkit(molstring, smarts)
-            if not highlight:
-                raise ImmediateHttpResponse(response=http.HttpNotFound())
-            mol, matching = highlight
-            ret = render_rdkit(mol, matching, 'png', size, False, ignoreCoords)
-
-        return ret, "image/png"
 
 # ----------------------------------------------------------------------------------------------------------------------
 
     def _get_cache_args(self, *args, **kwargs):
         cache_ordered_dict = super(CompoundStructuralAlertsResource, self)._get_cache_args(*args, **kwargs)
 
-        cache_ordered_dict['format'] = str(kwargs.get('format', 'png'))
+        cache_ordered_dict['format'] = str(kwargs.get('format', 'svg'))
         cache_ordered_dict['engine'] = str(kwargs.get('engine', 'rdkit'))
         cache_ordered_dict['dimensions'] = str(kwargs.get('dimensions', 500))
         cache_ordered_dict['ignoreCoords'] = str(kwargs.get("ignoreCoords", False))
