@@ -231,6 +231,13 @@ You can specify optional parameters:
         cache_key = self.generate_cache_key('image', **dict({'is_ajax': request.is_ajax()}, **kwargs))
         get_failed = False
 
+        frmt = request.format
+
+        if frmt == 'png':
+            self.answerBadRequest(request, 'PNG format has been deprecated, please use SVG.')
+        if frmt == 'json':
+            self.answerBadRequest(request, 'JSON image format has been deprecated, please use SVG.')
+
         in_cache = False
         start = time.time()
         try:
