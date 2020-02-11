@@ -190,6 +190,8 @@ You can specify optional parameters:
     def render_image(self, mol, request, **kwargs):
         global BEAKER_CTAB_TO_SVG_URL
 
+        req_format = getattr(request, 'format', self._meta.default_format)
+
         try:
             size = int(kwargs.get("dimensions", 500))
         except ValueError:
@@ -206,7 +208,7 @@ You can specify optional parameters:
         img_mime_type = None
         mol_img = None
 
-        if engine == 'rdkit':
+        if engine == 'rdkit' and req_format == 'svg':
             img_url = BEAKER_CTAB_TO_SVG_URL
             img_url += '?size={0}'.format(size)
             if ignoreCoords:
@@ -215,7 +217,8 @@ You can specify optional parameters:
             mol_img = img_request.content
             img_mime_type = "image/svg+xml"
         else:
-            self.answerBadRequest(request, 'Unsupported rendering engine "{0}"'.format(engine))
+            self.answerBadRequest(request, 'Unsupported rendering engine "{0}" or format "{1}"'
+                                  .format(engine, req_format))
 
         response = HttpResponse(content_type=img_mime_type)
         response.write(mol_img)
