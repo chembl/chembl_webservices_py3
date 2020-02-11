@@ -2,9 +2,9 @@ defusedxml==0.6.0
 django-compressor
 django-cors-headers
 django-filters
-django-haystack
 django-tastypie
 django==2.2
+elasticsearch>=6.0.0,<7.0.0
 lxml
 numpy
 Pillow

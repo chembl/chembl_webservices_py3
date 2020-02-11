@@ -16,8 +16,8 @@ dependencies:
     - django-compressor==2.3
     - django-cors-headers==3.2.1
     - django-filters==0.2.1
-    - django-haystack==2.8.1
     - django-tastypie==0.14.2
+    - elasticsearch>=6.0.0,<7.0.0
     - lxml==4.4.2
     - psycopg2==2.8.4
     - pymongo==3.9.0
@@ -29,3 +29,4 @@ dependencies:
     - requests==2.22.0
     - simplejson==3.17.0
     - unittest-parallel==0.8.2
+
