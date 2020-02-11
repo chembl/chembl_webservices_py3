@@ -1,13 +1,13 @@
 __author__ = 'mnowotka'
 
 import time
-import base64
-import io
+import requests
 from tastypie.utils import trailing_slash
 from tastypie import http
 from tastypie import fields
 from tastypie.exceptions import NotFound
 from tastypie.exceptions import BadRequest
+from django.conf import settings
 from django.conf.urls import url
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -15,34 +15,22 @@ from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.resource import WS_DEBUG
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
-from chembl_webservices.dis import SineWarp
 from chembl_webservices.resources.molecule import MoleculeResource
 
 from chembl_core_model.models import CompoundStructures
 from chembl_core_model.models import MoleculeDictionary
+from django.views.decorators.csrf import csrf_exempt
 
-# If ``csrf_exempt`` isn't present, stub it.
-try:
-    from django.views.decorators.csrf import csrf_exempt
-except ImportError:
-    def csrf_exempt(func):
-        return func
 
-try:
-    from rdkit import Chem
-    from rdkit.Chem import AllChem
-except ImportError:
-    Chem = None
-    Draw = None
-    AllChem = None
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
 
 SUPPORTED_ENGINES = ['rdkit']
+BEAKER_CTAB_TO_SVG_URL = settings.BEAKER_URL + '/ctab2svg'
 
 fakeSerializer = ChEMBLApiSerializer('image')
-fakeSerializer.formats = ['png', 'svg', 'json']
+fakeSerializer.formats = ['svg']
 
 available_fields = [f.name for f in MoleculeDictionary._meta.fields]
 
@@ -58,7 +46,7 @@ class ImageResource(ChemblModelResource):
     class Meta(ChemblResourceMeta):
         resource_name = 'image'
         serializer = fakeSerializer
-        default_format = 'image/png'
+        default_format = 'image/svg+xml'
         fields = ('image',)
         description = {'api_dispatch_detail' : '''
 Get image of the compound, specified by
@@ -93,8 +81,8 @@ You can specify optional parameters:
             url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])\.(?P<format>\w+)$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
             url(r"^(?P<resource_name>%s)/(?P<molecule__chembl_id>[Cc][Hh][Ee][Mm][Bb][Ll]\d[\d]*)$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
             url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-            url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])\.(?P<format>png|svg)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-            url(r"^(?P<resource_name>%s)/(?P<molecule__chembl_id>[Cc][Hh][Ee][Mm][Bb][Ll]\d[\d]*)\.(?P<format>png|svg)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])\.(?P<format>svg)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            url(r"^(?P<resource_name>%s)/(?P<molecule__chembl_id>[Cc][Hh][Ee][Mm][Bb][Ll]\d[\d]*)\.(?P<format>svg)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
         ]
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -200,84 +188,36 @@ You can specify optional parameters:
 # ----------------------------------------------------------------------------------------------------------------------
 
     def render_image(self, mol, request, **kwargs):
-        frmt = kwargs.get('format', 'png')
+        global BEAKER_CTAB_TO_SVG_URL
+
         try:
             size = int(kwargs.get("dimensions", 500))
         except ValueError:
             return self.answerBadRequest(request, "Image dimensions supplied are invalid")
+
         ignoreCoords = kwargs.get("ignoreCoords", False)
 
-        bgColor = kwargs.get("bgColor")
-        if bgColor and isinstance(bgColor, str):
-            bgColor = bgColor.lower()
-            if bgColor in COLOR_NAMES:
-                options.bgColor = COLOR_NAMES[bgColor]
-            else:
-                options.bgColor = None
-        else:
-            options.bgColor = None
-
-        if size < 1 or size > 500:
+        if size < 1 or size > 1500:
             return self.answerBadRequest(request, "Image dimensions supplied are invalid, max value is 500")
+        engine = kwargs.get("engine", 'rdkit').lower()
+        if engine not in SUPPORTED_ENGINES:
+            return self.answerBadRequest(request, "Unsupported engine %s" % engine)
 
-        if frmt == 'png':
-            engine = kwargs.get("engine", 'rdkit').lower()
-            if engine not in SUPPORTED_ENGINES:
-                return self.answerBadRequest(request, "Unsupported engine %s" % engine)
-            img, mimetype = self.render_png(mol, size, engine, ignoreCoords)
-            if request.is_ajax():
-                img = base64.b64encode(img)
-        elif frmt == 'svg':
-            engine = kwargs.get("engine", 'rdkit').lower()
-            if engine not in SUPPORTED_ENGINES:
-                return self.answerBadRequest(request, "Unsupported engine %s" % engine)
-            img, mimetype = self.render_svg(mol, size, engine, ignoreCoords)
-        elif frmt == 'json':
-            img, mimetype = self.render_json(mol, size, ignoreCoords)
-        elif frmt == 'chemcha':
-            img, mimetype = self.render_chemcha(mol, size, ignoreCoords)
-            if request.is_ajax():
-                img = base64.b64encode(img)
+        if engine == 'rdkit':
+            img_url = BEAKER_CTAB_TO_SVG_URL
+            img_url += '?size={0}'.format(size)
+            if ignoreCoords:
+                img_url += '&computeCoords=1'
+            img_request = requests.post(img_url, data=mol)
+            mol_img = img_request.content
+            img_mime_type = "image/svg+xml"
         else:
-            return self.answerBadRequest(request, "Unsupported format %s" % frmt)
-        response = HttpResponse(content_type=mimetype)
-        response.write(img)
+            raise ValueError('Unsupported rendering engine "{0}"'.format(engine))
+
+        response = HttpResponse(content_type=img_mime_type)
+        response.write(mol_img)
+
         return response
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def render_svg(self, molstring, size, engine, ignoreCoords):
-        ret = None
-        if engine == 'rdkit':
-            mol = Chem.MolFromMolBlock(str(molstring), sanitize=False)
-            mol.UpdatePropertyCache(strict=False)
-            ret = render_rdkit(mol, None, options, 'svg', size, True, ignoreCoords)
-        return ret, "image/svg+xml"
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def render_json(self, molstring, size, ignoreCoords):
-        mol = Chem.MolFromMolBlock(str(molstring), sanitize=False)
-        mol.UpdatePropertyCache(strict=False)
-        if ignoreCoords:
-            AllChem.Compute2DCoords(mol)
-
-        leg = mol.GetProp("_Name") if mol.HasProp("_Name") else None
-        return MolToJSON(mol, size=(size,size), legend=leg, fitImage=True, options=options), 'application/json'
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def render_png(self, molstring, size, engine, ignoreCoords):
-        ret = None
-        if engine == 'rdkit':
-            fontSize = int(size / 33)
-            if size < 200:
-                fontSize = 1
-            options.atomLabelFontSize = fontSize
-            mol = Chem.MolFromMolBlock(str(molstring), sanitize=False)
-            mol.UpdatePropertyCache(strict=False)
-            ret = render_rdkit(mol, None, options, 'png', size, True, ignoreCoords)
-        return ret, "image/png"
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -287,25 +227,22 @@ You can specify optional parameters:
 
         in_cache = False
         start = time.time()
-        if kwargs.get('format', 'png') == 'chemcha' and '_' in kwargs:
-            ret = self.image_get(request, **kwargs)
-        else:
-            try:
-                ret = self._meta.cache.get(cache_key)
-                in_cache = True
-            except Exception:
-                ret = None
-                get_failed = True
-                self.log.error('Cashing get exception', exc_info=True, extra=kwargs)
+        try:
+            ret = self._meta.cache.get(cache_key)
+            in_cache = True
+        except Exception:
+            ret = None
+            get_failed = True
+            self.log.error('Cashing get exception', exc_info=True, extra=kwargs)
 
-            if ret is None:
-                in_cache = False
-                ret = self.image_get(request, **kwargs)
-                if not get_failed:
-                    try:
-                        self._meta.cache.set(cache_key, ret)
-                    except Exception:
-                        self.log.error('Cashing set exception', exc_info=True, extra=kwargs)
+        if ret is None:
+            in_cache = False
+            ret = self.image_get(request, **kwargs)
+            if not get_failed:
+                try:
+                    self._meta.cache.set(cache_key, ret)
+                except Exception:
+                    self.log.error('Cashing set exception', exc_info=True, extra=kwargs)
 
         if WS_DEBUG:
             end = time.time()
@@ -327,38 +264,12 @@ You can specify optional parameters:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-    def render_chemcha(self, molstring, size, ignoreCoords):
-        buf = io.StringIO()
-        fontSize = int(size / 33)
-        if size < 200:
-            fontSize = 1
-        mol = Chem.MolFromMolBlock(str(molstring), sanitize=False)
-        mol.UpdatePropertyCache(strict=False)
-        if ignoreCoords:
-            AllChem.Compute2DCoords(mol)
-
-        if DrawingOptions:
-            options = DrawingOptions()
-            options.useFraction = 1.0
-            options.dblBondOffset = .13
-            options.atomLabelFontSize = fontSize
-        else:
-            options = {"useFraction": 1.0,
-                       "dblBondOffset": .13,
-                       'atomLabelFontSize': fontSize,}
-        image = draw.MolToImage(mol, size=(size, size), fitImage=True, options=options)
-        image = SineWarp().render(image)
-        image.save(buf, "PNG")
-        return buf.getvalue(), "image/png"
-
-# ----------------------------------------------------------------------------------------------------------------------
-
     def generate_cache_key(self, *args, **kwargs):
 
         molecule__chembl_id = kwargs.get('molecule__chembl_id', '')
         standard_inchi_key = kwargs.get('standard_inchi_key', '')
         bgColor = kwargs.get('bgColor', '').lower()
-        format = kwargs.get('format', 'png')
+        format = kwargs.get('format', 'svg')
         engine = kwargs.get('engine', 'rdkit')
         dimensions = kwargs.get('dimensions', 500)
         ignoreCoords = kwargs.get("ignoreCoords", False)
