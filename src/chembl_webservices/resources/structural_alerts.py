@@ -2,6 +2,7 @@ __author__ = 'mnowotka'
 
 import time
 import requests
+import urllib.parse
 from tastypie import http
 from django.http import HttpResponse
 from tastypie import fields
@@ -151,6 +152,7 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
         if frmt in ['svg']:
             get_failed = False
             cache_key = self.generate_cache_key('image', **dict({'is_ajax': request.is_ajax()}, **kwargs))
+            ret = None
             try:
                 ret = self._meta.cache.get(cache_key)
                 in_cache = True
@@ -180,13 +182,12 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
     def render_image(self, obj, request, **kwargs):
         global BEAKER_HIGHLIGHT_SVG_URL
 
-        req_format = getattr(request, 'format', self._meta.default_format)
+        req_format = getattr(request, 'format',  'svg')
         try:
             size = int(kwargs.get("dimensions", 500))
         except ValueError:
             return self.answerBadRequest(request, "Image dimensions supplied are invalid")
         ignoreCoords = kwargs.get("ignoreCoords", False)
-
 
         if size < 1 or size > 1500:
             return self.answerBadRequest(request, "Image dimensions supplied are invalid, max value is 500")
@@ -202,11 +203,15 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
                 img_url += '&computeCoords=1'
 
             molstring = obj.molecule.compoundstructures.molfile
-            smarts = obj.alert.smarts
+            smarts = urllib.parse.quote(obj.alert.smarts)
 
             img_url += '&smarts={0}'.format(smarts)
 
             img_request = requests.post(img_url, data=molstring)
+            if img_request.status_code != 200:
+                self.answerBadRequest(request, 'Beaker at {0} could not fulfill your request for smarts: {1}\nSDF:{2}\n'
+                                      .format(BEAKER_HIGHLIGHT_SVG_URL, smarts, molstring))
+
             highlighted_mol_img = img_request.content
             img_mime_type = "image/svg+xml"
         else:
