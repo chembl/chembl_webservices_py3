@@ -1,7 +1,6 @@
 __author__ = 'mnowotka'
 
 import time
-import base64
 import requests
 from tastypie import http
 from django.http import HttpResponse
@@ -10,14 +9,11 @@ from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS
-from chembl_webservices.resources.image import SUPPORTED_ENGINES
 from tastypie.resources import ALL, ALL_WITH_RELATIONS
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.conf import settings
-from tastypie.exceptions import ImmediateHttpResponse
 from django.db.models import Prefetch
 
-from chembl_core_model.models import ChemblIdLookup
 from chembl_core_model.models import CompoundStructuralAlerts
 from chembl_core_model.models import MoleculeDictionary
 from chembl_core_model.models import StructuralAlerts
