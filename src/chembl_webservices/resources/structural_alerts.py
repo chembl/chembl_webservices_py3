@@ -23,7 +23,7 @@ from chembl_core_model.models import StructuralAlertSets
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
 
-BEAKER_CTAB_TO_SVG_URL = settings.BEAKER_URL + '/highlightCtabFragmentSvg'
+BEAKER_HIGHLIGHT_SVG_URL = settings.BEAKER_URL + '/highlightCtabFragmentSvg'
 
 try:
     WS_DEBUG = settings.WS_DEBUG
@@ -178,7 +178,9 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def render_image(self, obj, request, **kwargs):
-        frmt = getattr(request, 'format', self._meta.default_format)
+        global BEAKER_HIGHLIGHT_SVG_URL
+
+        req_format = getattr(request, 'format', self._meta.default_format)
         try:
             size = int(kwargs.get("dimensions", 500))
         except ValueError:
@@ -193,8 +195,8 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
         img_mime_type = None
         highlighted_mol_img = None
 
-        if engine == 'rdkit':
-            img_url = BEAKER_CTAB_TO_SVG_URL
+        if engine == 'rdkit' and req_format == 'svg':
+            img_url = BEAKER_HIGHLIGHT_SVG_URL
             img_url += '?size={0}'.format(size)
             if ignoreCoords:
                 img_url += '&computeCoords=1'
@@ -208,7 +210,8 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
             highlighted_mol_img = img_request.content
             img_mime_type = "image/svg+xml"
         else:
-            self.answerBadRequest(request, 'Unsupported rendering engine "{0}"'.format(engine))
+            self.answerBadRequest(request, 'Unsupported rendering engine "{0}" or format "{1}"'
+                                  .format(engine, req_format))
 
         response = HttpResponse(content_type=img_mime_type)
         response.write(highlighted_mol_img)
