@@ -143,6 +143,9 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
 
         frmt = request.format
 
+        if frmt == 'png':
+            self.answerBadRequest(request, 'PNG format has been deprecated, please use SVG.')
+
         if not frmt:
             if 'HTTP_ACCEPT' in request.META:
                 if request.META['HTTP_ACCEPT'] == 'image/svg' or request.META['HTTP_ACCEPT'] == 'image/svg+xml':
