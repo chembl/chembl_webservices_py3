@@ -190,7 +190,7 @@ You can specify optional parameters:
     def render_image(self, mol, request, **kwargs):
         global BEAKER_CTAB_TO_SVG_URL
 
-        req_format = getattr(request, 'format', self._meta.default_format)
+        req_format = getattr(request, 'format', 'svg')
 
         try:
             size = int(kwargs.get("dimensions", 500))
