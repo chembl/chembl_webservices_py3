@@ -78,12 +78,9 @@ if missing_required_vars:
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
 SERVER_BASE_PATH = '/chembl/api'
 
 WS_NAME = 'data'
-WS_DEBUG = True
 
 DJANGO_SERVER_HOST = 'localhost'
 DJANGO_SERVER_PORT = 8000

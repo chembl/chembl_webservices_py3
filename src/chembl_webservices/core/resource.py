@@ -40,24 +40,7 @@ from chembl_webservices.core.utils import CHAR_FILTERS
 from chembl_webservices.core.utils import represents_int
 from chembl_webservices.core.utils import list_flatten
 from chembl_webservices.core.utils import unpack_request_params
-
-try:
-    from haystack.query import SearchQuerySet
-    sqs = SearchQuerySet()
-except:
-    sqs = None
-
-# If ``csrf_exempt`` isn't present, stub it.
-try:
-    from django.views.decorators.csrf import csrf_exempt
-except ImportError:
-    def csrf_exempt(func):
-        return func
-
-try:
-    WS_DEBUG = settings.WS_DEBUG
-except AttributeError:
-    WS_DEBUG = False
+import elasticsearch.helpers
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -449,8 +432,8 @@ class ChemblModelResource(ModelResource):
             if not in_cache:
                 sorted_objects = data_provider(bundle, **kwargs)
                 is_sqs = False
-                if isinstance(sorted_objects, SearchQuerySet):
-                    is_sqs = True
+                # if isinstance(sorted_objects, SearchQuerySet):
+                #     is_sqs = True
                 try:
                     count = sorted_objects.count() if not isinstance(sorted_objects, list) else len(sorted_objects)
                 except (DatabaseError, NotImplementedError) as e:
@@ -542,6 +525,10 @@ class ChemblModelResource(ModelResource):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def get_search_results(self, user_query):
+        # idx_name = settings.ELASTICSEARCH_INDEXES_PREFIX+'{0}'
+        # elasticsearch.helpers.scan()
+        # elasticsearch.helpers.scan(
+        #     settings.ELASTICSEARCH_CONNECTION_URL)
 
         res = []
 
@@ -579,13 +566,13 @@ class ChemblModelResource(ModelResource):
 
         self.check_user_search_query(user_query)
 
-        try:
-            if not sqs:
-                self.log.error('No search query set', exc_info=True, extra={'request': user_query, })
-                return self._meta.queryset.none()
-        except Exception as e:
-            self.log.error('Search error in search_resource', exc_info=True, extra={'request': user_query, })
-            return self._meta.queryset.none()
+        # try:
+        #     if not sqs:
+        #         self.log.error('No search query set', exc_info=True, extra={'request': user_query, })
+        #         return self._meta.queryset.none()
+        # except Exception as e:
+        #     self.log.error('Search error in search_resource', exc_info=True, extra={'request': user_query, })
+        #     return self._meta.queryset.none()
 
         queryset = getattr(self._meta, 'haystack_queryset', self._meta.queryset)
         res = self.get_search_results(user_query.lower())
@@ -706,7 +693,7 @@ class ChemblModelResource(ModelResource):
                 return ret
 
             res = self.create_response(request, bundle)
-            if WS_DEBUG:
+            if settings.DEBUG:
                 end = time.time()
                 # Prevent the download of sdf/mol files on the browser
                 if res.get('Content-Type', '').startswith('chemical/x-mdl'):

@@ -16,7 +16,6 @@ from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from django.db.models import Prefetch
-from chembl_webservices.core.resource import WS_DEBUG
 
 from chembl_core_model.models import ChemblIdLookup
 from chembl_core_model.models import MoleculeHierarchy

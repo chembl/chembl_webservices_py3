@@ -6,7 +6,6 @@ from tastypie.exceptions import BadRequest
 from tastypie.exceptions import ImmediateHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from chembl_webservices.core.utils import CHAR_FILTERS
-from chembl_webservices.core.resource import WS_DEBUG
 from chembl_webservices.core.resource import ChemblModelResource
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer

@@ -26,11 +26,6 @@ monkeypatch_tastypie_field()
 
 BEAKER_HIGHLIGHT_SVG_URL = settings.BEAKER_URL + '/highlightCtabFragmentSvg'
 
-try:
-    WS_DEBUG = settings.WS_DEBUG
-except AttributeError:
-    WS_DEBUG = False
-
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -259,7 +254,7 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
             else:
                 res = bundle
 
-            if WS_DEBUG:
+            if settings.DEBUG:
                 end = time.time()
                 res['X-ChEMBL-in-cache'] = in_cache
                 res['X-ChEMBL-retrieval-time'] = end - start

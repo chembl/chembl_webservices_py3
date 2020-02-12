@@ -12,7 +12,6 @@ from django.conf.urls import url
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from chembl_webservices.core.resource import ChemblModelResource
-from chembl_webservices.core.resource import WS_DEBUG
 from chembl_webservices.core.meta import ChemblResourceMeta
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.resources.molecule import MoleculeResource
@@ -257,7 +256,7 @@ You can specify optional parameters:
                 except Exception:
                     self.log.error('Cashing set exception', exc_info=True, extra=kwargs)
 
-        if WS_DEBUG:
+        if settings.DEBUG:
             end = time.time()
             ret['X-ChEMBL-in-cache'] = in_cache
             ret['X-ChEMBL-retrieval-time'] = end - start
