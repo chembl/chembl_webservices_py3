@@ -58,6 +58,8 @@ REQUIRED_ENVIRONMENT_VARIABLES=[
     'MONGO_CACHE_DATABASE',
     'MONGO_CACHE_USER',
     'MONGO_CACHE_PASSWORD',
+    'ELASTICSEARCH_INDEXES_PREFIX',
+    'ELASTICSEARCH_CONNECTION_URL'
 ]
 
 missing_required_vars = []
@@ -251,7 +253,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'tastypie',
-    'haystack',
     'chembl_core_db',
     'chembl_core_model',
     'chembl_webservices',
@@ -301,20 +302,7 @@ ROOT_URLCONF = 'chembl_ws_app.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'chembl_ws_app.wsgi.application'
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://ves-hx-58.ebi.ac.uk:7777/solr/#/',
-        # 'URL': 'http://ves-hx-58.ebi.ac.uk:8080/solr/#/',
-        'TIMEOUT': 1000,
-        'INCLUDE_SPELLING': True,
-        'BATCH_SIZE': 1000,
-        'SILENTLY_FAIL': False,
-    },
-}
-
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-
 
 LOGGING = {
     'version': 1,
@@ -331,7 +319,6 @@ LOGGING = {
         },
     },
 }
-
 
 # Mongo Cache Settings -------------------------------------------------------------------------------------------------
 
@@ -383,3 +370,8 @@ CACHES = {
 }
 
 CACHE_MIDDLEWARE_SECONDS = 3000000
+
+# ElasticSearch Settings -----------------------------------------------------------------------------------------------
+
+ELASTICSEARCH_INDEXES_PREFIX = os.environ.get('ELASTICSEARCH_INDEXES_PREFIX')
+ELASTICSEARCH_CONNECTION_URL = os.environ.get('ELASTICSEARCH_CONNECTION_URL')
