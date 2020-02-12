@@ -29,4 +29,7 @@ data:
   MONGO_CACHE_DATABASE: le_cache_db
   MONGO_CACHE_USER: le_chembl_user
   MONGO_CACHE_PASSWORD: le_chembl_user_password
+  # ElasticSearch Settings
+  ELASTICSEARCH_INDEXES_PREFIX: chembl_
+  ELASTICSEARCH_CONNECTION_URL: 'https://www.ebi.ac.uk/chembl/glados-es/'
   
