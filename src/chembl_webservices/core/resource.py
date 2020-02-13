@@ -523,21 +523,40 @@ class ChemblModelResource(ModelResource):
     def get_search_results(self, user_query):
         try:
             es_conn = get_es_connection()
-            if not self._meta or not self._meta.resource_name:
-                self.answerBadRequest('The resource_name has not been configured for this endpoint.')
-            res_name = self._meta.resource_name
             if not self._meta:
                 self.answerBadRequest('The _meta has not been configured for this endpoint.')
-            id_matghing_column = getattr(self._meta, 'es_join_column', None)
-            idx_name = (settings.ELASTICSEARCH_INDEXES_PREFIX + '{0}').format(res_name)
+            if not self._meta.resource_name:
+                self.answerBadRequest('The resource_name has not been configured for this endpoint.')
+            res_name = self._meta.resource_name
+            id_matching_column = getattr(self._meta, 'es_join_column', None)
+
+            if getattr(self._meta, 'es_multi_index_search_resources', None) is not None:
+                idx_name = ','.join(
+                    [
+                        (settings.ELASTICSEARCH_INDEXES_PREFIX + '{0}').format(res_i)
+                        for res_i in self._meta.es_multi_index_search_resources
+                    ]
+                )
+            else:
+                idx_name = (settings.ELASTICSEARCH_INDEXES_PREFIX + '{0}').format(res_name)
 
             base_query = \
             {
                 "_source": False,
                 "query": {
-                    "query_string": {
-                        "query": user_query
-                    }
+                    "multi_match": {
+                        "query": user_query,
+                        "fields": [
+                            "*.std_analyzed^1.6",
+                            "*.eng_analyzed^0.8",
+                            "*.ws_analyzed^1.4",
+                            "*.keyword^2",
+                            "*.lower_case_keyword^1.5",
+                            "*.alphanumeric_lowercase_keyword^1.3",
+                            "*.entity_id^2",
+                            "*.chembl_id^2",
+                        ]
+                     }
                 }
             }
 
@@ -556,11 +575,11 @@ class ChemblModelResource(ModelResource):
                 result_dict[doc_id] = doc_score
 
 
-            if id_matghing_column:
+            if id_matching_column:
                 id_es_2_id_sql = {}
                 doc_id_2_django_id = self._meta.queryset\
-                    .filter(**{id_matghing_column + '__in': result_dict.keys()})\
-                    .values_list(id_matghing_column, self._meta.queryset.model._meta.pk.name)
+                    .filter(**{id_matching_column + '__in': result_dict.keys()})\
+                    .values_list(id_matching_column, self._meta.queryset.model._meta.pk.name)
                 for id_pair_i in doc_id_2_django_id:
                     id_es_2_id_sql[id_pair_i[0]] = id_pair_i[1]
 
@@ -600,7 +619,7 @@ class ChemblModelResource(ModelResource):
 
         self.check_user_search_query(user_query)
 
-        queryset = getattr(self._meta, 'haystack_queryset', self._meta.queryset)
+        queryset = self._meta.queryset
         res = self.get_search_results(user_query.lower())
         filters = {}
 
