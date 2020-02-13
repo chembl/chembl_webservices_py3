@@ -28,15 +28,6 @@ from chembl_core_model.models import MoleculeHierarchy
 from chembl_core_model.models import CompoundXref
 from chembl_core_model.models import XrefSource
 
-
-try:
-    from haystack.query import SearchQuerySet
-    sqs = SearchQuerySet()
-    from haystack.inputs import AutoQuery
-    from haystack.query import SQ
-except:
-    sqs = None
-
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
 

@@ -21,13 +21,6 @@ from chembl_core_model.models import ComponentSynonyms
 from chembl_core_model.models import ComponentXref
 from chembl_core_model.models import TargetXref
 from chembl_core_model.models import XrefSource
-try:
-    from haystack.query import SearchQuerySet
-    sqs = SearchQuerySet()
-    from haystack.inputs import AutoQuery
-    from haystack.query import SQ
-except:
-    sqs = None
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
@@ -230,19 +223,5 @@ class TargetResource(ChemblModelResource):
             else:
                 ret[filter_expr] = value
         return ret
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def get_search_results(self, user_query):
-        res = []
-
-        try:
-            queryset = self._meta.queryset
-            model = queryset.model
-            res = sqs.models(model).load_all().filter(SQ(content=AutoQuery(user_query))
-                                                      | SQ(component_synonyms=AutoQuery(user_query))).order_by('-score')
-        except Exception as e:
-            self.log.error('Searching exception', exc_info=True, extra={'user_query': user_query, })
-        return res
 
 # ----------------------------------------------------------------------------------------------------------------------
