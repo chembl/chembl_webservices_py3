@@ -28,6 +28,7 @@ class DocsResource(ChemblModelResource):
 
     class Meta(ChemblResourceMeta):
         queryset = Docs.objects.all()
+        es_join_column = 'chembl_id'
         haystack_queryset = Docs.objects.all().defer('abstract')
         excludes = ['doc_id']
         resource_name = 'document'

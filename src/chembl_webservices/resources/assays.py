@@ -121,6 +121,7 @@ class AssayResource(ChemblModelResource):
 
     class Meta(ChemblResourceMeta):
         queryset = Assays.objects.all()
+        es_join_column = 'chembl_id'
         excludes = ['assay_id']
         resource_name = 'assay'
         collection_name = 'assays'

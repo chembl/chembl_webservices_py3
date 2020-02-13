@@ -143,6 +143,7 @@ class TargetResource(ChemblModelResource):
     class Meta(ChemblResourceMeta):
         queryset = TargetDictionary.objects.all() if 'downgraded' not in available_fields else \
             TargetDictionary.objects.filter(downgraded=False)
+        es_join_column = 'chembl_id'
         excludes = ['tid']
         resource_name = 'target'
         collection_name = 'targets'
