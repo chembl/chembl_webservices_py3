@@ -605,14 +605,6 @@ class ChemblModelResource(ModelResource):
 
         self.check_user_search_query(user_query)
 
-        # try:
-        #     if not sqs:
-        #         self.log.error('No search query set', exc_info=True, extra={'request': user_query, })
-        #         return self._meta.queryset.none()
-        # except Exception as e:
-        #     self.log.error('Search error in search_resource', exc_info=True, extra={'request': user_query, })
-        #     return self._meta.queryset.none()
-
         queryset = getattr(self._meta, 'haystack_queryset', self._meta.queryset)
         res = self.get_search_results(user_query.lower())
         filters = {}
@@ -624,10 +616,6 @@ class ChemblModelResource(ModelResource):
         # Update with the provided kwargs.
         filters.update(kwargs)
         applicable_filters, distinct = self.build_filters(filters=filters)
-        # if not applicable_filters and isinstance(res, SearchQuerySet):
-        #     return res
-        if not isinstance(res, dict):
-            res = self.evaluate_results(res)
         try:
             objects = self.chain_filters(queryset.filter(pk__in=list(res.keys())), applicable_filters)
             if distinct:
