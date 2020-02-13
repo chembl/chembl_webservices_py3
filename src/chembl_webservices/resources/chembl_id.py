@@ -15,12 +15,6 @@ from chembl_webservices.resources.docs import DocsResource
 from chembl_webservices.resources.cell_line import CellLineResource
 from chembl_core_model.models import ChemblIdLookup
 
-try:
-    from haystack.query import SearchQuerySet
-    sqs = SearchQuerySet()
-except:
-    sqs = None
-
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
 
@@ -40,6 +34,8 @@ class ChemblIdLookupResource(ChemblModelResource):
 
     class Meta(ChemblResourceMeta):
         queryset = ChemblIdLookup.objects.all()
+        es_join_column = 'chembl_id'
+        es_multi_index_search_resources = ['molecule', 'document', 'assay', 'target']
         resource_name = 'chembl_id_lookup'
         collection_name = 'chembl_id_lookups'
         serializer = ChEMBLApiSerializer(resource_name, {collection_name: resource_name})
@@ -104,38 +100,6 @@ class ChemblIdLookupResource(ChemblModelResource):
                 del kw['pk']
                 datas['resource_url'] = cell._build_reverse_url(detail_name, kwargs=kw)
         return bundle
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def get_search_results(self, user_query):
-
-        res = []
-
-        try:
-            molecule_qs = molecule._meta.queryset
-            molecules = molecule.evaluate_results(molecule.get_search_results(user_query))
-            res.extend([(a, molecules[str(b)]) for (a, b) in
-                        molecule_qs.filter(pk__in=list(molecules.keys())).values_list('chembl_id', 'pk')])
-
-            target_qs = target._meta.queryset
-            targets = target.evaluate_results(target.get_search_results(user_query))
-            res.extend([(a, targets[b]) for (a, b) in
-                        target_qs.filter(pk__in=list(targets.keys())).values_list('chembl_id', 'pk')])
-
-            assay_qs = assay._meta.queryset
-            assays = assay.evaluate_results(assay.get_search_results(user_query))
-            res.extend([(a, assays[str(b)]) for (a, b) in
-                        assay_qs.filter(pk__in=list(assays.keys())).values_list('chembl_id', 'pk')])
-
-            doc_qs = document._meta.queryset
-            docs = document.evaluate_results(document.get_search_results(user_query))
-            res.extend([(a, docs[str(b)]) for (a, b) in
-                        doc_qs.filter(pk__in=list(docs.keys())).values_list('chembl_id', 'pk')])
-
-        except Exception as e:
-            self.log.error('Searching exception', exc_info=True, extra={'user_query': user_query, })
-
-        return dict(res)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
