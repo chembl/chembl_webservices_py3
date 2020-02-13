@@ -271,6 +271,7 @@ class MoleculeResource(ChemblModelResource):
     class Meta(ChemblResourceMeta):
         queryset = MoleculeDictionary.objects.all() if 'downgraded' not in available_fields else \
                     MoleculeDictionary.objects.exclude(downgraded=True)
+        es_join_column = 'chembl_id'
         excludes = ['molregno']
         resource_name = 'molecule'
         collection_name = 'molecules'
@@ -572,21 +573,3 @@ _SMILES_.
             smooshed.append("%s=%s" % (key, value))
         cache_ordered_dict['filters'] = '|'.join(sorted(smooshed))
         return cache_ordered_dict
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-    def get_search_results(self, user_query):
-        res = []
-
-        try:
-            queryset = self._meta.queryset
-            model = queryset.model
-            res = sqs.models(model).load_all().filter(SQ(content=AutoQuery(user_query))
-                                                      | SQ(synonyms=AutoQuery(user_query))
-                                                      | SQ(compound_keys=AutoQuery(user_query))
-                                                      | SQ(record_names=AutoQuery(user_query))).order_by('-score')
-        except Exception as e:
-            self.log.error('Searching exception', exc_info=True, extra={'user_query': user_query, })
-        return res
-
-# ----------------------------------------------------------------------------------------------------------------------
