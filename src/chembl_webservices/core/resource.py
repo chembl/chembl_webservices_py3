@@ -3,6 +3,7 @@ __author__ = 'mnowotka'
 import warnings
 from tastypie.exceptions import InvalidSortError
 
+from collections import OrderedDict
 import re
 import time
 import logging
@@ -36,11 +37,23 @@ from django.core.exceptions import FieldError
 from django.core.exceptions import TooManyFieldsSent
 from django.db.models.constants import LOOKUP_SEP
 from django.db import DatabaseError
+from django.views.decorators.csrf import csrf_exempt
 from chembl_webservices.core.utils import CHAR_FILTERS
 from chembl_webservices.core.utils import represents_int
 from chembl_webservices.core.utils import list_flatten
 from chembl_webservices.core.utils import unpack_request_params
+import elasticsearch
 import elasticsearch.helpers
+
+ES_CONNECTION = None
+
+# ElasticSearch Connection ---------------------------------------------------------------------------------------------
+
+def get_es_connection():
+    global ES_CONNECTION
+    if ES_CONNECTION is None:
+       ES_CONNECTION = elasticsearch.Elasticsearch(hosts=[settings.ELASTICSEARCH_CONNECTION_URL])
+    return ES_CONNECTION
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -525,20 +538,63 @@ class ChemblModelResource(ModelResource):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def get_search_results(self, user_query):
-        # idx_name = settings.ELASTICSEARCH_INDEXES_PREFIX+'{0}'
-        # elasticsearch.helpers.scan()
-        # elasticsearch.helpers.scan(
-        #     settings.ELASTICSEARCH_CONNECTION_URL)
-
-        res = []
-
         try:
-            queryset = self._meta.queryset
-            model = queryset.model
-            res = sqs.models(model).load_all().auto_query(user_query).order_by('-score')
-        except Exception as e:
+            es_conn = get_es_connection()
+            if not self._meta or not self._meta.resource_name:
+                self.answerBadRequest('The resource_name has not been configured for this endpoint.')
+            res_name = self._meta.resource_name
+            if not self._meta:
+                self.answerBadRequest('The _meta has not been configured for this endpoint.')
+            id_matghing_column = getattr(self._meta, 'es_join_column', None)
+            idx_name = (settings.ELASTICSEARCH_INDEXES_PREFIX + '{0}').format(res_name)
+
+            base_query = \
+            {
+                "_source": False,
+                "query": {
+                    "query_string": {
+                        "query": user_query
+                    }
+                }
+            }
+
+            search_results = elasticsearch.helpers.scan(es_conn, query=base_query, index=idx_name, preserve_order=True)
+            result_dict = OrderedDict()
+            for result_i in search_results:
+                doc_id = result_i['_id']
+                doc_score = result_i['_score']
+                if doc_score is None:
+                    doc_score = '-:-'.join([str(sort_i) for sort_i in result_i['sort']])
+                    # noinspection PyBroadException
+                    try:
+                        doc_score = float(doc_score)
+                    except:
+                        pass
+                result_dict[doc_id] = doc_score
+
+
+            if id_matghing_column:
+                id_es_2_id_sql = {}
+                doc_id_2_django_id = self._meta.queryset\
+                    .filter(**{id_matghing_column + '__in': result_dict.keys()})\
+                    .values_list(id_matghing_column, self._meta.queryset.model._meta.pk.name)
+                for id_pair_i in doc_id_2_django_id:
+                    id_es_2_id_sql[id_pair_i[0]] = id_pair_i[1]
+
+                mapped_result_dict = OrderedDict()
+                for es_id, score in result_dict.items():
+                    if es_id not in id_es_2_id_sql:
+                        self.log.warning('Found {0} {1} with no id in the database.'.format(res_name, es_id))
+                        continue
+                    mapped_result_dict[id_es_2_id_sql[es_id]] = score
+
+                result_dict = mapped_result_dict
+
+            return result_dict
+        except:
             self.log.error('Searching exception', exc_info=True, extra={'user_query': user_query, })
-        return res
+            raise RuntimeError('Could not execute query on elasticsearch engine at {0}'
+                               .format(settings.ELASTICSEARCH_CONNECTION_URL))
 
 # ----------------------------------------------------------------------------------------------------------------------
 
