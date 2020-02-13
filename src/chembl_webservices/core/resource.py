@@ -399,7 +399,6 @@ class ChemblModelResource(ModelResource):
 
             try:
                 start_slice = (paginator_info['offset'] // max_limit) * max_limit
-                # start_slice = math.floor(start_slice)
                 end_slice = ((paginator_info['offset'] + paginator_info['limit']) // max_limit) * max_limit
             except ValueError:
                 raise BadRequest("Invalid limit or offset provided. Please provide integers.")
