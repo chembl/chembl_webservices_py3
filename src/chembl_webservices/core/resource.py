@@ -587,11 +587,6 @@ class ChemblModelResource(ModelResource):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-    def evaluate_results(self, results):
-        return dict(results.values_list('pk', 'score'))
-
-# ----------------------------------------------------------------------------------------------------------------------
-
     def search_source(self, bundle, **kwargs):
 
         user_query = kwargs.get('q')
