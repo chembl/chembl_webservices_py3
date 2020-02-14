@@ -521,6 +521,7 @@ class ChemblModelResource(ModelResource):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def get_search_results(self, user_query):
+        max_results = 10000
         try:
             es_conn = get_es_connection()
             if not self._meta:
@@ -560,9 +561,13 @@ class ChemblModelResource(ModelResource):
                 }
             }
 
-            search_results = elasticsearch.helpers.scan(es_conn, query=base_query, index=idx_name, preserve_order=True)
+            search_results = elasticsearch.helpers.scan(es_conn, query=base_query, index=idx_name, preserve_order=True,
+                                                        size=1000)
             result_dict = OrderedDict()
+            i = 0
             for result_i in search_results:
+                if i >= max_results:
+                    break
                 doc_id = result_i['_id']
                 doc_score = result_i['_score']
                 if doc_score is None:
@@ -573,7 +578,7 @@ class ChemblModelResource(ModelResource):
                     except:
                         pass
                 result_dict[doc_id] = doc_score
-
+                i += 1
 
             if id_matching_column:
                 id_es_2_id_sql = {}
