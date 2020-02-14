@@ -17,8 +17,8 @@ spec:
       containers:
       - name: chembl-webservices-py3-container
         securityContext:
-          runAsUser: <RUN_AS_USER_ID>
-          runAsGroup: <RUN_AS_GROUP_ID>
+          runAsUser: <RUN_AS_UID>
+          runAsGroup: <RUN_AS_GID>
         # TODO CHECK HOW TO MOUNT NFS FROM CHEMBL
         envFrom:
           - configMapRef:
