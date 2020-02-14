@@ -33,14 +33,14 @@ stages:
 build-staging:
     stage: build
     only:
-       - gitlab
+       - staging
     variables:
         DOCKER_HOST: tcp://docker:2375
     script:
         - docker version # verify docker cli is there. Also prints server info
         - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - echo Building $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA}
-        - docker build -t $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA} .
+        - docker build --build-arg USERNAME=${CBL_ADM_USERNAME} --build-arg UID=${CBL_ADM_UID} --build-arg GID=${CBL_PUB_GID} -t $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA} .
         - echo Deploying $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}
     # when: manual
@@ -74,12 +74,14 @@ deploy-staging:
         - kubectl config use-context ${CHEMBL_NS_STAGING}
         - echo ${CHEMBL_NS_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
         - kubectl get pods -n ${CHEMBL_NS_STAGING}
+        - sed -i "s~<RUN_AS_UID>~${CBL_ADM_UID}~" k8s-deployment.yml
+        - sed -i "s~<RUN_AS_GID>~${CBL_PUB_GID}~" k8s-deployment.yml
         - sed -i "s~<VERSION>~${CI_COMMIT_SHORT_SHA}~" k8s-deployment.yml
         - sed -i "s~<DOCKER_IMAGE>~${DOCKER_IMAGE}~" k8s-deployment.yml
         - kubectl apply -n ${CHEMBL_NS_STAGING} -f k8s-deployment.yml
     # when: manual
     only:
-        - gitlab
+        - staging
 
 after_script:
     - echo "End of script"
