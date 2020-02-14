@@ -40,6 +40,9 @@ build-staging:
         - docker version # verify docker cli is there. Also prints server info
         - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - echo Building $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA}
+        - echo CBL_ADM_USERNAME: ${CBL_ADM_USERNAME}
+        - echo CBL_ADM_UID: ${CBL_ADM_UID}
+        - echo CBL_PUB_GID: ${CBL_PUB_GID}
         - docker build --build-arg USERNAME=${CBL_ADM_USERNAME} --build-arg UID=${CBL_ADM_UID} --build-arg GID=${CBL_PUB_GID} -t $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA} .
         - echo Deploying $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA}
         - docker push ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}
