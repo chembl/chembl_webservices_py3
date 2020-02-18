@@ -38,13 +38,10 @@ def generate_spore_endpoint(request, api, name, version):
         request = factory.get(schema_url)
         request.format = 'json'
         schema = resource.get_schema(request)
-        schema_dict = json.loads(schema.content)
+        schema_dict = json.loads(bytes.decode(schema.content))
         allowed_detail_http_methods = schema_dict['allowed_detail_http_methods']
         allowed_list_http_methods = schema_dict['allowed_list_http_methods']
         available_methods = [url.name for url in resource.urls]
-
-        #print 'available_methods:'
-        #print available_methods
 
         for verb in ['get', 'post']:
             for type in ['api_dispatch_list', 'api_dispatch_detail', 'api_get_multiple', 'api_get_search']:
