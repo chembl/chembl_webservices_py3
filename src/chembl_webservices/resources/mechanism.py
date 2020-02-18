@@ -97,18 +97,18 @@ class MechanismResource(ChemblModelResource):
 
         filtering = {
             'action_type': CHAR_FILTERS,
-#            'binding_site_comment': ALL,
+            'binding_site_comment': CHAR_FILTERS,
             'direct_interaction': FLAG_FILTERS,
             'disease_efficacy': FLAG_FILTERS,
             'max_phase': NUMBER_FILTERS,
             'mec_id': NUMBER_FILTERS,
-#            'mechanism_comment': ALL,
+            'mechanism_comment': CHAR_FILTERS,
             'mechanism_of_action': CHAR_FILTERS,
             'molecular_mechanism': FLAG_FILTERS,
             'molecule_chembl_id': ALL,
             'parent_molecule_chembl_id': ALL,
             'record_id' : NUMBER_FILTERS,
-#            'selectivity_comment': ALL,
+            'selectivity_comment': CHAR_FILTERS,
             'site_id': NUMBER_FILTERS,
             'target_chembl_id': ALL,
         }
