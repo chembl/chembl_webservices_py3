@@ -28,8 +28,15 @@ monkeypatch_tastypie_field()
 SUPPORTED_ENGINES = ['rdkit']
 BEAKER_CTAB_TO_SVG_URL = settings.BEAKER_URL + '/ctab2svg'
 
+
+def to_svg(*args, **kwargs):
+    raise NotImplementedError('Thi method should not be called, must be overridden.')
+
 fakeSerializer = ChEMBLApiSerializer('image')
-fakeSerializer.formats = ['svg']
+fakeSerializer.formats = fakeSerializer.formats + ['svg']
+fakeSerializer.content_types['svg'] = 'image/svg+xml'
+fakeSerializer.to_svg = to_svg
+super(ChEMBLApiSerializer, fakeSerializer).__init__()
 
 available_fields = [f.name for f in MoleculeDictionary._meta.fields]
 
