@@ -52,7 +52,7 @@ class MoleculeSerializer(ChEMBLApiSerializer):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-    def to_sdf(self, bundle_or_dict, options=None, sdf_properties=True):
+    def to_sdf(self, bundle_or_dict, options=None):
         no_struct_error_msg = 'Molecule has no structure records.'
         if isinstance(bundle_or_dict, dict):
             data_dict = bundle_or_dict
@@ -62,7 +62,7 @@ class MoleculeSerializer(ChEMBLApiSerializer):
             if 'page_meta' in data_dict and 'molecules' in data_dict:
                 ret_text = ''
                 for molecule_bundle in data_dict['molecules']:
-                    ret_text += self.to_sdf(molecule_bundle, options, sdf_properties)+ '$$$$\n'
+                    ret_text += self.to_sdf(molecule_bundle)+ '$$$$\n'
                 return ret_text
             else:
                 raise ValueError('Error, unexpected dictionary received with keys: {0}'.format(data_dict.keys()))
@@ -75,17 +75,6 @@ class MoleculeSerializer(ChEMBLApiSerializer):
             if not molecule_sdf:
                 raise NotFound(no_struct_error_msg)
             ret = molecule_sdf.rstrip() + '\n'
-            if sdf_properties:
-                if not options or not 'no_chembl_id' in options:
-                    ret += '> <chembl_id>\n{0}\n\n'.format(data_bundle.data.get('molecule_chembl_id'))
-                if options and 'chebi_par_id' in options:
-                    chebi_par_id = data_bundle.data.get('chebi_par_id')
-                    chebi_id = 'CHEBI:{0}'
-                    if chebi_par_id:
-                        chebi_id = chebi_id.format(chebi_par_id)
-                    else:
-                        chebi_id = 'Unknown'
-                    ret += '> <chebi_id>\n{0}\n\n'.format(chebi_id)
             return ret
         else:
             raise ValueError('Error, unexpected type received: {0}'.format(type(bundle_or_dict)))
@@ -93,7 +82,7 @@ class MoleculeSerializer(ChEMBLApiSerializer):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def to_mol(self, bundle_or_dict, options=None):
-        return self.to_sdf(bundle_or_dict, options, sdf_properties=False)
+        return self.to_sdf(bundle_or_dict)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -523,6 +512,12 @@ _SMILES_.
 # ----------------------------------------------------------------------------------------------------------------------
 
     def alter_detail_data_to_serialize(self, request, data):
+        if 'molecule_structures' in data.data:
+            mol_struts = data.data['molecule_structures']
+            sdf_style = request.format != 'mol'
+            if sdf_style:
+                mol_struts.data['molfile'] += '> <chembl_id>\n{0}\n\n'.format(data.data.get('molecule_chembl_id'))
+                mol_struts.data['molfile'] += '> <chembl_pref_name>\n{0}\n\n'.format(data.data.get('pref_name'))
         if 'atc_classifications' in data.data:
             atc = data.data['atc_classifications']
             for idx, item in enumerate(atc):

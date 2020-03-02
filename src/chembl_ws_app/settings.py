@@ -59,7 +59,8 @@ REQUIRED_ENVIRONMENT_VARIABLES=[
     'MONGO_CACHE_USER',
     'MONGO_CACHE_PASSWORD',
     'ELASTICSEARCH_INDEXES_PREFIX',
-    'ELASTICSEARCH_CONNECTION_URL'
+    'ELASTICSEARCH_CONNECTION_URL',
+    'TARGET_PREDICTION_PROXY_URL'
 ]
 
 missing_required_vars = []
@@ -125,6 +126,10 @@ MANAGERS = ADMINS
 # Beaker URL -----------------------------------------------------------------------------------------------------------
 
 BEAKER_URL = os.environ.get('BEAKER_URL')
+
+# TARGET PREDICTION PROXY URL -----------------------------------------------------------------------------------------------------------
+
+TARGET_PREDICTION_PROXY_URL = os.environ.get('TARGET_PREDICTION_PROXY_URL')
 
 # Validate required ENV variables --------------------------------------------------------------------------------------
 
