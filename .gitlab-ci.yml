@@ -19,7 +19,7 @@ stages:
 
 # build image ----------------------------------------------------------------------------------------------------------
 
-build:
+build-dockerfile:
     only:
         - master
     stage: build
@@ -46,8 +46,8 @@ deploy-staging:
         name: lachlanevenson/k8s-kubectl:latest
         entrypoint: ["/bin/sh", "-c"]
     stage: deploy-staging
-    dependencies:
-        - build
+    needs:
+        - build-dockerfile
     script:
         - echo $KUBE_URL_HX
         - echo "$KUBE_CA_PEM_HX" > "$(pwd)/kube.ca.pem"
@@ -72,7 +72,7 @@ deploy-prod-hx:
         name: lachlanevenson/k8s-kubectl:latest
         entrypoint: ["/bin/sh", "-c"]
     stage: deploy-production
-    dependencies:
+    needs:
         - deploy-staging
     script:
         - echo $KUBE_URL_HX
@@ -97,7 +97,7 @@ deploy-prod-hh:
         name: lachlanevenson/k8s-kubectl:latest
         entrypoint: ["/bin/sh", "-c"]
     stage: deploy-production
-    dependencies:
+    needs:
         - deploy-staging
     script:
         - echo $KUBE_URL_HH
