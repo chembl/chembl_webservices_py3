@@ -519,8 +519,10 @@ _SMILES_.
             mol_struts = data.data['molecule_structures']
             sdf_style = request.format != 'mol'
             if mol_struts is not None and mol_struts.data is not None and sdf_style:
-                mol_struts.data['molfile'] += '> <chembl_id>\n{0}\n\n'.format(data.data.get('molecule_chembl_id'))
-                mol_struts.data['molfile'] += '> <chembl_pref_name>\n{0}\n\n'.format(data.data.get('pref_name', 'undefined'))
+                mol_struts.data['molfile'] += '\n\n> <chembl_id>\n{0}\n\n'.format(data.data.get('molecule_chembl_id'))
+                mol_struts.data['molfile'] += '> <chembl_pref_name>\n{0}\n\n'.format(data.data.get(
+                    'pref_name', 'undefined')
+                )
         if 'atc_classifications' in data.data:
             atc = data.data['atc_classifications']
             for idx, item in enumerate(atc):
