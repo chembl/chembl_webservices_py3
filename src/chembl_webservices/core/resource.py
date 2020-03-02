@@ -42,7 +42,7 @@ from chembl_webservices.core.utils import CHAR_FILTERS
 from chembl_webservices.core.utils import represents_int
 from chembl_webservices.core.utils import list_flatten
 from chembl_webservices.core.utils import unpack_request_params
-import elasticsearch
+from elasticsearch import Elasticsearch, RequestsHttpConnection
 import elasticsearch.helpers
 
 ES_CONNECTION = None
@@ -52,7 +52,8 @@ ES_CONNECTION = None
 def get_es_connection():
     global ES_CONNECTION
     if ES_CONNECTION is None:
-       ES_CONNECTION = elasticsearch.Elasticsearch(hosts=[settings.ELASTICSEARCH_CONNECTION_URL])
+       ES_CONNECTION = Elasticsearch(hosts=[settings.ELASTICSEARCH_CONNECTION_URL],
+                                     connection_class=RequestsHttpConnection)
     return ES_CONNECTION
 
 # ----------------------------------------------------------------------------------------------------------------------
