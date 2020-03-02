@@ -1,12 +1,15 @@
 __author__ = 'mnowotka'
 
+import requests
+import elasticsearch.helpers
+from django.conf import settings
 from tastypie import fields
 from tastypie.utils import trailing_slash
 from tastypie.resources import ALL, ALL_WITH_RELATIONS
 from tastypie.exceptions import BadRequest
 from django.conf.urls import url
 from chembl_webservices.core.utils import NUMBER_FILTERS, CHAR_FILTERS, FLAG_FILTERS
-from chembl_webservices.core.resource import ChemblModelResource
+from chembl_webservices.core.resource import ChemblModelResource, get_es_connection
 from chembl_webservices.core.serialization import ChEMBLApiSerializer
 from chembl_webservices.core.meta import ChemblResourceMeta
 from django.core.exceptions import ObjectDoesNotExist
@@ -515,7 +518,7 @@ _SMILES_.
         if 'molecule_structures' in data.data:
             mol_struts = data.data['molecule_structures']
             sdf_style = request.format != 'mol'
-            if sdf_style:
+            if mol_struts is not None and mol_struts.data is not None and sdf_style:
                 mol_struts.data['molfile'] += '> <chembl_id>\n{0}\n\n'.format(data.data.get('molecule_chembl_id'))
                 mol_struts.data['molfile'] += '> <chembl_pref_name>\n{0}\n\n'.format(data.data.get('pref_name'))
         if 'atc_classifications' in data.data:
@@ -523,6 +526,42 @@ _SMILES_.
             for idx, item in enumerate(atc):
                 atc[idx] = item.split('/')[-1]
         return data
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+    def elastic_search_flexmatch(self, smiles):
+        smiles_2_inchi_key_url = settings.BEAKER_URL + '/smiles2inchiKey'
+        inchikey_resp = requests.post(smiles_2_inchi_key_url, data=smiles)
+        if inchikey_resp.status_code != 200 or inchikey_resp.text.strip() == "":
+            raise ImmediateHttpResponse(
+                response=http.HttpBadRequest('ERROR: could not generate an inchi key for smiles.\n{}'.format(smiles))
+            )
+        connectivity_layer = inchikey_resp.text.split('-')[0]
+        idx_name = (settings.ELASTICSEARCH_INDEXES_PREFIX + '{0}').format('molecule')
+        try:
+            es_conn = get_es_connection()
+            es_query = \
+            {
+                "_source": False,
+                "query": {
+                    "query_string": {
+                        "query": "_metadata.hierarchy.family_inchi_connectivity_layer:{}".format(connectivity_layer)
+                    }
+                }
+            }
+            search_results = elasticsearch.helpers.scan(es_conn, query=es_query, index=idx_name, preserve_order=True,
+                                                        size=1000)
+
+            mol_chembl_ids = []
+            for result_i in search_results:
+                chembl_id = result_i['_id']
+                mol_chembl_ids.append(chembl_id)
+            return mol_chembl_ids
+        except:
+            self.log.error('Searching exception', exc_info=True, extra={'user_query': connectivity_layer, })
+            raise RuntimeError('Could not execute query on elasticsearch engine at {0}'
+                               .format(settings.ELASTICSEARCH_CONNECTION_URL))
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -543,8 +582,8 @@ _SMILES_.
                     except ObjectDoesNotExist:
                         raise ImmediateHttpResponse(response=http.HttpNotFound())
                 if not for_cache_key:
-                    pks = CompoundMols.objects.flexmatch(value).values_list('molecule__chembl_id', flat=True)
-                    ret["molecule_chembl_id__in"] = pks
+                    molecule_chembl_ids_flexmatch = self.elastic_search_flexmatch(value)
+                    ret["molecule_chembl_id__in"] = molecule_chembl_ids_flexmatch
                     continue
             ret[filter_expr] = value
         return ret
