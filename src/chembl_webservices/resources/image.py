@@ -220,6 +220,9 @@ You can specify optional parameters:
             if ignoreCoords:
                 img_url += '&computeCoords=1'
             img_request = requests.post(img_url, data=mol)
+            if img_request.status_code != 200:
+                self.answerBadRequest(request, 'ERROR: Beaker at "{0}" failed to produce an image for "{1}"'
+                                      .format(BEAKER_CTAB_TO_SVG_URL, mol))
             mol_img = img_request.content
             img_mime_type = "image/svg+xml"
         else:
