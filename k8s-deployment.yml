@@ -7,7 +7,7 @@ spec:
     matchLabels:
       app: chembl-webservices-py3-server
       tier: backend
-  replicas: 2
+  replicas: 6
   template:
     metadata:
       labels:
