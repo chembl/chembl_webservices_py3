@@ -59,15 +59,16 @@ class MoleculeSerializer(ChEMBLApiSerializer):
         no_struct_error_msg = 'Molecule has no structure records.'
         if isinstance(bundle_or_dict, dict):
             data_dict = bundle_or_dict
-            # if the dict include error_message data is an exception raised and should only return its text
             if 'error_message' in data_dict and data_dict['error_message'] == no_struct_error_msg:
                 return no_struct_error_msg
-            if 'page_meta' in data_dict and 'molecules' in data_dict:
+            if 'molecules' in data_dict:
                 ret_text = ''
                 for molecule_bundle in data_dict['molecules']:
-                    ret_text += self.to_sdf(molecule_bundle)+ '$$$$\n'
+                    ret_text += self.to_sdf(molecule_bundle)+ '\n\n$$$$\n'
                 return ret_text
             else:
+                import pprint
+                pprint.pprint(data_dict)
                 raise ValueError('Error, unexpected dictionary received with keys: {0}'.format(data_dict.keys()))
         elif isinstance(bundle_or_dict, Bundle):
             data_bundle = bundle_or_dict
