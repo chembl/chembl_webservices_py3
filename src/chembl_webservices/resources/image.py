@@ -174,7 +174,6 @@ You can specify optional parameters:
         filters.update({
             'molecule__chembl__entity_type':'COMPOUND',
             'molecule__compoundstructures__isnull': False,
-            'molecule__compoundproperties__isnull': False,
         })
 
         try:
