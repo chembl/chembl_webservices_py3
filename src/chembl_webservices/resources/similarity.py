@@ -77,6 +77,7 @@ class SimilarityResource(MoleculeResource):
                 raise BadRequest("Structure or identifier required.")
 
             similarity = kwargs.pop('similarity')
+            molfile = None
             if not smiles:
                 if chembl_id:
                     mol_filters = {'chembl_id': chembl_id}
@@ -84,7 +85,7 @@ class SimilarityResource(MoleculeResource):
                     mol_filters = {'compoundstructures__standard_inchi_key': std_inchi_key}
                 try:
                     objects = self.apply_filters(bundle.request, mol_filters).values_list(
-                        'compoundstructures__canonical_smiles', flat=True)
+                        'compoundstructures__molfile', flat=True)
                     stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in list(mol_filters.items())])
                     length = len(objects)
                     if length <= 0:
@@ -93,8 +94,8 @@ class SimilarityResource(MoleculeResource):
                     elif length > 1:
                         raise MultipleObjectsReturned("More than '%s' matched '%s'." % (self._meta.object_class.__name__,
                                                                                         stringified_kwargs))
-                    smiles = objects[0]
-                    if not smiles:
+                    molfile = objects[0]
+                    if not molfile:
                         raise ObjectDoesNotExist(
                             "No chemical structure defined for identifier {0}".format(chembl_id or std_inchi_key))
                 except TypeError as e:
@@ -105,11 +106,11 @@ class SimilarityResource(MoleculeResource):
                 except ValueError:
                     raise BadRequest("Invalid resource lookup data provided (mismatched type).")
 
-            if not isinstance(smiles, str):
+            if not molfile and not isinstance(smiles, str):
                 raise BadRequest("Similarity can only handle a single chemical structure identified by SMILES, "
                                  "InChiKey or ChEMBL ID.")
-
-            similar_molregnos = get_similar_molregnos(smiles, similarity/100.0)
+            sim_query_string = smiles or molfile
+            similar_molregnos = get_similar_molregnos(sim_query_string, similarity/100.0)
 
             # Use percentage to present similarity values
             similar_molregnos = [(molregno_i, sim_i.item()*100) for molregno_i, sim_i in similar_molregnos]
