@@ -936,7 +936,6 @@ class ChemblModelResource(ModelResource):
         if filters is None:
             filters = {}
         filters = self.preprocess_filters(filters, for_cache_key)
-
         qs_filters = {}
 
         for filter_expr, value in filters.items():
@@ -956,49 +955,50 @@ class ChemblModelResource(ModelResource):
                     else:
                         qs_filters[filter_expr] = [value]
                 continue
+            # do not validate django fields if for cache_key
+            if not for_cache_key:
+                current_resource = self
 
-            current_resource = self
+                resource_field_filter_bits = filter_expr.split(LOOKUP_SEP)
 
-            resource_field_filter_bits = filter_expr.split(LOOKUP_SEP)
+                invalid_path_error_msg = "The path '{}' is not valid in the filter expression '{}'."
 
-            invalid_path_error_msg = "The path '{}' is not valid in the filter expression '{}'."
+                for field_path_i in resource_field_filter_bits:
+                    # Checks that the current path is a valid path
+                    if field_path_i not in current_resource.fields:
+                        raise InvalidFilterError(invalid_path_error_msg.format(field_path_i, filter_expr))
+                    if len(resource_field_filter_bits) > 1 and field_path_i == resource_field_filter_bits[-2]:
+                        # check the last part of the filtering expression is an Django SQL filter,
+                        # and the current one is a field
+                        django_field_name = current_resource.fields[field_path_i].attribute
+                        try:
+                            # Django model get_field does not require the _set ending
+                            if django_field_name.endswith('_set'):
+                                django_field_name = django_field_name[:-4]
+                            field_name_parts = django_field_name.split(LOOKUP_SEP)
+                            # This fixes the validation for fields that belong in related models
+                            current_model = current_resource._meta.object_class
+                            for field_part_i in field_name_parts[:-1]:
+                                current_model = current_model._meta.get_field(field_part_i).related_model
+                            django_field = current_model._meta.get_field(field_name_parts[-1])
+                            if hasattr(django_field, 'field'):
+                                django_field = django_field.field
 
-            for field_path_i in resource_field_filter_bits:
-                # Checks that the current path is a valid path
-                if field_path_i not in current_resource.fields:
-                    raise InvalidFilterError(invalid_path_error_msg.format(field_path_i, filter_expr))
-                if len(resource_field_filter_bits) > 1 and field_path_i == resource_field_filter_bits[-2]:
-                    # check the last part of the filtering expression is an Django SQL filter,
-                    # and the current one is a field
-                    django_field_name = current_resource.fields[field_path_i].attribute
-                    try:
-                        # Django model get_field does not require the _set ending
-                        if django_field_name.endswith('_set'):
-                            django_field_name = django_field_name[:-4]
-                        field_name_parts = django_field_name.split(LOOKUP_SEP)
-                        # This fixes the validation for fields that belong in related models
-                        current_model = current_resource._meta.object_class
-                        for field_part_i in field_name_parts[:-1]:
-                            current_model = current_model._meta.get_field(field_part_i).related_model
-                        django_field = current_model._meta.get_field(field_name_parts[-1])
-                        if hasattr(django_field, 'field'):
-                            django_field = django_field.field
+                            # Obtains the possible query terms for this field
+                            query_terms = django_field.get_lookups().keys()
+                            # TODO: Hack fix to filter chembl_ids using char filters
+                            if field_path_i.endswith('chembl_id'):
+                                query_terms = list(query_terms) + CHAR_FILTERS
 
-                        # Obtains the possible query terms for this field
-                        query_terms = django_field.get_lookups().keys()
-                        # TODO: Hack fix to filter chembl_ids using char filters
-                        if field_path_i.endswith('chembl_id'):
-                            query_terms = list(query_terms) + CHAR_FILTERS
-
-                        # checks if the last bit is a filter available for the current field
-                        # and removes it from the filter bits
-                        if resource_field_filter_bits[-1] in query_terms:
-                            filter_type = filter_bits.pop()
-                            break
-                    except:
-                        raise InvalidFilterError("The '{}' field is not a valid field name".format(field_path_i))
-                if field_path_i != resource_field_filter_bits[-1]:
-                    current_resource = current_resource.fields[field_path_i].get_related_resource(None)
+                            # checks if the last bit is a filter available for the current field
+                            # and removes it from the filter bits
+                            if resource_field_filter_bits[-1] in query_terms:
+                                filter_type = filter_bits.pop()
+                                break
+                        except:
+                            raise InvalidFilterError("The '{}' field is not a valid field name".format(field_path_i))
+                    if field_path_i != resource_field_filter_bits[-1]:
+                        current_resource = current_resource.fields[field_path_i].get_related_resource(None)
 
             # do not validate filters if it is requested for cache key generation
             if not for_cache_key:
