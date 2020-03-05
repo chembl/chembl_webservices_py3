@@ -67,8 +67,6 @@ class MoleculeSerializer(ChEMBLApiSerializer):
                     ret_text += self.to_sdf(molecule_bundle)+ '\n\n$$$$\n'
                 return ret_text
             else:
-                import pprint
-                pprint.pprint(data_dict)
                 raise ValueError('Error, unexpected dictionary received with keys: {0}'.format(data_dict.keys()))
         elif isinstance(bundle_or_dict, Bundle):
             data_bundle = bundle_or_dict
