@@ -29,13 +29,15 @@ SUPPORTED_ENGINES = ['rdkit']
 BEAKER_CTAB_TO_SVG_URL = settings.BEAKER_URL + '/ctab2svg'
 
 
-def to_svg(*args, **kwargs):
+def fail_method(*args, **kwargs):
     raise NotImplementedError('Thi method should not be called, must be overridden.')
 
 fakeSerializer = ChEMBLApiSerializer('image')
-fakeSerializer.formats = fakeSerializer.formats + ['svg']
+fakeSerializer.formats = fakeSerializer.formats + ['svg', 'png']
 fakeSerializer.content_types['svg'] = 'image/svg+xml'
-fakeSerializer.to_svg = to_svg
+fakeSerializer.content_types['png'] = 'image/svg+xml'
+fakeSerializer.to_svg = fail_method
+fakeSerializer.to_png = fail_method
 super(ChEMBLApiSerializer, fakeSerializer).__init__()
 
 available_fields = [f.name for f in MoleculeDictionary._meta.fields]
@@ -87,8 +89,8 @@ You can specify optional parameters:
             url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])\.(?P<format>\w+)$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
             url(r"^(?P<resource_name>%s)/(?P<molecule__chembl_id>[Cc][Hh][Ee][Mm][Bb][Ll]\d[\d]*)$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
             url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-            url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])\.(?P<format>svg)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-            url(r"^(?P<resource_name>%s)/(?P<molecule__chembl_id>[Cc][Hh][Ee][Mm][Bb][Ll]\d[\d]*)\.(?P<format>svg)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            url(r"^(?P<resource_name>%s)/(?P<standard_inchi_key>[A-Z]{14}-[A-Z]{10}-[A-Z])\.(?P<format>svg|png)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            url(r"^(?P<resource_name>%s)/(?P<molecule__chembl_id>[Cc][Hh][Ee][Mm][Bb][Ll]\d[\d]*)\.(?P<format>svg|png)$" % MoleculeResource._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
         ]
 
 # ----------------------------------------------------------------------------------------------------------------------
