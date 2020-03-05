@@ -112,7 +112,7 @@ class DrugIndicationTestCase(BaseWebServiceTestCase):
 
     resource = 'drug_indication'
     id_property = 'drugind_id'
-    resource_expected_count = 55385
+    resource_expected_count = 37259
     sorting_test_props = ['mesh_heading', 'efo_term']
     mandatory_properties = [
       'drugind_id',
