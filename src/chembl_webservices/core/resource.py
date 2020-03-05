@@ -963,25 +963,33 @@ class ChemblModelResource(ModelResource):
                 # Django model get_field does not require the _set ending
                 if django_field_name.endswith('_set'):
                     django_field_name = django_field_name[:-4]
-                field_name_parts = django_field_name.split(LOOKUP_SEP)
-                # This fixes the validation for fields that belong in related models
-                current_model = self._meta.object_class
-                for field_part_i in field_name_parts[:-1]:
-                    current_model = current_model._meta.get_field(field_part_i).related_model
-                django_field = current_model._meta.get_field(field_name_parts[-1])
-                if hasattr(django_field, 'field'):
-                    django_field = django_field.field  # related field
+                field_name_parts = django_field_name.split(LOOKUP_SEP) + filter_bits
+                # if there is only 1 field_name_parts the implicit filter is exact
+                if len(field_name_parts) > 1:
+                    # This fixes the validation for fields that belong in related models
+                    current_model = self._meta.object_class
+                    for field_part_i in field_name_parts:
+                        current_field = current_model._meta.get_field(field_part_i)
+                        if field_part_i == field_name_parts[-2]:
+                            django_field = current_field
+                            if hasattr(current_field, 'field'):
+                                django_field = django_field.field  # related field
+                            query_terms = django_field.get_lookups().keys()
+                            # TODO: Hack fix to filter chembl_ids using char filters
+                            if field_name.endswith('chembl_id'):
+                                query_terms = list(query_terms) + CHAR_FILTERS
+
+                            if field_name_parts[-1] in query_terms:
+                                filter_type = filter_bits.pop()
+                                break
+                        elif field_part_i == field_name_parts[-1]:
+                            break
+
+                        current_model = current_field.related_model
+
             except FieldDoesNotExist:
                 raise InvalidFilterError("The '%s' field is not a valid field name" % field_name)
 
-            query_terms = django_field.get_lookups().keys()
-
-            # TODO: Hack fix to filter chembl_ids using char filters
-            if field_name.endswith('chembl_id'):
-                query_terms = list(query_terms) + CHAR_FILTERS
-
-            if len(filter_bits) and filter_bits[-1] in query_terms:
-                filter_type = filter_bits.pop()
 
             # do not validate filters if it is requested for cache key generation
             if not for_cache_key:
