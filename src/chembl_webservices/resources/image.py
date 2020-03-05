@@ -30,12 +30,12 @@ BEAKER_CTAB_TO_SVG_URL = settings.BEAKER_URL + '/ctab2svg'
 
 
 def fail_method(*args, **kwargs):
-    raise NotImplementedError('Thi method should not be called, must be overridden.')
+    raise NotImplementedError('This method should not be called, must be overridden.')
 
 fakeSerializer = ChEMBLApiSerializer('image')
 fakeSerializer.formats = fakeSerializer.formats + ['svg', 'png']
 fakeSerializer.content_types['svg'] = 'image/svg+xml'
-fakeSerializer.content_types['png'] = 'image/svg+xml'
+fakeSerializer.content_types['png'] = 'image/png'
 fakeSerializer.to_svg = fail_method
 fakeSerializer.to_png = fail_method
 super(ChEMBLApiSerializer, fakeSerializer).__init__()
