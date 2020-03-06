@@ -196,7 +196,7 @@ class CompoundStructuralAlertsResource(ChemblModelResource):
 
         if engine == 'rdkit' and req_format == 'svg':
             img_url = BEAKER_HIGHLIGHT_SVG_URL
-            img_url += '?size={0}'.format(size)
+            img_url += '?size={0}&force=1'.format(size)
             if ignoreCoords:
                 img_url += '&computeCoords=1'
 
