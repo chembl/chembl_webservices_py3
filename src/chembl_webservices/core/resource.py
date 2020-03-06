@@ -96,6 +96,8 @@ class ChemblModelResource(ModelResource):
 
     def answerBadRequest(self, request, error):
         response_class = http.HttpBadRequest
+        if request.format not in ['xml', 'json']:
+            request.format = 'xml'
         data = {'exception': error}
         if request:
             desired_format = self.determine_format(request)
