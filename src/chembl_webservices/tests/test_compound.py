@@ -298,3 +298,15 @@ class CompoundTestCase(BaseWebServiceTestCase):
             'molecule_chembl_id__in': ','.join(molecule_ids)
         })
         self.assertGreater(act_list_req['page_meta']['total_count'], 0)
+
+    def test_chembl_id_filtering(self):
+        self.assertGreaterEqual(
+            self.get_current_resource_list({'molecule_chembl_id__icontains': '25'})
+            ['page_meta']['total_count'], 90000
+        )
+
+    def test_nested_property_filtering(self):
+        self.assertGreaterEqual(
+            self.get_current_resource_list({'molecule_synonyms__molecule_synonym__icontains': 'bayer'})
+            ['page_meta']['total_count'], 15
+        )
