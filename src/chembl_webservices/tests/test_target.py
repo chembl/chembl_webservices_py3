@@ -28,6 +28,13 @@ class TargetTestCase(BaseWebServiceTestCase):
             ['page_meta']['total_count'], 10000
         )
 
+    def test_nested_property_filtering(self):
+        # target_synonym is resolved to a nested property inside the target components
+        self.assertGreaterEqual(
+            self.get_current_resource_list({'target_synonym__iexact': 'CDKN5'})
+            ['page_meta']['total_count'], 6
+        )
+
 
 #
 #
