@@ -2,8 +2,10 @@
 from chembl_webservices.tests import BaseWebServiceTestCase
 
 
-class SearchTestCase(BaseWebServiceTestCase):
-    pass
+class BaseSearchTestCase(BaseWebServiceTestCase):
+
+    def test_search_endpoint(self, query):
+        pass
 #
 #
 #
