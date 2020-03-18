@@ -6,6 +6,11 @@ class BaseSearchTestCase(BaseWebServiceTestCase):
 
     def test_search_endpoint(self, query):
         pass
+
+
+class MoleculeSearchTestCase(BaseSearchTestCase):
+
+    pass
 #
 #
 #
