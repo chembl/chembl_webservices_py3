@@ -11,6 +11,11 @@ class BaseSearchTestCase(BaseWebServiceTestCase):
 class MoleculeSearchTestCase(BaseSearchTestCase):
 
     pass
+
+
+class TargetSearchTestCase(BaseSearchTestCase):
+
+    pass
 #
 #
 #
