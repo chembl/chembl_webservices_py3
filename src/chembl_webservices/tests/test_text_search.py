@@ -16,6 +16,11 @@ class MoleculeSearchTestCase(BaseSearchTestCase):
 class TargetSearchTestCase(BaseSearchTestCase):
 
     pass
+
+
+class AssaySearchTestCase(BaseSearchTestCase):
+
+    pass
 #
 #
 #
