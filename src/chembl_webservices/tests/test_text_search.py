@@ -8,6 +8,11 @@ class BaseSearchTestCase(BaseWebServiceTestCase):
         pass
 
 
+class DocumentSearchTestCase(BaseSearchTestCase):
+
+    pass
+
+
 class MoleculeSearchTestCase(BaseSearchTestCase):
 
     pass
