@@ -21,6 +21,10 @@ class TargetSearchTestCase(BaseSearchTestCase):
 class AssaySearchTestCase(BaseSearchTestCase):
 
     pass
+
+class ActivitySearchTestCase(BaseSearchTestCase):
+
+    pass
 #
 #
 #
