@@ -8,6 +8,21 @@ class BaseSearchTestCase(BaseWebServiceTestCase):
         pass
 
 
+class ActivitySearchTestCase(BaseSearchTestCase):
+
+    pass
+
+
+class AssaySearchTestCase(BaseSearchTestCase):
+
+    pass
+
+
+class ChemblIdLookupSearchTestCase(BaseSearchTestCase):
+
+    pass
+
+
 class DocumentSearchTestCase(BaseSearchTestCase):
 
     pass
@@ -18,18 +33,16 @@ class MoleculeSearchTestCase(BaseSearchTestCase):
     pass
 
 
+class ProteinClassSearchTestCase(BaseSearchTestCase):
+
+    pass
+
+
 class TargetSearchTestCase(BaseSearchTestCase):
 
     pass
 
 
-class AssaySearchTestCase(BaseSearchTestCase):
-
-    pass
-
-class ActivitySearchTestCase(BaseSearchTestCase):
-
-    pass
 #
 #
 #
