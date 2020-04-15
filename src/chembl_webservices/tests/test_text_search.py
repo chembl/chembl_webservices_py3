@@ -7,6 +7,9 @@ class BaseSearchTestCase(BaseWebServiceTestCase):
     def test_search_endpoint(self, query):
         pass
 
+    def test_max_limit(self):
+        pass
+
 
 class ActivitySearchTestCase(BaseSearchTestCase):
 
