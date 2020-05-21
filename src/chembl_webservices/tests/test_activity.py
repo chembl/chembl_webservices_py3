@@ -6,7 +6,7 @@ class ActivityTestCase(BaseWebServiceTestCase):
 
     resource = 'activity'
     id_property = 'activity_id'
-    resource_expected_count = 15996368
+    resource_expected_count = 16066124
     mandatory_properties = [
         'activity_comment',
         'activity_id',
@@ -63,10 +63,10 @@ class ActivityTestCase(BaseWebServiceTestCase):
         self.assay_type_filter_test_helper('A', 849651)
 
     def test_assay_type_B(self):
-        self.assay_type_filter_test_helper('B', 3351342)
+        self.assay_type_filter_test_helper('B', 3351396)
 
     def test_assay_type_F(self):
-        self.assay_type_filter_test_helper('F', 11020469)
+        self.assay_type_filter_test_helper('F', 11089651)
 
     def test_assay_type_U(self):
         self.assay_type_filter_test_helper('U', 15377)

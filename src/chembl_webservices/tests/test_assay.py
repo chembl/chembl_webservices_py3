@@ -5,7 +5,7 @@ class AssayTestCase(BaseWebServiceTestCase):
 
     resource = 'assay'
     id_property = 'assay_chembl_id'
-    resource_expected_count = 1221311
+    resource_expected_count = 1221361
     sorting_test_props = ['assay_organism', 'assay_category', 'assay_strain']
     mandatory_properties = [
         'assay_category',

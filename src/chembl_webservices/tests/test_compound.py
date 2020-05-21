@@ -7,7 +7,7 @@ class CompoundTestCase(BaseWebServiceTestCase):
 
     resource = 'molecule'
     id_property = 'molecule_chembl_id'
-    resource_expected_count = 1950765
+    resource_expected_count = 1961462
     sorting_test_props = ['pref_name']
     mandatory_properties = [
         'atc_classifications',

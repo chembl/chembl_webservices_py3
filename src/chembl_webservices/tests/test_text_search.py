@@ -4,8 +4,8 @@ from chembl_webservices.tests import BaseWebServiceTestCase
 
 class BaseSearchTestCase(BaseWebServiceTestCase):
 
-    def test_search_endpoint(self, query):
-        pass
+    # def test_search_endpoint(self, query):
+    #     pass
 
     def test_max_limit(self):
         pass

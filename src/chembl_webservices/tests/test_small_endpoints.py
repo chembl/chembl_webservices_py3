@@ -5,7 +5,7 @@ class BindingSiteTestCase(BaseWebServiceTestCase):
 
     resource = 'binding_site'
     id_property = 'site_id'
-    resource_expected_count = 11089
+    resource_expected_count = 14342
     sorting_test_props = ['site_name']
     mandatory_properties = [
         'site_name',
@@ -81,7 +81,7 @@ class TargetRelationsTestCase(BaseWebServiceTestCase):
 
     resource = 'target_relation'
     id_property = 'target_chembl_id'
-    resource_expected_count = 9578
+    resource_expected_count = 9610
     sorting_test_props = []
     mandatory_properties = [
         'target_chembl_id',
@@ -94,7 +94,7 @@ class CellLineTestCase(BaseWebServiceTestCase):
 
     resource = 'cell_line'
     id_property = 'cell_chembl_id'
-    resource_expected_count = 1830
+    resource_expected_count = 1831
     sorting_test_props = ['cell_source_tissue', 'cell_source_organism']
     mandatory_properties = [
       'cell_chembl_id',
@@ -129,7 +129,7 @@ class DocumentSimilarityTestCase(BaseWebServiceTestCase):
 
     resource = 'document_similarity'
     id_property = 'document_1_chembl_id'
-    resource_expected_count = 756389
+    resource_expected_count = 566597
     sorting_test_props = ['tid_tani', 'mol_tani']
     mandatory_properties = [
       'document_1_chembl_id',
@@ -143,7 +143,7 @@ class CompoundStructuralAlertTestCase(BaseWebServiceTestCase):
 
     resource = 'compound_structural_alert'
     id_property = 'cpd_str_alert_id'
-    resource_expected_count = 3690638
+    resource_expected_count = 3691907
     sorting_test_props = ['alert__alertset__priority']
     mandatory_properties = [
       'alert',
@@ -156,7 +156,7 @@ class OrganismTestCase(BaseWebServiceTestCase):
 
     resource = 'organism'
     id_property = 'oc_id'
-    resource_expected_count = 3959
+    resource_expected_count = 3961
     sorting_test_props = ['l1', 'l2', 'l3']
     mandatory_properties = [
       'l1',
@@ -170,7 +170,7 @@ class MoleculeFormTestCase(BaseWebServiceTestCase):
 
     resource = 'molecule_form'
     id_property = 'molecule_chembl_id'
-    resource_expected_count = 1865157
+    resource_expected_count = 1875859
     mandatory_properties = [
       'is_parent',
       'molecule_chembl_id',
@@ -181,7 +181,7 @@ class SourceTestCase(BaseWebServiceTestCase):
 
     resource = 'source'
     id_property = 'src_id'
-    resource_expected_count = 47
+    resource_expected_count = 48
     mandatory_properties = [
       'src_description',
       'src_id',
@@ -192,7 +192,7 @@ class TargetComponentTestCase(BaseWebServiceTestCase):
 
     resource = 'target_component'
     id_property = 'component_id'
-    resource_expected_count = 9756
+    resource_expected_count = 9758
     mandatory_properties = [
       'accession',
       'component_id',
@@ -215,7 +215,7 @@ class ChemblIdLookUpTestCase(BaseWebServiceTestCase):
 
     resource = 'chembl_id_lookup'
     id_property = 'chembl_id'
-    resource_expected_count = 3687036
+    resource_expected_count = 3687712
     mandatory_properties = [
       'chembl_id',
       'entity_type',

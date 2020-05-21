@@ -5,7 +5,7 @@ class CompoundRecordTestCase(BaseWebServiceTestCase):
 
     resource = 'compound_record'
     id_property = 'record_id'
-    resource_expected_count = 2425876
+    resource_expected_count = 2444828
     sorting_test_props = ['compound_name']
     mandatory_properties = [
       'compound_key',

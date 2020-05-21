@@ -5,7 +5,7 @@ class TargetTestCase(BaseWebServiceTestCase):
 
     resource = 'target'
     id_property = 'target_chembl_id'
-    resource_expected_count = 13377
+    resource_expected_count = 13382
     sorting_test_props = ['pref_name']
 
     def test_target_by_id(self):
