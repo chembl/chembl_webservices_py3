@@ -543,10 +543,11 @@ _SMILES_.
             es_conn = get_es_connection()
             es_query = \
             {
-                "_source": False,
-                "query": {
-                    "query_string": {
-                        "query": "_metadata.hierarchy.family_inchi_connectivity_layer:{}".format(connectivity_layer)
+                'track_total_hits': True,
+                '_source': False,
+                'query': {
+                    'query_string': {
+                        'query': '_metadata.hierarchy.family_inchi_connectivity_layer:{}'.format(connectivity_layer)
                     }
                 }
             }

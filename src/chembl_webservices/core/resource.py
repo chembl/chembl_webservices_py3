@@ -546,26 +546,28 @@ class ChemblModelResource(ModelResource):
 
             base_query = \
             {
-                "_source": False,
-                "query": {
-                    "multi_match": {
-                        "query": user_query,
-                        "fields": [
-                            "*.std_analyzed^1.6",
-                            "*.eng_analyzed^0.8",
-                            "*.ws_analyzed^1.4",
-                            "*.keyword^2",
-                            "*.lower_case_keyword^1.5",
-                            "*.alphanumeric_lowercase_keyword^1.3",
-                            "*.entity_id^2",
-                            "*.chembl_id^2",
+                'track_total_hits': True,
+                '_source': False,
+                'query': {
+                    'multi_match': {
+                        'query': user_query,
+                        'fields': [
+                            '*.std_analyzed^1.6',
+                            '*.eng_analyzed^0.8',
+                            '*.ws_analyzed^1.4',
+                            '*.keyword^2',
+                            '*.lower_case_keyword^1.5',
+                            '*.alphanumeric_lowercase_keyword^1.3',
+                            '*.entity_id^2',
+                            '*.chembl_id^2',
                         ]
                      }
                 }
             }
 
-            search_results = elasticsearch.helpers.scan(es_conn, query=base_query, index=idx_name, preserve_order=True,
-                                                        size=1000)
+            search_results = elasticsearch.helpers.scan(
+                es_conn, query=base_query, index=idx_name, preserve_order=True, size=1000
+            )
             result_dict = OrderedDict()
             i = 0
             for result_i in search_results:
