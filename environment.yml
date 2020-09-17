@@ -1,6 +1,5 @@
 name: chembl-webservices-py3
 channels:
-  - efelix
   - conda-forge
   - defaults
 dependencies:
@@ -10,12 +9,11 @@ dependencies:
   - rdkit=2019.03.2
   - django=2.2.0
   - python=3.7.3
-  - fpsim2=0.1.5
+  - fpsim2=0.2.7
   - pip:
     - defusedxml==0.6.0
     - django-compressor==2.3
     - django-cors-headers==3.2.1
-    - django-filters==0.2.1
     - django-tastypie==0.14.2
     - elasticsearch>=7.0.0,<8.0.0
     - lxml==4.4.2
