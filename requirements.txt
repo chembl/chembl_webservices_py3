@@ -3,7 +3,7 @@ django-compressor
 django-cors-headers
 django-filter
 django-tastypie
-django==2.2
+django==2.2.13
 elasticsearch>=7.0.0,<8.0.0
 lxml
 numpy
