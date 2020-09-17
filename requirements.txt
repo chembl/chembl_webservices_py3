@@ -1,7 +1,7 @@
 defusedxml==0.6.0
 django-compressor
 django-cors-headers
-django-filters
+django-filter
 django-tastypie
 django==2.2
 elasticsearch>=7.0.0,<8.0.0
@@ -14,7 +14,6 @@ python-mimeparse==0.1.4
 pytz
 PyYAML
 raven
-rdkit
 requests
 simplejson
 unittest-parallel
