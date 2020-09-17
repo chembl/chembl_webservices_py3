@@ -176,6 +176,7 @@ class VariantSequences(six.with_metaclass(ChemblModelMetaClass, ChemblCoreAbstra
     isoform = ChemblPositiveIntegerField(length=9, blank=True, null=True, choices=ISOFORM_CHOICES, help_text='Details of the UniProt isoform used as the base sequence where relevant.')
     sequence = ChemblTextField(blank=True, null=True, help_text='Variant sequence formed by adjusting the UniProt base sequence with the specified mutations/variations.')
     organism = models.CharField(max_length=200, blank=True, null=True, help_text='Organism from which the sequence was obtained.')
+    tax_id = ChemblPositiveIntegerField(length=11, blank=True, null=True, help_text='NCBI tax ID for the assay organism.')
 
     class Meta(ChemblCoreAbstractModel.Meta):
         # unique_together = (("mutation", "accession"),)
