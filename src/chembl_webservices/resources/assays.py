@@ -23,10 +23,32 @@ from chembl_core_model.models import RelationshipType
 from chembl_core_model.models import Source
 from chembl_core_model.models import TargetDictionary
 from chembl_core_model.models import TissueDictionary
+from chembl_core_model.models import VariantSequences
 
 
 from chembl_webservices.core.fields import monkeypatch_tastypie_field
 monkeypatch_tastypie_field()
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+class VariantSequenceResource(ChemblModelResource):
+
+    class Meta(ChemblResourceMeta):
+        queryset = VariantSequences.objects.all()
+        excludes = ['variant_id']
+        resource_name = 'variant_sequence'
+
+        filtering = {
+            'variant_id': ALL,
+            'mutation': ALL,
+            'accession': ALL,
+            'version': ALL,
+            'isoform': ALL,
+            'sequence': ALL,
+            'organism': ALL,
+            'tax_id': ALL,
+        }
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -118,6 +140,8 @@ class AssayResource(ChemblModelResource):
     score = fields.FloatField('score', use_in='search', null=True, blank=True)
     assay_classifications = fields.ToManyField('chembl_webservices.resources.assays.AssayClassResource', 'assayclassification_set', full=True, null=True, blank=True)
     assay_parameters = fields.ToManyField('chembl_webservices.resources.assays.AssayParametersResource', 'assayparameters_set', full=True, null=True, blank=True)
+    variant_sequence = fields.ForeignKey('chembl_webservices.resources.assays.VariantSequenceResource',
+                                           'variant', full=True, null=True, blank=True)
 
     class Meta(ChemblResourceMeta):
         queryset = Assays.objects.all()
@@ -138,6 +162,7 @@ class AssayResource(ChemblModelResource):
                             Prefetch('bao_format', queryset=BioassayOntology.objects.only('bao_id', 'label')),
                             Prefetch('assayclassification_set'),
                             Prefetch('assayparameters_set'),
+                            Prefetch('variant'),
                             ]
 
         fields = (
@@ -164,6 +189,7 @@ class AssayResource(ChemblModelResource):
             'src_assay_id',
             'src_id',
             'target_chembl_id',
+            'variant_sequence',
         )
 
         filtering = {
@@ -191,6 +217,7 @@ class AssayResource(ChemblModelResource):
             'src_assay_id': NUMBER_FILTERS,
             'src_id': NUMBER_FILTERS,
             'target_chembl_id': ALL,
+            'variant_sequence': ALL_WITH_RELATIONS
         }
         ordering = [field for field in list(filtering.keys()) if not ('comment' in field or 'description' in field)]
 
