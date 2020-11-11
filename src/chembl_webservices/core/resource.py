@@ -347,7 +347,7 @@ class ChemblModelResource(ModelResource):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def _handle_database_error(self, error, request, kwargs):
-        msg = str(error.message)
+        msg = str(error)
         if 'MDL-1622' in msg:
             raise BadRequest("Input string %s is not a valid SMILES string" % kwargs.get('smiles'))
         if 'MDL-2063' in msg:
